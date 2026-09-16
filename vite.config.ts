@@ -5,6 +5,8 @@ import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
+	worker: { format: 'es' },
+	optimizeDeps: { include: ['@jax-js/jax', '@jax-js/optax'] },
 	plugins: [
 		tailwindcss(),
 		sveltekit({

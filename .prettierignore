@@ -7,3 +7,12 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Generated Cloudflare runtime definitions
+worker-configuration.d.ts
+
+# Installed instruction and template bundles are not application source
+.agents/
+
+# Skill installer lockfile
+skills-lock.json

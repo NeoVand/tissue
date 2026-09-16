@@ -1,42 +1,64 @@
-# sv
+# Tissue
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A browser laboratory for discovering useful spatial descriptions of small language models. Real training, measured geometry, interventions, and a persistent research journal share one interface.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Run
 
 ```sh
-# create a new project
-npx sv create my-app
+pnpm install
+pnpm dev
 ```
 
-To recreate this project with the same configuration:
+Open the local URL. WebGPU is preferred; initialization validates numerical readback and can fall back to WASM. The first compilation takes a few seconds. **Explore that specimen** loads a measured, trained reference without a training wait. The source model runs entirely in your browser.
+
+## What is here
+
+- A 25,920-parameter causal transformer: two layers, width 32, four heads, 256 MLP neurons.
+- A controlled next-token task: `a=3;b=7;c=2;?b → 7`. Answer-only cross-entropy. Whole assignment mappings are disjoint across training, calibration, and evaluation.
+- Activation and exact zero-ablation fingerprints, deterministic 3D PCA, temporal Procrustes alignment, original-space neighbor links, and projection-quality measurements.
+- Token inspection, selected-neuron interventions, development checkpoints, and four-arm constrained repair pilots.
+- IndexedDB experiment history; JSON export/import includes model, Adam state, RNG, metrics, snapshots, notes, latest raw fingerprints, and repair receipts. Reload resumes the active specimen.
+- A curated research notebook that records findings and limitations alongside measured reference runs.
+
+The visualization does not impose a spatial training objective or a brain-shaped layout. Size encodes compressed activation (or intervention strength); color identifies the layer; links mean fingerprint similarity, not causal connections. Projection does lose information—inspect neighbor retention before interpreting a cluster.
+
+## Evidence, including the unhelpful result
+
+Seed 42 was near the 33.3% random input-copy baseline at 500 steps and reached 97.9% on 96 fixed held-out prompts at 2,000 steps. Seed 7 independently exhibited a similar late transition. These are two small-model runs, not a general training guarantee.
+
+The first four-arm repair pilot **did not favor functional neighborhoods**. The lesion caused little damage, and unlesioned fine-tuning controls were absent. The next experiments are recorded in the lab, not hidden behind the attractive geometry.
+
+Measured artifacts and provenance live in [`static/experiments`](static/experiments/README.md). The method is described in [`docs/methods.md`](docs/methods.md).
+
+## Feedback loops
 
 ```sh
-# recreate this project
-pnpm dlx sv@0.17.0 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" playwright tailwindcss="plugins:none" sveltekit-adapter="adapter:cloudflare+cfTarget:pages" ai-tools="ide:claude-code,other+delivery:plugin" --install pnpm .
+pnpm check                         # TypeScript, Svelte, and generated runtime types
+pnpm exec vitest run --project server # numerical, data, and record contracts
+pnpm lint                          # application formatting and lint
+pnpm build                         # production worker and app build
+pnpm test:e2e                      # production browser flows; install Chromium first if needed
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+The slower research reproduction is separate from routine checks:
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Keep pnpm dev running in another terminal.
+pnpm research:verify --output /tmp/tissue-study --seed 42 --checkpoints 500,2000
 ```
 
-## Building
+It saves every requested stage before assessing the final learning threshold, including unsuccessful runs. Results contain source hashes, numerical backend, complete checkpoints, calibration measurements, and evaluation metrics. `--seed 7`, `--backend wasm`, and `--skip-repair` support controlled comparisons.
 
-To create a production version of your app:
+The first browser run exposed silently incorrect synchronous WebGPU readbacks. Production uses asynchronous readback with known-answer arithmetic and probability-mass checks. Other numerical contracts check capture parity, actual ablation, exact continuation, frozen repair weights, PCA behavior, and corrupt-record rejection.
 
-```sh
-npm run build
-```
+## Where to work
 
-You can preview the production build with `npm run preview`.
+- `src/lib/lab/model/`: task, JaxJS transformer, optimizer, training, interventions, repair.
+- `src/lib/lab/protocol.ts`: versioned worker and model data contracts.
+- `src/lib/lab/geometry.ts`: measurable fingerprint geometry and diagnostics.
+- `src/lib/lab/geometry-worker.ts`: analysis off the UI thread.
+- `src/lib/lab/journal.ts`: validated durable experiment records.
+- `src/lib/lab/notebook.ts`: the research narrative, including negative findings.
+- `src/lib/scene/neural-field.ts`: Three.js view of measured coordinates.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The original Jaxverse and Pattern projects supplied the browser-training patterns; the JaxJS skill supplied verified array ownership and optimizer conventions. New experiments should preserve these contracts and add evidence to the lab.

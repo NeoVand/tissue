@@ -1,0 +1,2 @@
+# Preserve Wrangler's generated output exactly for `wrangler types --check`.
+worker-configuration.d.ts linguist-generated -whitespace

@@ -1,7 +1,7 @@
 {
 	"name": "tissue",
 	"private": true,
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -13,8 +13,9 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:e2e": "playwright install && playwright test",
+		"test": "pnpm test:unit --run && pnpm test:e2e",
+		"test:e2e": "playwright test",
+		"research:verify": "node scripts/verify-model.mjs",
 		"gen": "wrangler types"
 	},
 	"devDependencies": {
@@ -25,6 +26,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.1.2",
 		"@tailwindcss/vite": "^4.3.0",
 		"@types/node": "^24",
+		"@types/three": "^0.186.0",
 		"@vitest/browser-playwright": "^4.1.8",
 		"eslint": "^10.4.1",
 		"eslint-config-prettier": "^10.1.8",
@@ -43,5 +45,10 @@
 		"vitest": "^4.1.8",
 		"vitest-browser-svelte": "^2.1.1",
 		"wrangler": "^4.97.0"
+	},
+	"dependencies": {
+		"@jax-js/jax": "0.1.24",
+		"@jax-js/optax": "0.1.2",
+		"three": "^0.186.0"
 	}
 }

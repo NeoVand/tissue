@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "runId": "tissue-reference-binding-seed-7-v1",
+  "modelConfig": {
+    "layers": 2,
+    "width": 32,
+    "heads": 4,
+    "hidden": 128,
+    "sequenceLength": 14,
+    "vocabulary": [
+      "a",
+      "b",
+      "c",
+      "=",
+      ";",
+      "?",
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    "batchSize": 32,
+    "learningRate": 0.002
+  },
+  "inputSha256": {
+    "provenance.json": "66a1dc6ee0e24750fd9a8e2d28ecef3b6583787fd8a3ded40696c6a90c119278",
+    "summary.json": "abd018f1900369c983079cf44570570a83ad82c65958fe54429a7ba69642b5a7",
+    "seed-7-step-500.json": "d1423fa2b78e2fd61c702249e421875fb6ee725e776725d65cf189c2f9f52c06",
+    "seed-7-step-1500.json": "83b4e32fb9c7b22aebc982801f06db8d418385a4819d43d2ae530f1c9fa835c8",
+    "seed-7-step-2000.json": "f19d92db49275723594f625a8373813e9830586701c528f78ebdc052524c9ad7"
+  },
+  "outputSha256": "9b451cb6b56ea936ef18591c0474b01f8b14daea5cc88a8a2b9707ec07d165ca",
+  "snapshots": [
+    500,
+    1500,
+    2000
+  ],
+  "note": "Projection recomputed from raw captures; no training or intermediate anatomy synthesized. Original capture/provenance/summary files are preserved byte for byte."
+}

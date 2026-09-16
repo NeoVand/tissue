@@ -1,0 +1,43 @@
+{
+  "provenance": {
+    "recordedAt": "2026-09-16T23:37:19.065Z",
+    "seed": 7,
+    "requestedBackend": "auto",
+    "commit": "b9efa7ec990606d59fc2e31ed21fc769dcc5a0c4",
+    "workingTreeDirty": true,
+    "sourceHashes": {
+      "src/lib/lab/protocol.ts": "09ea7861bdcefa78e27f077741fc807ac59951b118a0ddc14f904ca4a708c2ce",
+      "src/lib/lab/model/dataset.ts": "c14a74babcd7df2f0a5b2b1b78d0f282d9079f9f1d46a7be5f998af2d41b22ab",
+      "src/lib/lab/model/transformer.ts": "9d437b4ccc04b1f84998fc601cf178f786660f4b5bd23b86e80d15c5b80d1821",
+      "src/lib/lab/model/runtime.ts": "b7142ecdc62ac4fb47927a0c107ce7af657a95b31e439e55c40d29880e241284",
+      "src/lib/lab/model/adam.ts": "34c5144709873083ddb89200fe987f3906bfb1aff5d1a5c0071807f65095e70b",
+      "src/lib/lab/model/repair.ts": "08917593fd8997f44809c57e69d74dd01c8d9dc4bcaebd90205af1d839488130",
+      "src/lib/lab/engine.ts": "b3c588677b28a85647e88828897141c6281e1c579b750ec74200ed4d7ad33db7",
+      "pnpm-lock.yaml": "4caec7d2cd7e6924f2b60c7465df3f17928dc30f7aa594be46c933e30a187818",
+      "scripts/verify-model.mjs": "22696f6bf4646565b92825aa6d601365a289c9fa11e9a8d390025152bf4a5293"
+    },
+    "minimumAccuracy": 0.8,
+    "checkpoints": [
+      500,
+      1500,
+      2000
+    ],
+    "objective": "Answer-only next-token cross entropy over14tokens; three distinct key-value assignments;256MLP neurons.",
+    "baselines": {
+      "uniformAnswerAccuracy": 0.125,
+      "randomInputCopyAccuracy": 0.3333333333333333
+    },
+    "split": "Whole binding mappings236train/50calibration/50test, all queries and presentation orders kept together.16calibration and96fixed balanced test sequences."
+  },
+  "finalMetrics": {
+    "step": 2000,
+    "trainLoss": 0.040204424411058426,
+    "validationLoss": 0.02133001957410367,
+    "accuracy": 1,
+    "elapsedMs": 110732.29999995232,
+    "backend": "webgpu",
+    "validationExamples": 96,
+    "chanceAccuracy": 0.125
+  },
+  "passedLearningThreshold": true
+}
