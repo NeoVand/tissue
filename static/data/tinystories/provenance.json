@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "id": "tinystories-ascii-v1:67fb35357ec45562152b012c60d4a2d1aec5a95ad9d9a4fc6d534bc97fb4c6db",
+  "preparedAt": "2026-09-17T01:22:26.582Z",
+  "source": "https://huggingface.co/datasets/roneneldan/TinyStories",
+  "authors": "Ronen Eldan and Yuanzhi Li",
+  "license": "CDLA-Sharing-1.0",
+  "licenseUrl": "https://cdla.dev/sharing-1-0/",
+  "preparation": "Copied byte-for-byte from the bounded TinyStories subset prepared by Pattern. Original punctuation was normalized to printable ASCII; this is character-level language modeling.",
+  "sourcePreparationDate": "2026-09-11",
+  "files": {
+    "corpus.json": {
+      "bytes": 3136,
+      "sha256": "9bfeb964b2105e04fed8f8385c39cbd056d20692642ee54eac2272df94c1d049"
+    },
+    "tokens.bin": {
+      "bytes": 1903937,
+      "sha256": "67fb35357ec45562152b012c60d4a2d1aec5a95ad9d9a4fc6d534bc97fb4c6db"
+    },
+    "LICENSE.html": {
+      "bytes": 150544,
+      "sha256": "f292c29e0237e4b5f26601593941a5c7f5bea859720b36af8c4fbd20c896cbb5"
+    }
+  },
+  "split": {
+    "training": "Original training subset only; 2,097 original stories, 1,773,785 characters. Windows may cross training story boundaries.",
+    "calibration": "First 32 complete stories of the original validation subset; only these stories define probe geometry.",
+    "evaluation": "Remaining 152 complete validation stories; fixed evaluation windows never enter training or the geometry.",
+    "trainingBlankLineSegments": 2100,
+    "note": "Three original training stories contain internal blank lines, so blank-line segments are not the original training-story count.",
+    "exactHeldOutDuplicatesInTraining": 0,
+    "validationStoriesUnique": true
+  },
+  "limitations": "This is a bounded character-level subset with 128-character context, not the full TinyStories benchmark or a pretrained general-purpose language model."
+}
