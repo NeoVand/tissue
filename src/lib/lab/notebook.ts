@@ -11,6 +11,24 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '009',
+		date: '2026-09-16',
+		kind: 'decision',
+		title: 'Give every point an address in the model.',
+		text: 'The first interface gave the map more prominence than its connection to computation. The workbench now links each MLP point to its layer, channel, incoming column, outgoing row, and token activation trace. An architectural layout provides a second view of those same units.',
+		lesson:
+			'Dark and light themes, dense linked instruments, and shader interpolation improve inspection. Interpolated display frames are not new measurements; similarity links are not computational edges.'
+	},
+	{
+		id: '010',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'Much of the activation map separates layers.',
+		text: 'At step 2,000, 95.0% and 89.5% of directed six-neighbor selections in activation space stay within a layer for seeds 42 and 7. The corresponding effect-space shares are about 69%. Activation and effect neighborhoods overlap by 18.5% and 20.1%, above an independent-uniform baseline of about 2.35%.',
+		lesson:
+			'Layer membership is a strong confound. The two maps describe different but related organizations; neither establishes semantic specialization or repair value. The next comparison must include within-layer structure and matched controls. The Findings panel and saved comparison report expose the measurements and null assumptions.'
+	},
+	{
 		id: '008',
 		date: '2026-09-16',
 		kind: 'decision',

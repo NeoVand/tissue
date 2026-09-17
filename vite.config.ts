@@ -6,6 +6,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	worker: { format: 'es' },
+	ssr: { noExternal: ['@hugeicons/svelte'] },
 	optimizeDeps: { include: ['@jax-js/jax', '@jax-js/optax'] },
 	plugins: [
 		tailwindcss(),

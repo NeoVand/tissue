@@ -5,6 +5,7 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	const errors: string[] = [];
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto('/');
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 	await expect(page.getByRole('button', { name: 'Explore that specimen' })).toBeEnabled({
 		timeout: 90000
 	});
@@ -16,8 +17,24 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	expect(Number((await page.getByTestId('accuracy').innerText()).replace('%', ''))).toBeGreaterThan(
 		90
 	);
+	await page.getByRole('button', { name: 'Findings', exact: true }).click();
+	await expect(page.getByRole('region', { name: 'Recorded fingerprint comparison' })).toContainText(
+		'18.5%'
+	);
+	await page.getByRole('button', { name: 'Activation matrix', exact: true }).click();
 	await page.getByRole('button', { name: 'Intervention', exact: true }).click();
-	await page.getByRole('combobox', { name: 'Select neuron' }).selectOption('172');
+	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
+	await expect(page.getByText('layers[1].mlpFc1', { exact: true })).toBeVisible();
+	await expect(page.getByText('[:, 44]', { exact: true })).toBeVisible();
+	await page.getByLabel('Inspect neuron activations.', { exact: false }).focus();
+	await page.keyboard.press('ArrowRight');
+	await expect(page.getByLabel('Neuron ID', { exact: true })).toHaveValue('173');
+	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
+	await page.getByRole('button', { name: 'Model layout', exact: true }).click();
+	await expect(page.locator('canvas').first()).toHaveAttribute('aria-label', /MODEL LAYOUT/);
+	await page.getByRole('button', { name: 'Functional', exact: true }).click();
+	await page.getByRole('button', { name: 'Switch to light mode' }).click();
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 	await page.getByRole('button', { name: 'Silence selected unit' }).click();
 	await expect(page.getByRole('button', { name: 'Restore intact view' })).toBeVisible();
 	await page.getByRole('button', { name: 'Restore intact view' }).click();
@@ -37,7 +54,7 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 		.fill('E2E: an observation retained with this specimen.');
 	await page.getByRole('button', { name: 'Keep this observation' }).click();
 	await expect(page.getByText('E2E: an observation retained with this specimen.')).toBeVisible();
-	await page.getByRole('button', { name: 'Observatory', exact: true }).click();
+	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
 	const downloadPromise = page.waitForEvent('download');
 	await page.getByRole('button', { name: 'Export experiment' }).click();
 	const download = await downloadPromise;
@@ -54,12 +71,23 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 		record.observations.some((item: { detail: string }) => item.detail.startsWith('E2E:'))
 	).toBe(true);
 	await page.reload();
+	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 	await expect(page.getByTestId('step')).toHaveText('2000', { timeout: 90000 });
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
 		timeout: 30000
 	});
 	await page.getByRole('button', { name: /Field journal/ }).click();
 	await expect(page.getByText('E2E: an observation retained with this specimen.')).toBeVisible();
+	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
+	await page.getByRole('button', { name: '100', exact: true }).click();
+	await page.getByRole('button', { name: 'Continue training' }).click();
+	await page.getByRole('button', { name: 'Intervention', exact: true }).click();
+	await expect(page.getByTestId('step')).toHaveText('2100', { timeout: 90000 });
+	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
+		timeout: 30000
+	});
+	await expect(page.getByRole('button', { name: 'Activation', exact: true })).toHaveClass(/chosen/);
+	await expect(page.locator('canvas').first()).toHaveAttribute('aria-label', /ATLAS STEP 2100/);
 	expect(errors).toEqual([]);
 });
 
@@ -118,7 +146,7 @@ test('a failed capture preserves evidence and requires checkpoint recovery', asy
 	await expect(page.getByTestId('step')).toHaveText('50');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeDisabled();
 	await expect(page.getByRole('button', { name: 'Measure all effects' })).toBeDisabled();
-	await page.getByRole('combobox', { name: 'Select neuron' }).selectOption('172');
+	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
 	await expect(page.getByRole('button', { name: 'Silence selected unit' })).toBeDisabled();
 	const receipt = page.waitForEvent('download');
 	await page.getByRole('button', { name: 'Export experiment' }).click();

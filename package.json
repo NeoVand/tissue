@@ -1,7 +1,7 @@
 {
 	"name": "tissue",
 	"private": true,
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -47,6 +47,8 @@
 		"wrangler": "^4.97.0"
 	},
 	"dependencies": {
+		"@hugeicons/core-free-icons": "^4.3.3",
+		"@hugeicons/svelte": "^1.1.5",
 		"@jax-js/jax": "0.1.24",
 		"@jax-js/optax": "0.1.2",
 		"three": "^0.186.0"

@@ -2,28 +2,56 @@
 
 :root {
 	font-family: 'DM Sans', sans-serif;
-	color: #262c27;
-	background: #f5f3eb;
 	font-synthesis: none;
-	--paper: #f5f3eb;
-	--surface: #faf9f4;
-	--ink: #262c27;
-	--muted: #6c7166;
-	--line: #dcded2;
-	--forest: #315d4b;
-	--clay: #b7644b;
-	--acid: #d6e998;
+	color-scheme: dark;
+	--bg: #101315;
+	--surface: #161a1d;
+	--surface-raised: #1d2327;
+	--surface-hover: #252d31;
+	--ink: #d7deda;
+	--muted: #8a9994;
+	--faint: #64726d;
+	--line: #2a3435;
+	--accent: #acc5b5;
+	--accent-ink: #17251f;
+	--layer-1: #9bb5b5;
+	--layer-2: #b4abca;
+	--warning: #c1aa85;
+	--danger: #ce9c98;
+	--paper: var(--bg);
+	--forest: var(--accent);
+	--clay: var(--warning);
+	--acid: #3d5347;
 	--mono: 'IBM Plex Mono', monospace;
 	--serif: 'Instrument Serif', Georgia, serif;
-	color-scheme: light;
+	color: var(--ink);
+	background: var(--bg);
 }
-
+:root[data-theme='light'] {
+	color-scheme: light;
+	--bg: #eceeeb;
+	--surface: #f6f7f3;
+	--surface-raised: #ffffff;
+	--surface-hover: #e6eae5;
+	--ink: #27352f;
+	--muted: #63736b;
+	--faint: #75837c;
+	--line: #d3dbd3;
+	--accent: #446b57;
+	--accent-ink: #f7faf6;
+	--layer-1: #567b7e;
+	--layer-2: #85789c;
+	--warning: #91714d;
+	--danger: #a05f5a;
+	--acid: #d8e5d9;
+}
 * {
 	box-sizing: border-box;
 }
 body {
 	margin: 0;
 	min-width: 360px;
+	font-size: 12px;
 }
 button,
 input,
@@ -39,11 +67,12 @@ textarea {
 	-webkit-tap-highlight-color: transparent;
 }
 button {
+	color: inherit;
 	cursor: pointer;
 }
 button:disabled {
 	cursor: not-allowed;
-	opacity: 0.45;
+	opacity: 0.4;
 }
 button,
 a {
@@ -53,12 +82,10 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
-	outline: 2px solid var(--forest);
-	outline-offset: 4px;
-}
-button {
-	color: inherit;
+textarea:focus-visible,
+canvas:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 3px;
 }
 a {
 	color: inherit;
@@ -71,40 +98,94 @@ a {
 	font-family: var(--mono);
 }
 .eyebrow {
-	font: 10px var(--mono);
-	letter-spacing: 0.12em;
+	font: 9px var(--mono);
+	letter-spacing: 0.09em;
 	text-transform: uppercase;
 }
 .subtle {
 	color: var(--muted);
 }
-button.primary {
-	border: 1px solid var(--forest);
-	color: var(--paper);
-	background: var(--forest);
-	padding: 12px 19px;
-	border-radius: 4px;
+button.primary,
+button.secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	min-height: 30px;
+	padding: 6px 11px;
+	border-radius: 5px;
+	font-size: 11px;
 	font-weight: 550;
+	transition:
+		background 0.15s,
+		border-color 0.15s;
+}
+button.primary {
+	border: 1px solid var(--accent);
+	color: var(--accent-ink);
+	background: var(--accent);
 }
 button.primary:hover:not(:disabled) {
-	background: #234535;
+	filter: brightness(1.1);
 }
 button.secondary {
 	border: 1px solid var(--line);
-	background: transparent;
-	padding: 10px 15px;
-	border-radius: 4px;
+	background: var(--surface-raised);
 }
 button.secondary:hover:not(:disabled) {
-	border-color: var(--forest);
+	border-color: var(--muted);
+	background: var(--surface-hover);
 }
 .text-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 	border: 0;
 	background: transparent;
 	padding: 0;
-	color: var(--forest);
-	text-decoration: underline;
-	text-underline-offset: 4px;
+	color: var(--accent);
+	font-size: 11px;
+}
+.icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--muted);
+	width: 29px;
+	height: 29px;
+	border-radius: 5px;
+}
+.icon-button:hover:not(:disabled) {
+	background: var(--surface-hover);
+	color: var(--ink);
+	border-color: var(--line);
+}
+input,
+textarea {
+	background: var(--bg);
+	border: 1px solid var(--line);
+	border-radius: 5px;
+	color: var(--ink);
+	padding: 7px 9px;
+}
+input[type='number'] {
+	font-family: var(--mono);
+	appearance: textfield;
+}
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+textarea {
+	resize: vertical;
+	line-height: 1.6;
+}
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--line) transparent;
 }
 @media (prefers-reduced-motion: reduce) {
 	*,

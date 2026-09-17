@@ -1,0 +1,489 @@
+{
+  "version": 1,
+  "analysis": "fingerprint-comparison-v1",
+  "k": 6,
+  "runtime": {
+    "node": "v24.21.0"
+  },
+  "implementation": [
+    {
+      "path": "scripts/compare-fingerprints.mjs",
+      "sha256": "ce5e15588887f9f79337b045e7d8dfb70715b52360d32348bd41adc159f6beb3"
+    },
+    {
+      "path": "src/lib/lab/geometry.ts",
+      "sha256": "46175f79854e72a44bdc59765b9da5b112597774eeaaec800c38fc77ed6dd59d"
+    },
+    {
+      "path": "src/lib/lab/protocol.ts",
+      "sha256": "09ea7861bdcefa78e27f077741fc807ac59951b118a0ddc14f904ca4a708c2ce"
+    }
+  ],
+  "methods": {
+    "activation": "Each neuron row concatenates post-ReLU activations over the same calibration prompts and token positions. Center each row across probes and divide by its L2 norm. Preserve pre-normalization RMS magnitude separately.",
+    "effect": "Each row concatenates lesion-minus-intact answer probabilities over the same calibration prompts and eight answer values. L2 normalize each row without centering. The lesion zeros one MLP unit at all token positions.",
+    "validity": "Exclude rows with L2 norm at most 1e-12. Activation norms are computed after centering. The two maps can have different valid-neuron pools.",
+    "neighbors": "Choose six nearest Euclidean neighbors in the original normalized fingerprint space, excluding the focal neuron and invalid rows. Break exact distance ties by ascending neuron ID. Counts here are directed selections, not the undirected union of displayed edges.",
+    "projection": "PCA of the centered neuron cloud. Explained variance and numerical rank use geometry.ts. Neighbor retention is the fraction of projected top-six neighbors within the original-space sixth-neighbor radius, with the same tie tolerance as the lab: 1e-9 times that neuron’s largest original distance.",
+    "withinLayerShare": "Sum selected neighbor pairs whose recorded layer IDs match, divided by all selected directed neighbor pairs.",
+    "withinLayerNull": "Hold each focal neuron, its layer, the valid pool, and its outgoing neighbor count fixed. Draw neighbors uniformly from all other valid neurons. The focal same-layer probability is (valid neurons in its layer minus one)/(all valid neurons minus one). Weight expectations by outgoing neighbor count.",
+    "overlap": "For each focal neuron valid in both maps with nonempty neighborhoods, count identities shared by its activation and effect top-six sets. Divide the total intersection count by the total number of activation-neighbor selections across those focal neurons. Candidate neighbors stay in each map’s own valid pool.",
+    "overlapNull": "Draw the two neighbor sets independently and uniformly from their respective valid pools, excluding the focal neuron. Expected intersection size is (common-valid count minus one) times kA/(activation-valid count minus one) times kE/(effect-valid count minus one); aggregate with the same denominator as observed overlap.",
+    "verification": "Recomputed explained variance and neighbor retention must match the saved step-matched maps within 1e-10. Temporal frame alignment is omitted because orthogonal transforms preserve projected distances.",
+    "limits": "Descriptive measurements of selected checkpoints from two recorded seeds, not significance tests, novel algorithms, evidence of semantic concepts, or proof of recovery value. Uniform nulls do not control for activation strength, feature statistics, or training dependence. Missing raw effect fingerprints produce null effect and overlap measurements."
+  },
+  "runs": [
+    {
+      "seed": 42,
+      "checkpoint": 2000,
+      "k": 6,
+      "source": "static/experiments/binding-seed-42.json",
+      "sourceSha256": "0cb820fc25ba3fbabc280fa8edef49f776e6a079857af740dc1dcc93d5cdfba3",
+      "atlasCapturedAt": "2026-09-16T23:34:04.280Z",
+      "calibrationExamples": 16,
+      "evaluation": {
+        "step": 2000,
+        "examples": 96,
+        "accuracy": 0.9791666666666666,
+        "answerLoss": 0.08026639275197074,
+        "backend": "webgpu"
+      },
+      "recordedPcaDiagnosticsMatched": true,
+      "activation": {
+        "validNeurons": 256,
+        "unresolvedNeurons": 0,
+        "fingerprintDimensions": 224,
+        "pcaRank": 180,
+        "explainedVariance": 0.3581699817200022,
+        "explainedVarianceByAxis": [
+          0.13904027033126176,
+          0.12227999285086634,
+          0.09684971853787412
+        ],
+        "neighborRetention": 0.3834635416666668,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 128
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1536,
+          "sameLayerLinks": 1459,
+          "share": 0.9498697916666666,
+          "nullExpectedLinks": 764.9882352941198,
+          "nullExpectedShare": 0.4980392156862759
+        }
+      },
+      "effect": {
+        "validNeurons": 254,
+        "unresolvedNeurons": 2,
+        "fingerprintDimensions": 128,
+        "pcaRank": 96,
+        "explainedVariance": 0.6097440603825899,
+        "explainedVarianceByAxis": [
+          0.30481520156458203,
+          0.16830661552108236,
+          0.13662224329692552
+        ],
+        "neighborRetention": 0.43766404199475045,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 126
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1524,
+          "sameLayerLinks": 1053,
+          "share": 0.6909448818897638,
+          "nullExpectedLinks": 759.0355731225312,
+          "nullExpectedShare": 0.49805483800691025
+        }
+      },
+      "overlap": {
+        "commonValidNeurons": 254,
+        "comparedNeurons": 254,
+        "directedActivationNeighbors": 1524,
+        "sharedNeighborLinks": 282,
+        "share": 0.18503937007874016,
+        "nullExpectedSharedLinks": 35.85882352941168,
+        "nullExpectedShare": 0.023529411764705827
+      }
+    },
+    {
+      "seed": 7,
+      "checkpoint": 2000,
+      "k": 6,
+      "source": "static/experiments/binding-seed-7.json",
+      "sourceSha256": "9b451cb6b56ea936ef18591c0474b01f8b14daea5cc88a8a2b9707ec07d165ca",
+      "atlasCapturedAt": "2026-09-16T23:39:29.229Z",
+      "calibrationExamples": 16,
+      "evaluation": {
+        "step": 2000,
+        "examples": 96,
+        "accuracy": 1,
+        "answerLoss": 0.02133001957410367,
+        "backend": "webgpu"
+      },
+      "recordedPcaDiagnosticsMatched": true,
+      "activation": {
+        "validNeurons": 256,
+        "unresolvedNeurons": 0,
+        "fingerprintDimensions": 224,
+        "pcaRank": 180,
+        "explainedVariance": 0.30205802659779135,
+        "explainedVarianceByAxis": [
+          0.11514019297013844,
+          0.10562508788004207,
+          0.08129274574761082
+        ],
+        "neighborRetention": 0.2805989583333332,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 128
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1536,
+          "sameLayerLinks": 1374,
+          "share": 0.89453125,
+          "nullExpectedLinks": 764.9882352941198,
+          "nullExpectedShare": 0.4980392156862759
+        }
+      },
+      "effect": {
+        "validNeurons": 250,
+        "unresolvedNeurons": 6,
+        "fingerprintDimensions": 128,
+        "pcaRank": 104,
+        "explainedVariance": 0.5463480394480781,
+        "explainedVarianceByAxis": [
+          0.3116880430236067,
+          0.15330319877588874,
+          0.08135679764858261
+        ],
+        "neighborRetention": 0.45599999999999985,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 122
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1500,
+          "sameLayerLinks": 1031,
+          "share": 0.6873333333333334,
+          "nullExpectedLinks": 747.4216867469868,
+          "nullExpectedShare": 0.49828112449799117
+        }
+      },
+      "overlap": {
+        "commonValidNeurons": 250,
+        "comparedNeurons": 250,
+        "directedActivationNeighbors": 1500,
+        "sharedNeighborLinks": 302,
+        "share": 0.20133333333333334,
+        "nullExpectedSharedLinks": 35.29411764705874,
+        "nullExpectedShare": 0.023529411764705827
+      }
+    }
+  ],
+  "history": [
+    {
+      "seed": 42,
+      "checkpoint": 500,
+      "k": 6,
+      "source": "static/experiments/binding-seed-42-500-raw.json",
+      "sourceSha256": "75d14e4aa9efb8905f8da99586cf897c656ae4077743ec9088e5d309a0974fc9",
+      "atlasCapturedAt": "2026-09-16T23:31:49.287Z",
+      "calibrationExamples": 16,
+      "evaluation": {
+        "step": 500,
+        "examples": 96,
+        "accuracy": 0.3229166666666667,
+        "answerLoss": 1.295512530952692,
+        "backend": "webgpu"
+      },
+      "recordedPcaDiagnosticsMatched": true,
+      "activation": {
+        "validNeurons": 256,
+        "unresolvedNeurons": 0,
+        "fingerprintDimensions": 224,
+        "pcaRank": 180,
+        "explainedVariance": 0.46375096883862926,
+        "explainedVarianceByAxis": [
+          0.21057622357566488,
+          0.13327787510987138,
+          0.11989687015309296
+        ],
+        "neighborRetention": 0.3580729166666667,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 128
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1536,
+          "sameLayerLinks": 1168,
+          "share": 0.7604166666666666,
+          "nullExpectedLinks": 764.9882352941198,
+          "nullExpectedShare": 0.4980392156862759
+        }
+      },
+      "effect": {
+        "validNeurons": 231,
+        "unresolvedNeurons": 25,
+        "fingerprintDimensions": 128,
+        "pcaRank": 128,
+        "explainedVariance": 0.384727445822179,
+        "explainedVarianceByAxis": [
+          0.18346887359336017,
+          0.10750623701507256,
+          0.09375233521374626
+        ],
+        "neighborRetention": 0.3225108225108224,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 103
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1386,
+          "sameLayerLinks": 1078,
+          "share": 0.7777777777777778,
+          "nullExpectedLinks": 698.1391304347801,
+          "nullExpectedShare": 0.5037078863165801
+        }
+      },
+      "overlap": {
+        "commonValidNeurons": 231,
+        "comparedNeurons": 231,
+        "directedActivationNeighbors": 1386,
+        "sharedNeighborLinks": 400,
+        "share": 0.2886002886002886,
+        "nullExpectedSharedLinks": 32.61176470588228,
+        "nullExpectedShare": 0.02352941176470583
+      }
+    },
+    {
+      "seed": 7,
+      "checkpoint": 500,
+      "k": 6,
+      "source": "static/experiments/binding-seed-7-500-raw.json",
+      "sourceSha256": "d1423fa2b78e2fd61c702249e421875fb6ee725e776725d65cf189c2f9f52c06",
+      "atlasCapturedAt": "2026-09-16T23:38:06.420Z",
+      "calibrationExamples": 16,
+      "evaluation": {
+        "step": 500,
+        "examples": 96,
+        "accuracy": 0.2916666666666667,
+        "answerLoss": 1.3858654281745355,
+        "backend": "webgpu"
+      },
+      "recordedPcaDiagnosticsMatched": true,
+      "activation": {
+        "validNeurons": 256,
+        "unresolvedNeurons": 0,
+        "fingerprintDimensions": 224,
+        "pcaRank": 180,
+        "explainedVariance": 0.3647387332785156,
+        "explainedVarianceByAxis": [
+          0.15323430583925834,
+          0.11763207831574156,
+          0.09387234912351565
+        ],
+        "neighborRetention": 0.3619791666666671,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 128
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1536,
+          "sameLayerLinks": 1326,
+          "share": 0.86328125,
+          "nullExpectedLinks": 764.9882352941198,
+          "nullExpectedShare": 0.4980392156862759
+        }
+      },
+      "effect": {
+        "validNeurons": 234,
+        "unresolvedNeurons": 22,
+        "fingerprintDimensions": 128,
+        "pcaRank": 128,
+        "explainedVariance": 0.3350976532012214,
+        "explainedVarianceByAxis": [
+          0.12624125193482108,
+          0.10767352209456746,
+          0.10118287917183291
+        ],
+        "neighborRetention": 0.38105413105413094,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 106
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1404,
+          "sameLayerLinks": 1188,
+          "share": 0.8461538461538461,
+          "nullExpectedLinks": 705.2188841201706,
+          "nullExpectedShare": 0.5022926525072441
+        }
+      },
+      "overlap": {
+        "commonValidNeurons": 234,
+        "comparedNeurons": 234,
+        "directedActivationNeighbors": 1404,
+        "sharedNeighborLinks": 404,
+        "share": 0.28774928774928776,
+        "nullExpectedSharedLinks": 33.035294117646984,
+        "nullExpectedShare": 0.02352941176470583
+      }
+    },
+    {
+      "seed": 7,
+      "checkpoint": 1500,
+      "k": 6,
+      "source": "static/experiments/binding-seed-7-1500-raw.json",
+      "sourceSha256": "83b4e32fb9c7b22aebc982801f06db8d418385a4819d43d2ae530f1c9fa835c8",
+      "atlasCapturedAt": "2026-09-16T23:39:07.371Z",
+      "calibrationExamples": 16,
+      "evaluation": {
+        "step": 1500,
+        "examples": 96,
+        "accuracy": 0.3229166666666667,
+        "answerLoss": 1.1813207821299632,
+        "backend": "webgpu"
+      },
+      "recordedPcaDiagnosticsMatched": true,
+      "activation": {
+        "validNeurons": 256,
+        "unresolvedNeurons": 0,
+        "fingerprintDimensions": 224,
+        "pcaRank": 180,
+        "explainedVariance": 0.3401696427151971,
+        "explainedVarianceByAxis": [
+          0.14408970448451028,
+          0.11190555645616784,
+          0.08417438177451894
+        ],
+        "neighborRetention": 0.35481770833333337,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 128
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1536,
+          "sameLayerLinks": 1313,
+          "share": 0.8548177083333334,
+          "nullExpectedLinks": 764.9882352941198,
+          "nullExpectedShare": 0.4980392156862759
+        }
+      },
+      "effect": {
+        "validNeurons": 226,
+        "unresolvedNeurons": 30,
+        "fingerprintDimensions": 128,
+        "pcaRank": 128,
+        "explainedVariance": 0.3186251596560298,
+        "explainedVarianceByAxis": [
+          0.1249310998496418,
+          0.10163522175411892,
+          0.09205883805226905
+        ],
+        "neighborRetention": 0.3495575221238937,
+        "neighborCount": 6,
+        "boundaryDegenerate": false,
+        "layerCounts": [
+          {
+            "layer": 0,
+            "validNeurons": 128
+          },
+          {
+            "layer": 1,
+            "validNeurons": 98
+          }
+        ],
+        "withinLayer": {
+          "directedLinks": 1356,
+          "sameLayerLinks": 1011,
+          "share": 0.745575221238938,
+          "nullExpectedLinks": 686.9866666666675,
+          "nullExpectedShare": 0.5066273352999022
+        }
+      },
+      "overlap": {
+        "commonValidNeurons": 226,
+        "comparedNeurons": 226,
+        "directedActivationNeighbors": 1356,
+        "sharedNeighborLinks": 362,
+        "share": 0.2669616519174041,
+        "nullExpectedSharedLinks": 31.905882352941102,
+        "nullExpectedShare": 0.023529411764705827
+      }
+    }
+  ]
+}

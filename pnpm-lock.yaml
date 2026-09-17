@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@hugeicons/core-free-icons':
+        specifier: ^4.3.3
+        version: 4.3.3
+      '@hugeicons/svelte':
+        specifier: ^1.1.5
+        version: 1.1.5(svelte@5.57.0(@typescript-eslint/types@8.70.0))
       '@jax-js/jax':
         specifier: 0.1.24
         version: 0.1.24
@@ -358,6 +364,14 @@ packages:
   '@eslint/plugin-kit@0.7.3':
     resolution: {integrity: sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@hugeicons/core-free-icons@4.3.3':
+    resolution: {integrity: sha512-rpCPwJXhIjEKhMYb2AbNU6nS1HD2vXjeT65LL8SOaEHoN0cI57UTgnroU8q/TlocQQfnxeGz9C3KiyIausfzxg==}
+
+  '@hugeicons/svelte@1.1.5':
+    resolution: {integrity: sha512-aau7Z9kJWi3QtakeHeFBj+TqHl7NQBO6/BWbnBTete8On3+L/CD1iSmf4vFNs90fcpQeP+567hT4wImEMNd1Fg==}
+    peerDependencies:
+      svelte: ^5.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2136,6 +2150,12 @@ snapshots:
     dependencies:
       '@eslint/core': 1.2.1
       levn: 0.4.1
+
+  '@hugeicons/core-free-icons@4.3.3': {}
+
+  '@hugeicons/svelte@1.1.5(svelte@5.57.0(@typescript-eslint/types@8.70.0))':
+    dependencies:
+      svelte: 5.57.0(@typescript-eslint/types@8.70.0)
 
   '@humanfs/core@0.19.2':
     dependencies:
