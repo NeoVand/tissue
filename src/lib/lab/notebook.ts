@@ -11,6 +11,52 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '013',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'Zero final-token activity can coexist with query-dependent effects.',
+		text: 'Seven first-layer units in seed 42 and 47 in seed 7 have exactly zero final-token activation on all 48 paired calibration prompts, yet nonzero query-dependent effects when silenced at every position. They are excluded from the locked common cohort because the query-activation comparator has no direction. Unit 88 in seed 7 is the strongest such unit by calibration query-effect RMS: 0.0181; its held-out RMS is 0.00151.',
+		lesson:
+			'The activation probe measures one position; the intervention changes all positions. These observations are compatible with effects through earlier positions and later processing, but do not isolate the route. The next mechanism test is a location-specific lesion, with units chosen on calibration evidence only. Query shifts lets us inspect excluded units and their raw paired responses.',
+		links: [
+			{
+				title: 'Evidence and cohort audit',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/query-shifts-results.md'
+			}
+		]
+	},
+	{
+		id: '012',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'Neighborhoods transfer; query contrasts do not beat full effects.',
+		text: 'The locked paired-query study was measured on both trained checkpoints. Query-effect neighbors scored mean held-out cosine 0.324 and 0.279 for seeds 42 and 7, versus exact matched-pool random expectations 0.066 and 0.062. Full-effect neighbors scored slightly higher: 0.334 and 0.292. The primary advantage over random fell to 0.008 and 0.003 after the descriptive identity shuffle.',
+		lesson:
+			'There is cross-assignment neighborhood structure beyond this same-layer, approximately strength-matched control. The fixed 32-candidate pool can contain large strength ratios. The new contrast representation has not improved on full effects. The common eligible cohorts contain 248 and 204 of 256 units, and outgoing weights remain a strong baseline. These are two checkpoints, dependent neuron pairs, and measured held-out effects—not predictions of unmeasured outputs.',
+		links: [
+			{
+				title: 'Results and limitations',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/query-shifts-results.md'
+			}
+		]
+	},
+	{
+		id: '011',
+		date: '2026-09-16',
+		kind: 'hypothesis',
+		title: 'Change the question; hold the assignments fixed.',
+		text: 'Study 002 tests whether similarity of query-dependent ablation effects on calibration assignments transfers to disjoint held-out assignments. The protocol was committed as ca45f91 before reading the new measurements: 16 paired groups per split, six neighbors, a shared same-layer pool of 32 units matched by full-effect RMS, and fixed orthonormal query contrasts.',
+		lesson:
+			'All methods use the same eligible focal units and the same candidate pool. The random comparator is its exact expected mean. Fixed numerical floors and a single identity shuffle are declared controls, not significance tests. Raw measurements, checkpoint hashes, and study history live in Query shifts.',
+		links: [
+			{
+				title: 'Protocol recorded before measurement',
+				href: 'https://github.com/NeoVand/tissue/blob/ca45f91/docs/query-shifts-design.md'
+			}
+		]
+	},
+
+	{
 		id: '009',
 		date: '2026-09-16',
 		kind: 'decision',

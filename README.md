@@ -35,6 +35,21 @@ The first four-arm repair pilot **did not favor functional neighborhoods**. The 
 
 Measured artifacts and provenance live in [`static/experiments`](static/experiments/README.md). The method is described in [`docs/methods.md`](docs/methods.md).
 
+## Paired-query study
+
+Open **Query shifts** to measure the current checkpoint or inspect recorded results for both trained seeds. Three prompts share an identical assignment and order; only the queried variable changes. Every MLP unit is silenced at all positions. Calibration query-effect contrasts define the map and neighborhood selections; disjoint held-out assignments supply the evaluation target.
+
+The [prospectively recorded protocol](docs/query-shifts-design.md) fixes six neighbors, a shared same-layer pool of 32 units matched by calibration full-effect strength, and four comparison methods. Query-effect neighborhoods transfer above the matched random expectation, but full-effect neighborhoods score slightly better in both seeds. See [the results](docs/query-shifts-results.md) for cohort exclusions, per-layer results, matching quality, and limitations.
+
+Completed studies retain raw probes, exact checkpoint identity, and numerical checks in their own IndexedDB archive. The Field journal links to them. Study JSON export/import preserves raw evidence and provenance; analysis is recomputed in a worker when opened. The model, Adam state, and training RNG remain unchanged. Reference studies are clearly distinguished from the current resident model.
+
+```sh
+# Keep pnpm dev running; no retraining is required.
+pnpm research:query-shifts --seeds 42,7
+# Recompute analysis from preserved raw records without running a model.
+pnpm research:query-shifts --seeds 42,7 --analyze-only
+```
+
 ## Feedback loops
 
 ```sh

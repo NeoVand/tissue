@@ -41,3 +41,15 @@ node scripts/package-reference.mjs --verify-dir /tmp/tissue-study-seed7 --output
 ```
 
 This path reads the recorded seed and checkpoint list from `provenance.json`, checks every capture against it and the final summary, retains the original files, and builds only the anatomies actually captured. The script supports the capture structure produced by `verify-model.mjs`; it does not launch a browser or train a model.
+
+
+## Paired-query neighborhood transfer
+
+Study 002 uses the same trained checkpoints with a new fixed paired-query measurement design. It performs no training. The [protocol](../../docs/query-shifts-design.md) was committed before results, and the [results report](../../docs/query-shifts-results.md) explains the positive transfer signal, stronger full-effect baseline, and cohort limitations.
+
+- `query-shifts-seed-42.json`, `query-shifts-seed-7.json`: full raw paired-query study packages, checkpoint hashes, and implementation provenance.
+- `query-shifts-seed-42-analysis.json`, `query-shifts-seed-7-analysis.json`: deterministic analysis receipts with per-unit candidate pools, neighbors, scores, coverage, shuffle identities, and calibration geometry.
+- `query-shifts-summary.json`: compact cross-seed and layer summaries.
+- `query-shifts-audit.json`: independent hash and arithmetic checks, strength-matching distributions, and excluded-unit examples.
+
+The app loads raw records and recomputes analysis locally. Reproduce with `pnpm research:query-shifts --seeds 42,7`; use `--analyze-only` to retain measurements and recompute only the analysis. The first measured runtime was roughly 7–10 seconds per checkpoint on the tested WebGPU browser; this is a device-specific observation.

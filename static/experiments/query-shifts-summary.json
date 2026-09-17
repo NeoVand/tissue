@@ -1,0 +1,346 @@
+{
+  "version": 1,
+  "design": "paired-query-v1",
+  "designHash": "198d4bf937d91a37a5b3b879480c99267344971728f28f41fe1584586a8a10b1",
+  "analyzedAt": "2026-09-17T00:59:10.408Z",
+  "runs": [
+    {
+      "seed": 42,
+      "step": 2000,
+      "capturedAt": "2026-09-17T00:58:48.841Z",
+      "measurementHash": "f08fd24df703cad65b3329d9d924f83b86b1cede71ce9d1cccb2be807b0f8b0e",
+      "sourceHashes": {
+        "src/lib/lab/query-analysis.ts": "15225b343337174aa6d55841c043c01802ade073a288057c8038bc77bbe602f9",
+        "src/lib/lab/geometry.ts": "46175f79854e72a44bdc59765b9da5b112597774eeaaec800c38fc77ed6dd59d",
+        "docs/query-shifts-design.md": "198d4bf937d91a37a5b3b879480c99267344971728f28f41fe1584586a8a10b1"
+      },
+      "summary": {
+        "totalUnits": 256,
+        "calibrationEligibleUnits": 248,
+        "candidateEligibleUnits": 248,
+        "scoredUnits": 248,
+        "calibrationUnresolvedUnits": 8,
+        "insufficientCandidateUnits": 0,
+        "testUnresolvedFocals": 0,
+        "randomMeanScore": 0.06581047657037538,
+        "randomMeanCoverage": 1,
+        "shuffledRandomMeanScore": 0.04711473280150564,
+        "methods": {
+          "query-effect": {
+            "meanScore": 0.3242525789033033,
+            "meanDelta": 0.25844210233292786,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1488,
+            "resolvedTestNeighbors": 1488,
+            "meanShuffledScore": 0.05536580585333096,
+            "meanShuffledDelta": 0.008251073051825318
+          },
+          "full-effect": {
+            "meanScore": 0.33382456286799783,
+            "meanDelta": 0.2680140862976222,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1488,
+            "resolvedTestNeighbors": 1488,
+            "meanShuffledScore": 0.0597316767476095,
+            "meanShuffledDelta": 0.012616943946103873
+          },
+          "query-activation": {
+            "meanScore": 0.20750240033860973,
+            "meanDelta": 0.14169192376823417,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1488,
+            "resolvedTestNeighbors": 1488,
+            "meanShuffledScore": 0.04888887871775211,
+            "meanShuffledDelta": 0.0017741459162465094
+          },
+          "outgoing-weight": {
+            "meanScore": 0.31122027605035296,
+            "meanDelta": 0.2454097994799775,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1488,
+            "resolvedTestNeighbors": 1488,
+            "meanShuffledScore": 0.05272176668690084,
+            "meanShuffledDelta": 0.005607033885395168
+          }
+        }
+      },
+      "layers": [
+        {
+          "layer": 0,
+          "totalUnits": 128,
+          "calibrationEligibleUnits": 121,
+          "candidateEligibleUnits": 121,
+          "scoredUnits": 121,
+          "calibrationUnresolvedUnits": 7,
+          "insufficientCandidateUnits": 0,
+          "testUnresolvedFocals": 0,
+          "randomMeanScore": 0.02596960875499056,
+          "randomMeanCoverage": 1,
+          "shuffledRandomMeanScore": 0.006380510597813928,
+          "methods": {
+            "query-effect": {
+              "meanScore": 0.27889551874829843,
+              "meanDelta": 0.252925909993308,
+              "meanCoverage": 1,
+              "selectedNeighbors": 726,
+              "resolvedTestNeighbors": 726,
+              "meanShuffledScore": 0.013498662396005306,
+              "meanShuffledDelta": 0.007118151798191375
+            },
+            "full-effect": {
+              "meanScore": 0.28794659675376916,
+              "meanDelta": 0.2619769879987786,
+              "meanCoverage": 1,
+              "selectedNeighbors": 726,
+              "resolvedTestNeighbors": 726,
+              "meanShuffledScore": 0.02314374172772615,
+              "meanShuffledDelta": 0.01676323112991221
+            },
+            "query-activation": {
+              "meanScore": 0.14056739581522154,
+              "meanDelta": 0.11459778706023097,
+              "meanCoverage": 1,
+              "selectedNeighbors": 726,
+              "resolvedTestNeighbors": 726,
+              "meanShuffledScore": 0.006783168128599017,
+              "meanShuffledDelta": 0.00040265753078508624
+            },
+            "outgoing-weight": {
+              "meanScore": 0.2440644422691019,
+              "meanDelta": 0.21809483351411124,
+              "meanCoverage": 1,
+              "selectedNeighbors": 726,
+              "resolvedTestNeighbors": 726,
+              "meanShuffledScore": 0.011806622887542946,
+              "meanShuffledDelta": 0.00542611228972902
+            }
+          }
+        },
+        {
+          "layer": 1,
+          "totalUnits": 128,
+          "calibrationEligibleUnits": 127,
+          "candidateEligibleUnits": 127,
+          "scoredUnits": 127,
+          "calibrationUnresolvedUnits": 1,
+          "insufficientCandidateUnits": 0,
+          "testUnresolvedFocals": 0,
+          "randomMeanScore": 0.10376909866219873,
+          "randomMeanCoverage": 1,
+          "shuffledRandomMeanScore": 0.08592450356250327,
+          "methods": {
+            "query-effect": {
+              "meanScore": 0.3674667858226384,
+              "meanDelta": 0.26369768716043973,
+              "meanCoverage": 1,
+              "selectedNeighbors": 762,
+              "resolvedTestNeighbors": 762,
+              "meanShuffledScore": 0.09525497402920816,
+              "meanShuffledDelta": 0.009330470466704932
+            },
+            "full-effect": {
+              "meanScore": 0.3775350660161996,
+              "meanDelta": 0.27376596735400077,
+              "meanCoverage": 1,
+              "selectedNeighbors": 762,
+              "resolvedTestNeighbors": 762,
+              "meanShuffledScore": 0.09459104790828576,
+              "meanShuffledDelta": 0.008666544345782528
+            },
+            "query-activation": {
+              "meanScore": 0.2712751211837275,
+              "meanDelta": 0.16750602252152869,
+              "meanCoverage": 1,
+              "selectedNeighbors": 762,
+              "resolvedTestNeighbors": 762,
+              "meanShuffledScore": 0.08900534313733892,
+              "meanShuffledDelta": 0.00308083957483574
+            },
+            "outgoing-weight": {
+              "meanScore": 0.3752033932750093,
+              "meanDelta": 0.27143429461281066,
+              "meanCoverage": 1,
+              "selectedNeighbors": 762,
+              "resolvedTestNeighbors": 762,
+              "meanShuffledScore": 0.09170391156660393,
+              "meanShuffledDelta": 0.005779408004100718
+            }
+          }
+        }
+      ],
+      "projection": {
+        "neighborRetention": 0.3398692810457518,
+        "explainedVariance": 0.4481145739878752
+      }
+    },
+    {
+      "seed": 7,
+      "step": 2000,
+      "capturedAt": "2026-09-17T00:59:01.839Z",
+      "measurementHash": "321312af7b2fff3dab20b8e0618f94a2019a75aa31cefc270e274d34b80b4d36",
+      "sourceHashes": {
+        "src/lib/lab/query-analysis.ts": "15225b343337174aa6d55841c043c01802ade073a288057c8038bc77bbe602f9",
+        "src/lib/lab/geometry.ts": "46175f79854e72a44bdc59765b9da5b112597774eeaaec800c38fc77ed6dd59d",
+        "docs/query-shifts-design.md": "198d4bf937d91a37a5b3b879480c99267344971728f28f41fe1584586a8a10b1"
+      },
+      "summary": {
+        "totalUnits": 256,
+        "calibrationEligibleUnits": 204,
+        "candidateEligibleUnits": 204,
+        "scoredUnits": 204,
+        "calibrationUnresolvedUnits": 52,
+        "insufficientCandidateUnits": 0,
+        "testUnresolvedFocals": 0,
+        "randomMeanScore": 0.061571421347902604,
+        "randomMeanCoverage": 1,
+        "shuffledRandomMeanScore": 0.04234323777014664,
+        "methods": {
+          "query-effect": {
+            "meanScore": 0.27917605885528685,
+            "meanDelta": 0.21760463750738412,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1224,
+            "resolvedTestNeighbors": 1224,
+            "meanShuffledScore": 0.0454376887753811,
+            "meanShuffledDelta": 0.0030944510052344602
+          },
+          "full-effect": {
+            "meanScore": 0.29158988420133986,
+            "meanDelta": 0.23001846285343716,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1224,
+            "resolvedTestNeighbors": 1224,
+            "meanShuffledScore": 0.04307465179901306,
+            "meanShuffledDelta": 0.0007314140288664264
+          },
+          "query-activation": {
+            "meanScore": 0.21106714840809213,
+            "meanDelta": 0.1494957270601894,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1224,
+            "resolvedTestNeighbors": 1224,
+            "meanShuffledScore": 0.059858937824016106,
+            "meanShuffledDelta": 0.01751570005386945
+          },
+          "outgoing-weight": {
+            "meanScore": 0.23429976740399555,
+            "meanDelta": 0.17272834605609297,
+            "meanCoverage": 1,
+            "selectedNeighbors": 1224,
+            "resolvedTestNeighbors": 1224,
+            "meanShuffledScore": 0.02646162272100587,
+            "meanShuffledDelta": -0.015881615049140766
+          }
+        }
+      },
+      "layers": [
+        {
+          "layer": 0,
+          "totalUnits": 128,
+          "calibrationEligibleUnits": 81,
+          "candidateEligibleUnits": 81,
+          "scoredUnits": 81,
+          "calibrationUnresolvedUnits": 47,
+          "insufficientCandidateUnits": 0,
+          "testUnresolvedFocals": 0,
+          "randomMeanScore": 0.046221136204334774,
+          "randomMeanCoverage": 1,
+          "shuffledRandomMeanScore": 0.014262704795207012,
+          "methods": {
+            "query-effect": {
+              "meanScore": 0.15448613372593203,
+              "meanDelta": 0.10826499752159718,
+              "meanCoverage": 1,
+              "selectedNeighbors": 486,
+              "resolvedTestNeighbors": 486,
+              "meanShuffledScore": 0.005961051184235143,
+              "meanShuffledDelta": -0.008301653610971878
+            },
+            "full-effect": {
+              "meanScore": 0.16109759549914834,
+              "meanDelta": 0.11487645929481359,
+              "meanCoverage": 1,
+              "selectedNeighbors": 486,
+              "resolvedTestNeighbors": 486,
+              "meanShuffledScore": 0.0012993953567972166,
+              "meanShuffledDelta": -0.012963309438409806
+            },
+            "query-activation": {
+              "meanScore": 0.11591040408959047,
+              "meanDelta": 0.06968926788525567,
+              "meanCoverage": 1,
+              "selectedNeighbors": 486,
+              "resolvedTestNeighbors": 486,
+              "meanShuffledScore": 0.05038885552035509,
+              "meanShuffledDelta": 0.03612615072514805
+            },
+            "outgoing-weight": {
+              "meanScore": 0.185445248747085,
+              "meanDelta": 0.1392241125427504,
+              "meanCoverage": 1,
+              "selectedNeighbors": 486,
+              "resolvedTestNeighbors": 486,
+              "meanShuffledScore": -0.01597987996659269,
+              "meanShuffledDelta": -0.030242584761799696
+            }
+          }
+        },
+        {
+          "layer": 1,
+          "totalUnits": 128,
+          "calibrationEligibleUnits": 123,
+          "candidateEligibleUnits": 123,
+          "scoredUnits": 123,
+          "calibrationUnresolvedUnits": 5,
+          "insufficientCandidateUnits": 0,
+          "testUnresolvedFocals": 0,
+          "randomMeanScore": 0.07168014571073994,
+          "randomMeanCoverage": 1,
+          "shuffledRandomMeanScore": 0.06083529607071665,
+          "methods": {
+            "query-effect": {
+              "meanScore": 0.3612889363794961,
+              "meanDelta": 0.28960879066875606,
+              "meanCoverage": 1,
+              "selectedNeighbors": 738,
+              "resolvedTestNeighbors": 738,
+              "meanShuffledScore": 0.07143449889637964,
+              "meanShuffledDelta": 0.010599202825663012
+            },
+            "full-effect": {
+              "meanScore": 0.37752383041985627,
+              "meanDelta": 0.30584368470911627,
+              "meanCoverage": 1,
+              "selectedNeighbors": 738,
+              "resolvedTestNeighbors": 738,
+              "meanShuffledScore": 0.07058518652925276,
+              "meanShuffledDelta": 0.009749890458536139
+            },
+            "query-activation": {
+              "meanScore": 0.27373134588612963,
+              "meanDelta": 0.20205120017538963,
+              "meanCoverage": 1,
+              "selectedNeighbors": 738,
+              "resolvedTestNeighbors": 738,
+              "meanShuffledScore": 0.06609533348740255,
+              "meanShuffledDelta": 0.005260037416685968
+            },
+            "outgoing-weight": {
+              "meanScore": 0.2664722553000098,
+              "meanDelta": 0.19479210958926982,
+              "meanCoverage": 1,
+              "selectedNeighbors": 738,
+              "resolvedTestNeighbors": 738,
+              "meanShuffledScore": 0.05441090497869272,
+              "meanShuffledDelta": -0.006424391092023904
+            }
+          }
+        }
+      ],
+      "projection": {
+        "neighborRetention": 0.4216467463479413,
+        "explainedVariance": 0.5079582402705044
+      }
+    }
+  ]
+}

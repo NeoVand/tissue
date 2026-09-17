@@ -36,6 +36,8 @@ import {
 } from './transformer';
 import { fusedAdam, type AdamState } from './adam';
 import { chooseRepairArms, freezeUnselected, trainableMask } from './repair';
+import type { QueryMeasurement, QuerySplitMeasurement } from '../query-protocol';
+import { QUERY_BATCH_SIZE, pairedQueryGroups } from './query-dataset';
 
 const yieldTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 const argmax = (values: ArrayLike<number>) => {
@@ -347,6 +349,167 @@ export class ModelRuntime {
 			examples,
 			calibrationAccuracy: correct / examples.length,
 			intervention: includeEffects ? 'zero-all-token-positions' : 'not-measured'
+		};
+	}
+	/** Fixed matched-query groups. Measurement never touches parameters, Adam, or the training RNG. */
+	async measureQueryShifts(
+		emit: (event: EngineEvent) => void = () => {}
+	): Promise<QueryMeasurement> {
+		if (!this.params || !this.state) throw new Error('Initialize the model first');
+		this.stopRequested = false;
+		const started = performance.now();
+		const capturedAt = new Date().toISOString();
+		const before = JSON.stringify(await this.exportCheckpoint());
+		const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(before));
+		const checkpointHash = Array.from(new Uint8Array(hash), (byte) =>
+			byte.toString(16).padStart(2, '0')
+		).join('');
+		const groups = {
+			calibration: pairedQueryGroups('calibration'),
+			test: pairedQueryGroups('test')
+		};
+		const splits = {} as QueryMeasurement['splits'];
+		let completed = 0;
+		const checkCancellation = () => {
+			if (this.stopRequested) throw new Error('Paired-query measurement cancelled');
+		};
+		emit({ type: 'measurement', completed: 0, total: NEURON_COUNT * 2, step: this.step });
+		for (const split of ['calibration', 'test'] as const) {
+			checkCancellation();
+			emit({ type: 'status', message: `Measuring paired queries on fixed ${split} assignments…` });
+			const examples = groups[split].flatMap((group) => group.examples);
+			const measured: QuerySplitMeasurement = {
+				intactProbabilities: [],
+				otherProbabilities: [],
+				activations: Array.from({ length: NEURON_COUNT }, () => []),
+				effects: Array.from({ length: NEURON_COUNT }, () => []),
+				accuracy: 0,
+				prefixMaxDifference: 0,
+				capturePredictionMaxDifference: 0,
+				probabilityMassMaxError: 0
+			};
+			const validate = (rows: number[][]) => {
+				for (const row of rows) {
+					if (row.length !== cfg.vocabulary.length || row.some((value) => !Number.isFinite(value)))
+						throw new Error('Paired-query measurement received invalid log probabilities');
+					const mass = row.reduce((sum, value) => sum + Math.exp(value), 0);
+					measured.probabilityMassMaxError = Math.max(
+						measured.probabilityMassMaxError,
+						Math.abs(mass - 1)
+					);
+					if (Math.abs(mass - 1) > 1e-3)
+						throw new Error(`Paired-query measurement produced invalid probability mass ${mass}`);
+				}
+			};
+			let correct = 0;
+			// Both splits contain 48 examples. Keeping whole triples together uses exactly two B=24 batches.
+			for (let start = 0; start < examples.length; start += QUERY_BATCH_SIZE) {
+				checkCancellation();
+				const batchExamples = examples.slice(start, start + QUERY_BATCH_SIZE);
+				const batch = oneHotBatch(batchExamples);
+				batch.targets.dispose();
+				const outputs = this.capture(
+					tree.ref(this.params),
+					batch.tokens,
+					batch.positions,
+					lesionMask()
+				) as any[];
+				// Read all outputs before checking them; each .data() consumes its owned array.
+				const [flat, ...layers] = await Promise.all(
+					outputs.map(async (output) => (await output.data()) as Float32Array)
+				);
+				const rows = batchExamples.map((_, i) =>
+					Array.from(flat.subarray(i * cfg.vocabulary.length, (i + 1) * cfg.vocabulary.length))
+				);
+				validate(rows);
+				const ordinary = await this.predict(batchExamples);
+				validate(ordinary);
+				for (let i = 0; i < rows.length; i++) {
+					correct += +(argmax(rows[i]) === batchExamples[i].answerId);
+					measured.intactProbabilities.push(rows[i].slice(6).map(Math.exp));
+					measured.otherProbabilities.push(
+						rows[i].slice(0, 6).reduce((sum, value) => sum + Math.exp(value), 0)
+					);
+					for (let output = 0; output < cfg.vocabulary.length; output++)
+						measured.capturePredictionMaxDifference = Math.max(
+							measured.capturePredictionMaxDifference,
+							Math.abs(Math.exp(rows[i][output]) - Math.exp(ordinary[i][output]))
+						);
+					for (let neuron = 0; neuron < NEURON_COUNT; neuron++) {
+						const values = layers[Math.floor(neuron / cfg.hidden)];
+						const channel = neuron % cfg.hidden;
+						const offset = i * cfg.sequenceLength * cfg.hidden;
+						measured.activations[neuron].push(
+							values[offset + (cfg.sequenceLength - 1) * cfg.hidden + channel]
+						);
+						const firstQueryOffset = Math.floor(i / 3) * 3 * cfg.sequenceLength * cfg.hidden;
+						for (let token = 0; token < cfg.sequenceLength - 1; token++)
+							measured.prefixMaxDifference = Math.max(
+								measured.prefixMaxDifference,
+								Math.abs(
+									values[offset + token * cfg.hidden + channel] -
+										values[firstQueryOffset + token * cfg.hidden + channel]
+								)
+							);
+					}
+				}
+				if (layers.some((values) => values.some((value) => !Number.isFinite(value) || value < 0)))
+					throw new Error('Paired-query capture produced invalid post-ReLU activations');
+				if (measured.capturePredictionMaxDifference > 1e-6)
+					throw new Error('Paired-query capture disagrees with ordinary prediction');
+				if (measured.prefixMaxDifference > 1e-6)
+					throw new Error('A future query changed an earlier causal-prefix activation');
+				await yieldTask();
+			}
+			measured.accuracy = correct / examples.length;
+			for (let neuron = 0; neuron < NEURON_COUNT; neuron++) {
+				for (let start = 0; start < examples.length; start += QUERY_BATCH_SIZE) {
+					checkCancellation();
+					const rows = await this.predict(examples.slice(start, start + QUERY_BATCH_SIZE), neuron);
+					validate(rows);
+					for (let i = 0; i < rows.length; i++)
+						for (let digit = 0; digit < 8; digit++)
+							measured.effects[neuron].push(
+								Math.exp(rows[i][digit + 6]) - measured.intactProbabilities[start + i][digit]
+							);
+				}
+				completed++;
+				if (completed % 8 === 0) {
+					emit({ type: 'measurement', completed, total: NEURON_COUNT * 2, step: this.step });
+					await yieldTask();
+				}
+			}
+			splits[split] = measured;
+		}
+		checkCancellation();
+		const outgoingWeights = (
+			await Promise.all(
+				this.params.layers.map(async (layer) => {
+					const flat = (await layer.mlpFc2.ref.data()) as Float32Array;
+					return Array.from({ length: cfg.hidden }, (_, channel) =>
+						Array.from(flat.subarray(channel * cfg.width, (channel + 1) * cfg.width))
+					);
+				})
+			)
+		).flat();
+		if (JSON.stringify(await this.exportCheckpoint()) !== before)
+			throw new Error('Paired-query measurement modified the source checkpoint');
+		checkCancellation();
+		return {
+			version: 1,
+			design: 'paired-query-v1',
+			seed: this.seed,
+			step: this.step,
+			backend: this.backend,
+			capturedAt,
+			elapsedMs: performance.now() - started,
+			groups,
+			splits,
+			outgoingWeights,
+			checkpointHash,
+			checkpointHashAlgorithm: 'sha256-full-checkpoint-json-v1',
+			checkpointPreserved: true,
+			intervention: 'zero-all-token-positions'
 		};
 	}
 	async exportCheckpoint(): Promise<Checkpoint> {

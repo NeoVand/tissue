@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { RunRecord } from '$lib/lab/journal';
+	import type { QueryStudyRecord } from '$lib/lab/query-journal';
 	import { notebook } from '$lib/lab/notebook';
 	import { references } from '$lib/lab/references';
 	import LearningCurve from './LearningCurve.svelte';
@@ -12,7 +13,9 @@
 		onreference,
 		onexport,
 		onimport,
-		onnote
+		onnote,
+		queryStudies = [],
+		onquery
 	}: {
 		run: RunRecord | null;
 		runs: RunRecord[];
@@ -22,6 +25,8 @@
 		onexport: (run: RunRecord) => void;
 		onimport: () => void;
 		onnote: (text: string) => void;
+		queryStudies?: QueryStudyRecord[];
+		onquery?: (record: QueryStudyRecord) => void;
 	} = $props();
 	let note = $state('');
 	const percent = (value: number | undefined) =>
@@ -82,6 +87,29 @@
 						>Open measured specimen<Icon name="right" size={13} /></button
 					>
 				</article>{/each}
+			{#if queryStudies.length}<div class="section-label saved-label">
+					<Icon name="target" />
+					<h2>Paired-query studies</h2>
+					<span>{queryStudies.length}</span>
+				</div>
+				{#each queryStudies as study (study.id)}<article class="run-card">
+						<div class="meta">
+							<span>{study.source}</span><time
+								>{new Date(study.createdAt).toLocaleDateString()}</time
+							>
+						</div>
+						<h3>Query shifts · seed {study.measurement.seed}</h3>
+						<p>
+							Step {study.measurement.step} · 32 assignment groups · 256 interventions<br
+							/>{study.measurement.backend.toUpperCase()} · source checkpoint preserved
+						</p>
+						<div class="actions">
+							<button class="text-button" onclick={() => onquery?.(study)}
+								>Inspect paired-query study<Icon name="right" size={12} /></button
+							>
+						</div>
+					</article>{/each}
+			{/if}
 			<div class="section-label saved-label">
 				<Icon name="layers" />
 				<h2>Saved runs</h2>

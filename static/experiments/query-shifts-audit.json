@@ -1,0 +1,935 @@
+{
+  "version": 1,
+  "auditScriptHash": "0544fc8078a40f22b898ef6d78e34abe4e006a3bd1d00fb9d688f0c555d3a2db",
+  "methods": "Independent sums-of-squares/cosine arithmetic, no import of query-analysis.ts. All selected neighbors must lie within 1e-12 of the calibration top-six threshold. Fold ratio is larger/smaller raw calibration full-effect RMS, measured over directed pairs. Quantiles linearly interpolate sorted observations at (n-1)p. These post-result diagnostics do not change the locked analysis.",
+  "runs": [
+    {
+      "seed": 42,
+      "step": 2000,
+      "rawArtifactHash": "497c3e816bdeac54d07ae5b1ac6d48f0f7dc58c447f2473a874a7e64cf2674ba",
+      "analysisArtifactHash": "7f0fd6ce1b796dd60cadac2f2f904ef83e296ea413913a3d347af5ae35a8d5a2",
+      "allSourceCheckpointMeasurementHashesMatched": true,
+      "allPoolsSelectionsScoresAndSummariesMatched": true,
+      "matchingFoldRatio": {
+        "candidatePool": {
+          "count": 7936,
+          "median": 1.2277192121015466,
+          "p90": 1.8513860259344286,
+          "max": 40.82297951453842,
+          "mean": 1.6156717448771538
+        },
+        "methods": {
+          "query-effect": {
+            "count": 1488,
+            "median": 1.2297414040816144,
+            "p90": 1.8604955156486198,
+            "max": 34.241229735028234,
+            "mean": 1.5752864389933734
+          },
+          "full-effect": {
+            "count": 1488,
+            "median": 1.2284599380256522,
+            "p90": 1.7785113222986209,
+            "max": 34.241229735028234,
+            "mean": 1.5562225781811754
+          },
+          "query-activation": {
+            "count": 1488,
+            "median": 1.2299873758611253,
+            "p90": 1.7969464012739922,
+            "max": 34.241229735028234,
+            "mean": 1.5787723682727353
+          },
+          "outgoing-weight": {
+            "count": 1488,
+            "median": 1.233527119239084,
+            "p90": 1.7568157175525845,
+            "max": 30.45944310054867,
+            "mean": 1.5761260146698355
+          }
+        }
+      },
+      "numericallyTiedSelectionBoundaries": {
+        "query-effect": 0,
+        "full-effect": 0,
+        "query-activation": 3,
+        "outgoing-weight": 0
+      },
+      "excluded": [
+        {
+          "id": 20,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.001920608130269849,
+          "testQueryEffectRms": 0.0013360282124170722
+        },
+        {
+          "id": 43,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0013090222030108858,
+          "testQueryEffectRms": 0.0006464264816605919
+        },
+        {
+          "id": 59,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0008844120385159629,
+          "testQueryEffectRms": 0.0002487484445174818
+        },
+        {
+          "id": 63,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0008177340665884063,
+          "testQueryEffectRms": 0.0016926641869920928
+        },
+        {
+          "id": 88,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00021920939590414247,
+          "testQueryEffectRms": 0.000018209162027865677
+        },
+        {
+          "id": 118,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0023488497041126563,
+          "testQueryEffectRms": 0.0027125327732121745
+        },
+        {
+          "id": 125,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0011230253690510843,
+          "testQueryEffectRms": 0.0007201735459519433
+        },
+        {
+          "id": 156,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        }
+      ],
+      "strongestExcludedFirstLayer": [
+        {
+          "id": 118,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0023488497041126563,
+          "testQueryEffectRms": 0.0027125327732121745
+        },
+        {
+          "id": 20,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.001920608130269849,
+          "testQueryEffectRms": 0.0013360282124170722
+        },
+        {
+          "id": 43,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0013090222030108858,
+          "testQueryEffectRms": 0.0006464264816605919
+        }
+      ],
+      "queryEffectRmsMinimumScored": 0.000017111030185983544,
+      "testQueryEffectRmsMinimumScored": 0.000013132951361173736,
+      "candidatePoolSizes": [
+        32
+      ]
+    },
+    {
+      "seed": 7,
+      "step": 2000,
+      "rawArtifactHash": "b6a1175ffa3350ffb4fedbed04bb43de554e0342ec9a05fbf963e775c76f764c",
+      "analysisArtifactHash": "422085994af2e261d015fa3b4da281991cade4a50be31c8fbe1c12050a9432c9",
+      "allSourceCheckpointMeasurementHashesMatched": true,
+      "allPoolsSelectionsScoresAndSummariesMatched": true,
+      "matchingFoldRatio": {
+        "candidatePool": {
+          "count": 6528,
+          "median": 1.5146537798802253,
+          "p90": 3.219288415654444,
+          "max": 212.8491128382766,
+          "mean": 2.838286543859732
+        },
+        "methods": {
+          "query-effect": {
+            "count": 1224,
+            "median": 1.4991740553417803,
+            "p90": 2.7914673855622083,
+            "max": 212.8491128382766,
+            "mean": 3.0299672470345165
+          },
+          "full-effect": {
+            "count": 1224,
+            "median": 1.508060018021833,
+            "p90": 2.875944411598835,
+            "max": 200.74125403030604,
+            "mean": 2.7922869481829373
+          },
+          "query-activation": {
+            "count": 1224,
+            "median": 1.513719603686138,
+            "p90": 2.9761243097627004,
+            "max": 212.8491128382766,
+            "mean": 2.899852378471693
+          },
+          "outgoing-weight": {
+            "count": 1224,
+            "median": 1.4985335045901167,
+            "p90": 3.101375178298593,
+            "max": 200.74125403030604,
+            "mean": 2.843618299359291
+          }
+        }
+      },
+      "numericallyTiedSelectionBoundaries": {
+        "query-effect": 0,
+        "full-effect": 1,
+        "query-activation": 9,
+        "outgoing-weight": 0
+      },
+      "excluded": [
+        {
+          "id": 0,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.000041794242159558295,
+          "testQueryEffectRms": 0.00004190089679013996
+        },
+        {
+          "id": 1,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0051096993895338744,
+          "testQueryEffectRms": 0.0010583899662105756
+        },
+        {
+          "id": 3,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.002482462892127005,
+          "testQueryEffectRms": 0.00017501903075898967
+        },
+        {
+          "id": 4,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.000336411053872753,
+          "testQueryEffectRms": 0.0003574729826378022
+        },
+        {
+          "id": 5,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00018541620744061532,
+          "testQueryEffectRms": 0.0005970465498610555
+        },
+        {
+          "id": 6,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.012365721164757041,
+          "testQueryEffectRms": 0.0013519827605701247
+        },
+        {
+          "id": 7,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0002514051167764953,
+          "testQueryEffectRms": 0.000034144486386768965
+        },
+        {
+          "id": 9,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0008324956298338074,
+          "testQueryEffectRms": 0.0002881956146971219
+        },
+        {
+          "id": 10,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0029904366960878588,
+          "testQueryEffectRms": 0.0012251257252910484
+        },
+        {
+          "id": 12,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0009108483506866634,
+          "testQueryEffectRms": 0.00009435082310939445
+        },
+        {
+          "id": 13,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.002912029708881501,
+          "testQueryEffectRms": 0.00042258117032376063
+        },
+        {
+          "id": 16,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0003110087108818759,
+          "testQueryEffectRms": 0.00005012418485033074
+        },
+        {
+          "id": 20,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.000029971671675566005,
+          "testQueryEffectRms": 0.00002966836535193298
+        },
+        {
+          "id": 22,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.005778267461750613,
+          "testQueryEffectRms": 0.0006223651516910096
+        },
+        {
+          "id": 23,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00019117882110412986,
+          "testQueryEffectRms": 0.0002480641763708191
+        },
+        {
+          "id": 31,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0015206859617105844,
+          "testQueryEffectRms": 0.00016038674584620727
+        },
+        {
+          "id": 38,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.002457813770568998,
+          "testQueryEffectRms": 0.00017004069609448985
+        },
+        {
+          "id": 43,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.008121773104447876,
+          "testQueryEffectRms": 0.0011050015024669034
+        },
+        {
+          "id": 44,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0002074062934120871,
+          "testQueryEffectRms": 0.0000456689296789551
+        },
+        {
+          "id": 45,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0019369179547965587,
+          "testQueryEffectRms": 0.000056499598838174986
+        },
+        {
+          "id": 46,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0011841564876745887,
+          "testQueryEffectRms": 0.00013421811525375627
+        },
+        {
+          "id": 48,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00012443874077942678,
+          "testQueryEffectRms": 0.00006820180816663047
+        },
+        {
+          "id": 52,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00025287130761037955,
+          "testQueryEffectRms": 0.000877201182026116
+        },
+        {
+          "id": 59,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0013956469775160236,
+          "testQueryEffectRms": 0.0001500676549075107
+        },
+        {
+          "id": 60,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0049874598044043076,
+          "testQueryEffectRms": 0.0012612121253253498
+        },
+        {
+          "id": 61,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.000610850025169982,
+          "testQueryEffectRms": 0.0007996466157287637
+        },
+        {
+          "id": 62,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.002722257402933065,
+          "testQueryEffectRms": 0.0008700186951376032
+        },
+        {
+          "id": 66,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0008261036961674615,
+          "testQueryEffectRms": 0.0008624956692239332
+        },
+        {
+          "id": 71,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0007637322529619115,
+          "testQueryEffectRms": 0.00006613584004435088
+        },
+        {
+          "id": 74,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.001581873048730172,
+          "testQueryEffectRms": 0.00022898430556651795
+        },
+        {
+          "id": 77,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00007147935322941361,
+          "testQueryEffectRms": 0.00004548539061864973
+        },
+        {
+          "id": 79,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00015011128124649118,
+          "testQueryEffectRms": 0.000029078652928002685
+        },
+        {
+          "id": 86,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.004776325495301811,
+          "testQueryEffectRms": 0.0002268671494062627
+        },
+        {
+          "id": 88,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.018058620321206895,
+          "testQueryEffectRms": 0.0015045116160248705
+        },
+        {
+          "id": 91,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.003829127911567034,
+          "testQueryEffectRms": 0.00011213689351416446
+        },
+        {
+          "id": 94,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0017428461640590352,
+          "testQueryEffectRms": 0.000041505272712161653
+        },
+        {
+          "id": 97,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00012638168496524442,
+          "testQueryEffectRms": 0.00015629197392828925
+        },
+        {
+          "id": 100,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00009956101717368785,
+          "testQueryEffectRms": 0.000013366504427589327
+        },
+        {
+          "id": 101,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0038378334612529257,
+          "testQueryEffectRms": 0.00008888490373090855
+        },
+        {
+          "id": 102,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0003470702070385842,
+          "testQueryEffectRms": 0.0002558972527361134
+        },
+        {
+          "id": 103,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00006585678032531814,
+          "testQueryEffectRms": 0.0001063489154293124
+        },
+        {
+          "id": 104,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.003063615075671521,
+          "testQueryEffectRms": 0.0004222485142281483
+        },
+        {
+          "id": 108,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0038683623506964443,
+          "testQueryEffectRms": 0.00038471354130403357
+        },
+        {
+          "id": 114,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0015769907740500575,
+          "testQueryEffectRms": 0.00030367031159108824
+        },
+        {
+          "id": 115,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.004478283010724082,
+          "testQueryEffectRms": 0.000435976735768112
+        },
+        {
+          "id": 119,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.0027870176449211813,
+          "testQueryEffectRms": 0.0008877105132243485
+        },
+        {
+          "id": 123,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.00029918796622459146,
+          "testQueryEffectRms": 0.00025751745420170296
+        },
+        {
+          "id": 135,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        },
+        {
+          "id": 137,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        },
+        {
+          "id": 151,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        },
+        {
+          "id": 155,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        },
+        {
+          "id": 183,
+          "layer": 1,
+          "methods": [
+            "query-effect",
+            "full-effect",
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0,
+          "testQueryEffectRms": 0
+        }
+      ],
+      "strongestExcludedFirstLayer": [
+        {
+          "id": 88,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.018058620321206895,
+          "testQueryEffectRms": 0.0015045116160248705
+        },
+        {
+          "id": 6,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.012365721164757041,
+          "testQueryEffectRms": 0.0013519827605701247
+        },
+        {
+          "id": 43,
+          "layer": 0,
+          "methods": [
+            "query-activation"
+          ],
+          "calibrationLastTokenAllZero": true,
+          "calibrationLastTokenMin": 0,
+          "calibrationLastTokenMax": 0,
+          "calibrationQueryEffectRms": 0.008121773104447876,
+          "testQueryEffectRms": 0.0011050015024669034
+        }
+      ],
+      "queryEffectRmsMinimumScored": 6.651873070208803e-7,
+      "testQueryEffectRmsMinimumScored": 4.747608209851174e-8,
+      "candidatePoolSizes": [
+        32
+      ]
+    }
+  ]
+}

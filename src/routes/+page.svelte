@@ -8,6 +8,16 @@
 	import ActivationHeatmap from '$lib/components/ActivationHeatmap.svelte';
 	import ResearchJournal from '$lib/components/ResearchJournal.svelte';
 	import ResearchMethods from '$lib/components/ResearchMethods.svelte';
+	import QueryShiftStudy from '$lib/components/QueryShiftStudy.svelte';
+	import { QueryAnalysisEngine } from '$lib/lab/query-analysis-engine';
+	import type { QueryAnalysis } from '$lib/lab/query-analysis';
+	import {
+		readQueryStudies,
+		saveQueryStudy,
+		parseQueryStudy,
+		exportQueryStudy,
+		type QueryStudyRecord
+	} from '$lib/lab/query-journal';
 	import FingerprintComparison from '$lib/components/FingerprintComparison.svelte';
 	import LearningCurve from '$lib/components/LearningCurve.svelte';
 	import { Engine } from '$lib/lab/engine';
@@ -33,9 +43,9 @@
 	import { notebook } from '$lib/lab/notebook';
 	import { references } from '$lib/lab/references';
 
-	let tab = $state<'observatory' | 'journal' | 'methods'>('observatory');
+	let tab = $state<'observatory' | 'journal' | 'methods' | 'queries'>('observatory');
 	let phase = $state<
-		'booting' | 'ready' | 'training' | 'measuring' | 'probing' | 'repairing' | 'error'
+		'booting' | 'ready' | 'training' | 'measuring' | 'probing' | 'repairing' | 'querying' | 'error'
 	>('booting');
 	let status = $state('Preparing a small mind…');
 	let error = $state('');
@@ -55,6 +65,18 @@
 		drawCalls: number;
 		frameMs: number;
 	} | null>(null);
+	let queryRecords = $state.raw<QueryStudyRecord[]>([]);
+	let queryRecord = $state.raw<QueryStudyRecord | null>(null);
+	let queryAnalysis = $state.raw<QueryAnalysis | null>(null);
+	let queryBusy = $state(false);
+	let queryActivity = $state<'measurement' | 'analysis' | 'loading'>('loading');
+	let queryStatus = $state('Ready to measure a paired-query study.');
+	let queryError = $state('');
+	let queryProgress = $state({ completed: 0, total: 512 });
+	let querySelected = $state<number | null>(0);
+	let queryInput: HTMLInputElement;
+	let queryAnalysisEngine: QueryAnalysisEngine | undefined;
+	let queryGeneration = 0;
 	let token = $state(13);
 	let example = $state(0);
 	let cursor = $state(-1);
@@ -165,6 +187,11 @@
 		};
 	}
 	function handleEvent(event: EngineEvent) {
+		if (phase === 'querying') {
+			if (event.type === 'status') queryStatus = event.message;
+			if (event.type === 'measurement')
+				queryProgress = { completed: event.completed, total: event.total };
+		}
 		if (event.type === 'metrics') recordMetric(event.metrics);
 		if (event.type === 'status') status = event.message;
 		if (event.type === 'measurement') progress = { completed: event.completed, total: event.total };
@@ -296,7 +323,7 @@
 				metrics: [initialization.metrics],
 				snapshots: [],
 				observations: [],
-				provenance: { source: 'browser', appVersion: '0.2.0', userAgent: navigator.userAgent }
+				provenance: { source: 'browser', appVersion: '0.3.0', userAgent: navigator.userAgent }
 			};
 			observe(
 				'measurement',
@@ -408,8 +435,9 @@
 			fail(reason);
 		}
 	}
-	async function openRun(record: RunRecord) {
+	async function openRun(record: RunRecord, navigate = true) {
 		if (busy || !engine || !record.checkpoint) return;
+		if (navigate) tab = 'observatory';
 		phase = 'booting';
 		status = 'Restoring model and optimizer…';
 		error = '';
@@ -468,7 +496,6 @@
 			} catch {
 				/* Optional selection memory. */
 			}
-			tab = 'observatory';
 		} catch (reason) {
 			fail(reason);
 		}
@@ -532,7 +559,7 @@
 				await engine.initialize(saved.seed);
 				if (!mounted) return;
 				phase = 'ready';
-				await openRun(saved);
+				await openRun(saved, false);
 			} catch (reason) {
 				if (mounted) fail(reason);
 			}
@@ -598,6 +625,184 @@
 			error = reason instanceof Error ? reason.message : String(reason);
 		}
 	}
+
+	async function showQueryStudy(record: QueryStudyRecord, ticket: number) {
+		if (!mounted || ticket !== queryGeneration) return;
+		queryRecord = record;
+		queryAnalysis = null;
+		queryActivity = 'analysis';
+		queryStatus = 'Comparing calibration neighborhoods on held-out assignments…';
+		const result = await queryAnalysisEngine!.analyze(record.measurement);
+		if (!mounted || ticket !== queryGeneration) return;
+		queryAnalysis = result;
+		queryStatus = `Study ready · seed ${record.measurement.seed} · step ${record.measurement.step}`;
+		try {
+			localStorage.setItem('tissue-active-query-study', record.id);
+		} catch {
+			/* Optional selection preference. */
+		}
+	}
+	async function keepQueryStudy(record: QueryStudyRecord) {
+		queryRecords = [record, ...queryRecords.filter((item) => item.id !== record.id)];
+		try {
+			await saveQueryStudy(record);
+		} catch (reason) {
+			storageError = `Query evidence is available to export, but could not be saved: ${String(reason)}`;
+		}
+	}
+	async function openQueryStudy(record: QueryStudyRecord) {
+		if (queryBusy) return;
+		const ticket = ++queryGeneration;
+		queryBusy = true;
+		queryError = '';
+		tab = 'queries';
+		try {
+			await showQueryStudy(record, ticket);
+		} catch (reason) {
+			if (ticket === queryGeneration) queryError = String(reason);
+		} finally {
+			if (mounted && ticket === queryGeneration) queryBusy = false;
+		}
+	}
+	async function restoreQueryStudies() {
+		try {
+			const archive = await readQueryStudies();
+			if (!mounted) return;
+			queryRecords = archive.records;
+			if (archive.warnings.length) queryError = archive.warnings.join(' ');
+			let id: string | null = null;
+			try {
+				id = localStorage.getItem('tissue-active-query-study');
+			} catch {
+				/* Use latest. */
+			}
+			const record = archive.records.find((item) => item.id === id) ?? archive.records[0];
+			if (record && !queryRecord && !queryBusy) {
+				const ticket = ++queryGeneration;
+				queryBusy = true;
+				try {
+					await showQueryStudy(record, ticket);
+				} finally {
+					if (mounted && ticket === queryGeneration) queryBusy = false;
+				}
+			}
+		} catch (reason) {
+			if (mounted) queryError = String(reason);
+		}
+	}
+	async function openQueryReference(referenceSeed: number) {
+		if (queryBusy) return;
+		const ticket = ++queryGeneration;
+		queryBusy = true;
+		queryError = '';
+		queryActivity = 'loading';
+		queryStatus = `Loading recorded query study · seed ${referenceSeed}…`;
+		try {
+			const response = await fetch(`/experiments/query-shifts-seed-${referenceSeed}.json`);
+			if (!response.ok) throw new Error('The recorded query study could not be loaded.');
+			const record = parseQueryStudy(await response.text());
+			if (!mounted || ticket !== queryGeneration) return;
+			await keepQueryStudy(record);
+			await showQueryStudy(record, ticket);
+		} catch (reason) {
+			if (mounted && ticket === queryGeneration) queryError = String(reason);
+		} finally {
+			if (mounted && ticket === queryGeneration) queryBusy = false;
+		}
+	}
+	async function measureQueryStudy() {
+		if (!ready || historical || queryBusy || !engine || !run) return;
+		const ticket = ++queryGeneration;
+		queryBusy = true;
+		queryError = '';
+		queryProgress = { completed: 0, total: 512 };
+		queryActivity = 'measurement';
+		phase = 'querying';
+		let captured = false;
+		try {
+			const measurement = await engine.measureQueryShifts();
+			captured = true;
+			if (!mounted || ticket !== queryGeneration) return;
+			const record: QueryStudyRecord = {
+				version: 1,
+				kind: 'tissue-query-study',
+				id: crypto.randomUUID(),
+				createdAt: measurement.capturedAt,
+				source: 'browser',
+				measurement
+			};
+			queryRecord = record;
+			queryAnalysis = null;
+			await keepQueryStudy(record);
+			observe(
+				'measurement',
+				'Paired-query intervention study recorded',
+				`Study ${record.id}; 16 calibration and 16 held-out assignment groups, each queried a/b/c. All 256 units silenced across all positions. Seed ${measurement.seed}, step ${measurement.step}, checkpoint SHA-256 ${measurement.checkpointHash}. Full raw evidence is in the Query shifts archive.`
+			);
+			await persist();
+			await showQueryStudy(record, ticket);
+			status = 'Paired-query study recorded; source checkpoint preserved';
+		} catch (reason) {
+			if (!mounted || ticket !== queryGeneration) return;
+			const message = String(reason);
+			if (message.toLowerCase().includes('cancelled')) {
+				queryStatus = 'Measurement cancelled; no partial study was recorded.';
+				status = 'Query measurement cancelled';
+				observe(
+					'note',
+					'Paired-query measurement cancelled',
+					'No partial result was accepted. The resident checkpoint was preserved.'
+				);
+				await persist();
+			} else {
+				queryError = message;
+				if (!captured) fail(reason);
+			}
+		} finally {
+			if (mounted && ticket === queryGeneration) {
+				queryBusy = false;
+				if (phase === 'querying') phase = 'ready';
+			}
+		}
+	}
+	function cancelQueryStudy() {
+		if (phase === 'querying' && queryActivity === 'measurement') {
+			queryStatus = 'Cancelling paired-query measurement…';
+			void engine?.pause().catch((reason) => {
+				queryError = String(reason);
+			});
+		} else {
+			queryGeneration++;
+			queryAnalysisEngine?.dispose();
+			queryAnalysisEngine = new QueryAnalysisEngine();
+			queryBusy = false;
+			if (phase === 'querying') phase = 'ready';
+			queryStatus = 'Analysis cancelled; any completed raw measurement remains in the archive.';
+		}
+	}
+	async function importQueryFile(event: Event) {
+		const input = event.currentTarget as HTMLInputElement;
+		const file = input.files?.[0];
+		input.value = '';
+		if (!file || queryBusy) return;
+		queryActivity = 'loading';
+		const ticket = ++queryGeneration;
+		queryBusy = true;
+		queryError = '';
+		try {
+			if (file.size > 25_000_000) throw new Error('Query study exceeds the 25 MB import limit.');
+			const imported = parseQueryStudy(await file.text());
+			// Imports receive a local archive ID so an external ID cannot overwrite earlier evidence.
+			const record = { ...imported, id: crypto.randomUUID() };
+			if (!mounted || ticket !== queryGeneration) return;
+			await keepQueryStudy(record);
+			await showQueryStudy(record, ticket);
+		} catch (reason) {
+			if (mounted && ticket === queryGeneration) queryError = String(reason);
+		} finally {
+			if (mounted && ticket === queryGeneration) queryBusy = false;
+		}
+	}
 	const repairNames: Record<string, string> = {
 		activation: 'Activation neighbors',
 		intervention: 'Intervention neighbors',
@@ -609,10 +814,14 @@
 		mounted = true;
 		theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
 		geometryEngine = new GeometryEngine();
+		queryAnalysisEngine = new QueryAnalysisEngine();
+		void restoreQueryStudies();
 		void boot();
 		return () => {
 			mounted = false;
 			generation++;
+			queryGeneration++;
+			queryAnalysisEngine?.dispose();
 			stopRequested = true;
 			geometryEngine?.dispose();
 			void engine?.dispose();
@@ -632,10 +841,13 @@
 		<a class="brand" href={resolve('/')} aria-label="Tissue home"
 			><Icon name="atom" size={24} /><span>tissue<span class="brand-dot">.</span></span></a
 		>
-		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.2</span></span>
+		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.3</span></span>
 		<nav aria-label="Lab views">
 			<button class:active={tab === 'observatory'} onclick={() => (tab = 'observatory')}
 				><Icon name="cube" size={14} />Workbench</button
+			>
+			<button class:active={tab === 'queries'} onclick={() => (tab = 'queries')}
+				><Icon name="target" size={14} />Query shifts</button
 			>
 			<button class:active={tab === 'journal'} onclick={() => (tab = 'journal')}
 				><Icon name="book" size={14} />Field journal<span class="count"
@@ -1120,6 +1332,54 @@
 				><Icon name="check" size={12} /></span
 			>
 		</footer>
+	{:else if tab === 'queries'}
+		{#if queryError}<div class="query-error" role="alert">
+				<Icon name="info" />{queryError}<button
+					class="icon-button"
+					aria-label="Dismiss study error"
+					onclick={() => (queryError = '')}><Icon name="close" /></button
+				>
+			</div>{/if}
+		{#if queryRecords.length}<div class="query-history" aria-label="Saved query studies">
+				<span><Icon name="book" size={12} />Saved studies</span
+				>{#each queryRecords as record (record.id)}<button
+						class:current={queryRecord?.id === record.id}
+						onclick={() => openQueryStudy(record)}
+						disabled={queryBusy}
+						title={record.createdAt}
+						>Seed {record.measurement.seed} · {record.measurement.step}
+						<small
+							>{record.source === 'reference'
+								? 'reference'
+								: new Date(record.createdAt).toLocaleTimeString([], {
+										hour: '2-digit',
+										minute: '2-digit'
+									})}</small
+						></button
+					>{/each}
+			</div>{/if}
+		<QueryShiftStudy
+			measurement={queryRecord?.measurement ?? null}
+			analysis={queryAnalysis}
+			busy={queryBusy}
+			status={queryStatus}
+			activity={queryActivity}
+			progress={queryProgress}
+			{theme}
+			selected={querySelected}
+			onselect={(id) => (querySelected = id)}
+			onrun={measureQueryStudy}
+			oncancel={cancelQueryStudy}
+			onreference={openQueryReference}
+			onexport={() => queryRecord && exportQueryStudy(queryRecord)}
+			onimport={() => queryInput.click()}
+			source={queryRecord?.source === 'reference' ? 'reference' : 'current'}
+			canRun={ready && !historical}
+			checkpoint={run?.checkpoint
+				? { seed: run.seed, step: run.checkpoint.step, backend: run.initialization.backend }
+				: null}
+		/>
+		{#if !queryBusy}<p class="query-operation-status" role="status">{queryStatus}</p>{/if}
 	{:else if tab === 'journal'}<ResearchJournal
 			{run}
 			{runs}
@@ -1128,6 +1388,8 @@
 			onreference={openReference}
 			onexport={exportRun}
 			onimport={() => importInput.click()}
+			queryStudies={queryRecords}
+			onquery={openQueryStudy}
 			onnote={(value) => {
 				note = value;
 				addNote();
@@ -1144,9 +1406,68 @@
 		onchange={importFile}
 		aria-label="Import experiment JSON"
 	/>
+	<input
+		class="file-input"
+		type="file"
+		accept=".json,application/json"
+		{@attach (element) => {
+			queryInput = element;
+		}}
+		onchange={importQueryFile}
+		aria-label="Import query study JSON"
+	/>
 </div>
 
 <style>
+	.query-operation-status {
+		margin: 8px 18px 14px;
+		font: 10px var(--mono);
+		color: var(--muted);
+	}
+	.query-history {
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		padding: 9px 18px;
+		overflow-x: auto;
+		border-bottom: 1px solid var(--line);
+		background: var(--surface);
+	}
+	.query-history > span {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		flex-shrink: 0;
+		font-size: 10px;
+		color: var(--muted);
+		margin-right: 5px;
+	}
+	.query-history button {
+		white-space: nowrap;
+		font: 10px var(--mono);
+		min-height: 27px;
+		padding: 4px 9px;
+	}
+	.query-history button.current {
+		border-color: var(--accent);
+	}
+	.query-history small {
+		color: var(--muted);
+		margin-left: 6px;
+	}
+	.query-error {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 12px 18px;
+		padding: 9px 12px;
+		border: 1px solid var(--danger);
+		border-radius: 5px;
+		font-size: 12px;
+	}
+	.query-error button {
+		margin-left: auto;
+	}
 	.lab-shell {
 		min-height: 100dvh;
 		background: var(--bg);

@@ -10,6 +10,7 @@ import type {
 	RepairResult,
 	RpcResponse
 } from './protocol';
+import type { QueryMeasurement } from './query-protocol';
 interface Pending {
 	resolve: (value: unknown) => void;
 	reject: (error: Error) => void;
@@ -94,6 +95,9 @@ export class Engine {
 	}
 	captureAtlas(includeEffects = false): Promise<Atlas> {
 		return this.call('atlas', { includeEffects });
+	}
+	measureQueryShifts(): Promise<QueryMeasurement> {
+		return this.call('query-shifts');
 	}
 	controlledRepair(options: RepairOptions): Promise<RepairResult> {
 		return this.call('repair', { options });

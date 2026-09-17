@@ -34,6 +34,9 @@ async function dispatch(request: RpcRequest) {
 			case 'atlas':
 				result = await runtime.captureAtlas(request.includeEffects === true, emit);
 				break;
+			case 'query-shifts':
+				result = await runtime.measureQueryShifts(emit);
+				break;
 			case 'repair':
 				result = await runtime.controlledRepair(request.options as RepairOptions, emit);
 				break;
