@@ -162,8 +162,7 @@
 	.next {
 		margin-top: 24px;
 		padding: 22px;
-		border: 1px solid var(--line);
-		border-left: 2px solid var(--accent);
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line));
 		border-radius: 5px;
 	}
 	.next p {

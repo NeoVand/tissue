@@ -222,14 +222,13 @@
 		opacity: 0.8;
 	}
 	.block {
-		border: 1px solid var(--line, #26303b);
-		border-left: 2px solid var(--layer-color, #859cae);
+		border: 1px solid color-mix(in srgb, var(--layer-color, #859cae) 35%, var(--line, #26303b));
 		border-radius: 5px;
 		overflow: hidden;
 		transition: border-color 130ms ease;
 	}
 	.block.chosen {
-		border-color: color-mix(in srgb, var(--layer-color, #859cae) 55%, var(--line, #26303b));
+		border-color: color-mix(in srgb, var(--layer-color, #859cae) 70%, var(--line, #26303b));
 	}
 	.block.filtered {
 		background: color-mix(in srgb, var(--layer-color, #859cae) 6%, transparent);

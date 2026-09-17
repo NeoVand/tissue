@@ -232,7 +232,8 @@
 	.lesson {
 		margin-top: 12px;
 		padding: 10px 12px;
-		border-left: 2px solid var(--line);
+		border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+		border-radius: 5px;
 		background: var(--surface);
 		font-size: 11px;
 		line-height: 1.7;
