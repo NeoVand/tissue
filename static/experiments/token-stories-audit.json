@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "auditedAt": "2026-09-17T02:51:56.309Z",
+  "auditScriptHash": "275fd936414a33cde11a484bac03587703a1d464f1ccd3bdf354b1e260558c3d",
+  "corpusProvenanceHash": "e11aac2f11aa838545f221837590d753bfe813436aa4adb7efeacf2e3cdb20c0",
+  "methods": "Independent packed binary parsing, corpus/tokenizer/source/report hashes, original story reconstruction, fixed held-out windows and training-only unigram baseline, raw activation normalization, exact original-space focal neighbors and tie-inclusive 3D retention, ordered BPE prompt encoding, generated token decoding and raw intervention arithmetic. No model forward pass or PCA refit. Checkpoint preservation remains a recorded runtime assertion.",
+  "runs": [
+    {
+      "id": "cdded5d8-27cf-49af-9514-64eee6daf7c4",
+      "presetId": "small",
+      "seed": 42,
+      "step": 4096,
+      "trainedTokens": 1868552,
+      "parameters": 1851392,
+      "units": 2048,
+      "bytes": 27502765,
+      "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12",
+      "reportFile": "/Users/neo/repos/tissue/static/experiments/token-stories-small-seed-42-step-4096-cdded5d8-report.json",
+      "reportHash": "78a1f6c031068209866ea453318a6e4cc03b4b5cd9fe81e247e1ebeb820d8d85",
+      "validationLoss": 3.5601262191955034,
+      "unigramLoss": 6.059190466906367,
+      "samplesDecoded": 5,
+      "projections": [
+        {
+          "step": 0,
+          "validUnits": 2048,
+          "scoredFocals": 128,
+          "retention": 0.03645833333333332,
+          "variance": 0.14348392615500896
+        },
+        {
+          "step": 256,
+          "validUnits": 2048,
+          "scoredFocals": 128,
+          "retention": 0.09244791666666667,
+          "variance": 0.307006702364409
+        },
+        {
+          "step": 1024,
+          "validUnits": 2047,
+          "scoredFocals": 128,
+          "retention": 0.05468750000000001,
+          "variance": 0.16331435788945917
+        },
+        {
+          "step": 4096,
+          "validUnits": 2018,
+          "scoredFocals": 128,
+          "retention": 0.06119791666666668,
+          "variance": 0.11564364634644198
+        }
+      ],
+      "interventionMaximumProbabilityChange": 0.0000045299530029296875,
+      "resumable": true
+    }
+  ]
+}

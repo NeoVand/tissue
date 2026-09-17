@@ -52,6 +52,8 @@ pnpm research:query-shifts --seeds 42,7 --analyze-only
 
 ## TinyStories with subword tokens
 
+![Trained subword model with token-linked probes](docs/assets/tinystories-subword.png)
+
 **TinyStories → Subword** is the default language workspace. A deterministic
 4,096-piece BPE vocabulary is fitted on the same 2,097 training stories only.
 Words and fragments replace single-character targets; explicit BOS/EOS tokens keep
@@ -74,6 +76,17 @@ The [prospective protocol](docs/token-stories-design.md) explains the initial
 learning diagnostic and its limits. See [data provenance](static/data/tinystories-bpe/provenance.json)
 for source recovery, train-only vocabulary fitting, and reproducible hashes.
 
+The saved **1.85M** specimen completed **4,096 updates** on **1,868,552** real
+training targets. Held-out loss reached **3.560 nats/token**, versus a **6.059**
+unigram baseline; next-token accuracy reached **31.1%** on 2,040 fixed targets.
+Its story-like continuations still mix characters and events. The final 3D map
+retains only **6.12%** of audited neighbor memberships, so use token probes and
+original-space neighbors alongside the picture. [Results and unedited samples](docs/token-stories-results.md)
+record all declared captures and limitations. The larger presets passed real
+one-update WebGPU checks; they are available to train, but this is not a trained
+model-size comparison. [Engine validation](docs/token-stories-engine-validation.md)
+records the GPU, WASM and application checks.
+
 ```sh
 # With pnpm dev running, train and record the declared subword specimen.
 pnpm research:token-stories --steps 4096 --output /tmp/tissue-token-stories --publish
@@ -81,6 +94,8 @@ pnpm research:token-stories --steps 4096 --output /tmp/tissue-token-stories --pu
 node scripts/prepare-token-stories.mjs
 # Independently audit the published binary evidence.
 node scripts/audit-token-stories.mjs --write
+# Check every saved completion for exact training spans and repeated four-grams.
+node scripts/analyze-token-story-samples.mjs
 ```
 
 ## Character-model scale baseline

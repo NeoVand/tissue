@@ -1,1 +1,24 @@
-{"version":1,"references":[]}
+{
+  "version": 1,
+  "references": [
+    {
+      "id": "cdded5d8-27cf-49af-9514-64eee6daf7c4",
+      "title": "TinyStories BPE small · seed 42",
+      "presetId": "small",
+      "seed": 42,
+      "step": 4096,
+      "parameterCount": 1851392,
+      "unitCount": 2048,
+      "file": "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue",
+      "reportFile": "/experiments/token-stories-small-seed-42-step-4096-cdded5d8-report.json",
+      "parts": [
+        "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue.part-0",
+        "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue.part-1"
+      ],
+      "bytes": 27502765,
+      "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12",
+      "validationLoss": 3.5601262191955034,
+      "unigramLoss": 6.059190466906367
+    }
+  ]
+}

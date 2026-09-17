@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "runId": "cdded5d8-27cf-49af-9514-64eee6daf7c4",
+  "artifacts": [
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-complete.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-complete.tissue",
+      "bytes": 27502765,
+      "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-report.json",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-report.json",
+      "bytes": 193927,
+      "sha256": "78a1f6c031068209866ea453318a6e4cc03b4b5cd9fe81e247e1ebeb820d8d85"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-seed-42-step-4096-cdded5d8.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-seed-42-step-4096-cdded5d8.tissue",
+      "bytes": 27502765,
+      "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-step-0.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-step-0.tissue",
+      "bytes": 23564823,
+      "sha256": "ff2da402c77a4f85944b97813bc50dc31eff01a75e2d346de39a5b7164bf9825"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-step-1024.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-step-1024.tissue",
+      "bytes": 26117354,
+      "sha256": "dd6e4b1e5b7b960b65a19eb33264de5b5b74e24371a2fd7fe02cdad57d121410"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-step-256.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-step-256.tissue",
+      "bytes": 24832029,
+      "sha256": "46d07cb3f1c7c14cda9419977579967d5241848681e43b405df947c82e3bc9a8"
+    },
+    {
+      "source": "/tmp/tissue-token-stories-v1/token-stories-small-step-4096.tissue",
+      "path": ".local-experiments/token-stories-v1/token-stories-small-step-4096.tissue",
+      "bytes": 27467070,
+      "sha256": "5d7a6012e4f55d01ac037f4e31b4da6c8d127acbbb6f1ac3399efd9bbeb93185"
+    }
+  ],
+  "note": "Durable local copies; the final complete resumable archive is also published in the checksum-verified catalog. Intermediate checkpoints remain local; all measured maps and samples are in the public archive."
+}

@@ -1,0 +1,288 @@
+{
+  "version": 1,
+  "analyzedAt": "2026-09-17T02:51:55.614Z",
+  "scriptHash": "9edb7a7302e7a5f09c2f4bf859d9eb9e25a5a8f63b6020ea55549163d63632d1",
+  "corpusId": "tinystories-bpe-corpus-v1:5ecd0780ff18a2c247f647025e89797a756c9e1a34f461298b9c0cebed50595c",
+  "tokenizerId": "tinystories-bpe-v1:eeef1b989796da285c9051cf8fd0cf395071175777616db3f02ccf0c573a2dbd",
+  "trainingStories": 2097,
+  "methods": "Every declared generated completion is compared token-for-token against training stories separately. Prompt tokens are excluded. Matches never cross a training-story boundary, BOS, or EOS. Longest-match ties choose earliest completion offset, lowest training-story index, then earliest story-token offset. Story-token offsets are zero-based including BOS at zero. Four-token repetition counts overlapping windows excluding BOS/EOS; excess occurrences count all appearances after the first. maxFrequency is zero for no eligible four-grams and one when all are unique.",
+  "limitations": "Descriptive copying and repetition diagnostics, not coherence, originality, or memorization scores. Formulaic TinyStories phrases naturally overlap. Short overlap does not establish originality; exact matches can occur by chance or shared conventions. BPE token spans depend on this tokenizer. No generated samples were selected or discarded by these diagnostics.",
+  "runs": [
+    {
+      "runId": "cdded5d8-27cf-49af-9514-64eee6daf7c4",
+      "presetId": "small",
+      "seed": 42,
+      "source": {
+        "path": "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue",
+        "parts": [
+          "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue.part-0",
+          "/experiments/token-stories-small-seed-42-step-4096-cdded5d8.tissue.part-1"
+        ],
+        "bytes": 27502765,
+        "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12"
+      },
+      "samples": [
+        {
+          "sampleIndex": 0,
+          "step": 0,
+          "prompt": "Once upon a time",
+          "samplingSeed": 71,
+          "temperature": 0.8,
+          "topK": 40,
+          "requestedTokens": 128,
+          "generatedTokens": 128,
+          "generatedTextTokens": 128,
+          "stoppedOnEos": false,
+          "cancelled": false,
+          "completion": " adm the standT sailing picking fish could sn7 purp pit seedighedkelet breakitting stood silver Sarah surprises after of oven ontors helped Snowy comet pil trick visitedBe engineile seemedha above gif violin mirror rudemet im sneezedhood RemyJustield On cleanorant hig shoot rever princess hadins frame pay tal colourful c tunnel How mem peace prayplayinnie br leashair dance take structurelebrToday pee kissed offer sawves sittinginnieitty wagised hookaddy scale infant par thr shows pre comfortable sw stretcast cardsan raced dec drank longer Jimmy harocer enjoyingim Let noteusualiverywe dra nightarsh birthday templeused firemankey playored clum",
+          "longestExactTrainingMatch": {
+            "tokenCount": 2,
+            "sampleTokenOffset": 55,
+            "trainingStoryIndex": 1159,
+            "trainingStoryTokenOffset": 122,
+            "trainingCorpusTokenOffset": 265113,
+            "tokenIds": [
+              1556,
+              195
+            ],
+            "text": " princess had"
+          },
+          "repeatedFourTokenSequences": {
+            "windowCount": 125,
+            "distinctSequenceCount": 125,
+            "repeatedSequenceCount": 0,
+            "excessOccurrences": 0,
+            "occurrencesInRepeatedSequences": 0,
+            "maxFrequency": 1,
+            "mostFrequentRepeatedSequences": []
+          }
+        },
+        {
+          "sampleIndex": 1,
+          "step": 256,
+          "prompt": "Once upon a time",
+          "samplingSeed": 71,
+          "temperature": 0.8,
+          "topK": 40,
+          "requestedTokens": 128,
+          "generatedTokens": 128,
+          "generatedTextTokens": 128,
+          "stoppedOnEos": false,
+          "cancelled": false,
+          "completion": ", there was a little girl named \"No, He saw a little boy. You have to explore, \"Yes, \"I't know Mom was a big tree. He looked at the best friends with it. They had a long time, Lily.\nBut. He was a big and the beach. They did not not like to the little boy. It is the end. They also help,\" Lily was a box. He was sad. He had a wonderful too,\" He said, \"What is a little boy't take different from the little boy had lots of the end of the beach and the tree.\nThe",
+          "longestExactTrainingMatch": {
+            "tokenCount": 7,
+            "sampleTokenOffset": 0,
+            "trainingStoryIndex": 4,
+            "trainingStoryTokenOffset": 5,
+            "trainingCorpusTokenOffset": 748,
+            "tokenIds": [
+              13,
+              224,
+              119,
+              100,
+              219,
+              272,
+              380
+            ],
+            "text": ", there was a little girl named"
+          },
+          "repeatedFourTokenSequences": {
+            "windowCount": 125,
+            "distinctSequenceCount": 125,
+            "repeatedSequenceCount": 0,
+            "excessOccurrences": 0,
+            "occurrencesInRepeatedSequences": 0,
+            "maxFrequency": 1,
+            "mostFrequentRepeatedSequences": []
+          }
+        },
+        {
+          "sampleIndex": 2,
+          "step": 1024,
+          "prompt": "Once upon a time",
+          "samplingSeed": 71,
+          "temperature": 0.8,
+          "topK": 40,
+          "requestedTokens": 128,
+          "generatedTokens": 128,
+          "generatedTextTokens": 128,
+          "stoppedOnEos": false,
+          "cancelled": false,
+          "completion": ", there was a little boy named John. He liked to play with her toys for a small, so he had a big, a special toy!\nOne day, the tree, a little boy named Max asked his mommy was very fast. He said, \"You have a big tree! That's go.\"\nThe little boy. The little girl was sad because it home, it, and thanked the park. When she was so scared and said, \"It's in the boy. \nThe little girl called Lucy asked all by the boat is very angry. She held the bird flew away. \nThe bird",
+          "longestExactTrainingMatch": {
+            "tokenCount": 10,
+            "sampleTokenOffset": 0,
+            "trainingStoryIndex": 1641,
+            "trainingStoryTokenOffset": 5,
+            "trainingCorpusTokenOffset": 352275,
+            "tokenIds": [
+              13,
+              224,
+              119,
+              100,
+              219,
+              334,
+              380,
+              772,
+              15,
+              151
+            ],
+            "text": ", there was a little boy named John. He"
+          },
+          "repeatedFourTokenSequences": {
+            "windowCount": 125,
+            "distinctSequenceCount": 123,
+            "repeatedSequenceCount": 2,
+            "excessOccurrences": 2,
+            "occurrencesInRepeatedSequences": 4,
+            "maxFrequency": 2,
+            "mostFrequentRepeatedSequences": [
+              {
+                "tokenIds": [
+                  100,
+                  219,
+                  334,
+                  380
+                ],
+                "count": 2,
+                "sampleTokenOffsets": [
+                  3,
+                  37
+                ],
+                "text": " a little boy named"
+              },
+              {
+                "tokenIds": [
+                  15,
+                  1,
+                  0,
+                  129
+                ],
+                "count": 2,
+                "sampleTokenOffsets": [
+                  100,
+                  123
+                ],
+                "text": ". \nThe"
+              }
+            ]
+          }
+        },
+        {
+          "sampleIndex": 3,
+          "step": 4096,
+          "prompt": "Once upon a time",
+          "samplingSeed": 71,
+          "temperature": 0.8,
+          "topK": 40,
+          "requestedTokens": 128,
+          "generatedTokens": 128,
+          "generatedTextTokens": 128,
+          "stoppedOnEos": false,
+          "cancelled": false,
+          "completion": ", there was a little girl called Tom. He had a great idea and a flower. One day, he was feeling very curious and wanted to find something new. He grabbed his hand and grabbed onto the fruit, so he started to try it.\nHe hopped and began to move. He looked around, but then he saw a big pile of leaves. He heard a loud noise. It was big, like it was smelly. The sun was shining and the sky was full of green and the sky. It was a great idea and sweet fruit.\nAfter the sun started to move around the sun was a little girl. The little",
+          "longestExactTrainingMatch": {
+            "tokenCount": 9,
+            "sampleTokenOffset": 86,
+            "trainingStoryIndex": 1441,
+            "trainingStoryTokenOffset": 27,
+            "trainingCorpusTokenOffset": 314881,
+            "tokenIds": [
+              15,
+              144,
+              528,
+              119,
+              1738,
+              107,
+              103,
+              619,
+              119
+            ],
+            "text": ". The sun was shining and the sky was"
+          },
+          "repeatedFourTokenSequences": {
+            "windowCount": 125,
+            "distinctSequenceCount": 123,
+            "repeatedSequenceCount": 2,
+            "excessOccurrences": 2,
+            "occurrencesInRepeatedSequences": 4,
+            "maxFrequency": 2,
+            "mostFrequentRepeatedSequences": [
+              {
+                "tokenIds": [
+                  119,
+                  100,
+                  219,
+                  272
+                ],
+                "count": 2,
+                "sampleTokenOffsets": [
+                  2,
+                  121
+                ],
+                "text": " was a little girl"
+              },
+              {
+                "tokenIds": [
+                  100,
+                  863,
+                  861,
+                  107
+                ],
+                "count": 2,
+                "sampleTokenOffsets": [
+                  11,
+                  104
+                ],
+                "text": " a great idea and"
+              }
+            ]
+          }
+        },
+        {
+          "sampleIndex": 4,
+          "step": 4096,
+          "prompt": "Once upon a time, there was a little",
+          "samplingSeed": 71,
+          "temperature": 0.8,
+          "topK": 40,
+          "requestedTokens": 128,
+          "generatedTokens": 116,
+          "generatedTextTokens": 115,
+          "stoppedOnEos": true,
+          "cancelled": false,
+          "completion": " boy named Timmy. Timmy loved to look at the beach with his mom, but then he couldn't find it. He was very happy and his mom were very happy.\nOne day, Timmy saw the best friend. He wanted to play in the park, so she asked his mom if they could buy it together. His mom said yes and dad were happy and said, but he said she was careful, but Timmy began to go to go to the store.\nBut when something was too late, she was too late - the family came out of the car.",
+          "longestExactTrainingMatch": {
+            "tokenCount": 9,
+            "sampleTokenOffset": 17,
+            "trainingStoryIndex": 1646,
+            "trainingStoryTokenOffset": 160,
+            "trainingCorpusTokenOffset": 353503,
+            "tokenIds": [
+              120,
+              563,
+              8,
+              85,
+              485,
+              145,
+              15,
+              151,
+              119
+            ],
+            "text": " he couldn't find it. He was"
+          },
+          "repeatedFourTokenSequences": {
+            "windowCount": 112,
+            "distinctSequenceCount": 112,
+            "repeatedSequenceCount": 0,
+            "excessOccurrences": 0,
+            "occurrencesInRepeatedSequences": 0,
+            "maxFrequency": 1,
+            "mostFrequentRepeatedSequences": []
+          }
+        }
+      ]
+    }
+  ]
+}

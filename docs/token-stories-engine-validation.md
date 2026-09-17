@@ -77,6 +77,31 @@ node scripts/audit-token-stories.mjs --file /tmp/tissue-token-scale-smoke/token-
 
 The audit independently parses the packed archives and checks corpus/tokenizer/source/report hashes, checkpoint tensor shapes, fixed held-out windows and unigram loss, raw activation normalization, original-space focal neighbors, tie-inclusive 3D retention, BPE prompt encoding, sample decoding, and intervention arithmetic. It does not repeat GPU forwards or PCA fitting. The runner also confirmed its hashed implementation sources remained unchanged throughout both runs.
 
+## Advertised Small WASM fallback
+
+The full Small preset, with 1,851,392 parameters and 2,048 MLP units, also passed an isolated browser check with explicit `backend: 'wasm'` and Chromium launched with `--disable-gpu`. The worker reported WASM for initialization and both metrics. Its initialization guard checks that asynchronous readback of Float32 `[1,2,3] + 2` returns exactly `[3,4,5]`; successful initialization requires that check to pass on the selected device.
+
+The diagnostic had an overall 180-second deadline and completed in 2.715 seconds. It ran concurrently with the main WebGPU study, so these are diagnostic wall times rather than isolated performance measurements.
+
+| Observation                                  | Result                         |
+| -------------------------------------------- | ------------------------------ |
+| Initialization, including initial evaluation | 905.2 ms                       |
+| One-update API call, including evaluation    | 1,137.0 ms                     |
+| Optimizer update reported by the worker      | 634.5 ms                       |
+| Actual supervised targets                    | 493 of 512 available positions |
+| Held-out CE before / after                   | 8.317943 / 8.296306            |
+| Training-only unigram CE                     | 6.059190                       |
+| Fixed evaluation targets                     | 2,040                          |
+| Prompt probe                                 | 127.2 ms                       |
+| Four-token generation                        | 123.4 ms                       |
+| Sum of all 4,096 next-token probabilities    | 1.000004995497875              |
+
+For `Once upon a time`, generation returned token IDs `[1211,15,695,2403]`, decoding to ` puppy. lived wore`. It produced all four requested tokens, sampled no BOS, and was neither cancelled nor stopped by EOS. This verifies generation execution, not language quality; the one-update model remains worse than unigram on held-out loss.
+
+Every weight, both Adam moments, the optimizer step, training RNG, trained-token count, model step, and model identity remained exactly unchanged across probing and generation. The local receipt retains a SHA-256 digest for every checkpoint leaf, all 4,096 raw probabilities, generation IDs, timings, and frozen-source hashes. Independent receipt checks recomputed probability mass, verified finite values in `[0,1]`, decoded the sample against the pinned tokenizer, and rechecked all source hashes. Probability mass passed the declared `1e-5` tolerance. This diagnostic did not capture an atlas, test ablation, or restore a second WASM worker; those are separate checks described above and in the numerical tests.
+
+The full receipt is included under `wasmFallback` in the checked-in engine receipt. Its local source and raw receipt are retained at `.local-experiments/token-stories-wasm-smoke/validate.mjs` and `.local-experiments/token-stories-wasm-smoke/receipt.json`; the latter has SHA-256 `60d913b5437313762edce5df19b288b7d588605f51b1c55890c9e1a3d6e9039a`. Existing Medium/Large evidence and durable local-copy records were preserved.
+
 ## Numerical unit-test coverage
 
 The five tests in `src/lib/token-stories/model.spec.ts` passed before the source freeze. They cover complete within-story target partitioning and target-weighted sampling; prompt truncation and unsupported text; masked per-window cross-entropy against manual arithmetic; capture/inference parity, causal prefix invariance, exact channel ablation and tensor order; and learning plus exact checkpoint/Adam/RNG resumption on a tiny diagnostic architecture. Controlled generation verifies BOS is never sampled and EOS terminates generation correctly. Those tests and these larger WebGPU smoke checks exercise different parts of the engine; neither establishes broad language competence or generalization across devices and seeds.
@@ -84,3 +109,37 @@ The five tests in `src/lib/token-stories/model.spec.ts` passed before the source
 The complete final smoke archives, reports and independent audit receipts are also
 retained under the ignored local directory `.local-experiments/token-stories-scale-smoke/`;
 the public receipt lists their exact byte counts and SHA-256 hashes.
+
+## Application and regression checks
+
+- `pnpm check`: zero errors and zero warnings.
+- `pnpm exec vitest run --project server`: 142 tests in 14 files passed.
+- `pnpm lint`: formatting and ESLint passed.
+- `pnpm build`: production application and ES-module workers built successfully.
+  Vite reports a roughly 916 kB application chunk; this is not a throughput benchmark.
+- `pnpm test:e2e`: all ten production browser flows passed, including the earlier
+  binding, paired-query and character-model workspaces.
+- The final subword flow was rerun after strengthening the worker-allocation
+  assertion to count workers instead of matching development-only filenames.
+  It passed on a fresh production build.
+
+The subword browser flow covers explicit initialization, 25 updates, sibling-worker
+locking, exact tensor addresses, token-position selection, invalidation after
+editing a prompt, a prompt truncated to 128 tokens, original-input retention for
+ablations, both 4,096-way output distributions, generation, binary export/import,
+actual checkpoint restoration, reload persistence, and 390-pixel mobile layout.
+Independent visual checks also covered the dark and light themes, recorded
+calibration responses, sample-history selection, architectural coordinates, and
+the largest preset's last unit address.
+
+The earlier character and paired-query reference audits still pass. Their
+numerical source files and recorded artifacts were preserved. The new independent
+binary and sample-analysis auditors also pass their corruption, boundary,
+tie-breaking and overlapping-repetition self-tests.
+
+The completed Small study was independently audited at all four declared captures
+(0, 256, 1,024 and 4,096). The published binary reference was then loaded in a
+separate browser, resumed at step 4,096, and probed at individual token positions
+without page errors. The final build includes its checksum-verified archive parts.
+See [the measured results](token-stories-results.md) and
+[the archive audit](../static/experiments/token-stories-audit.json).

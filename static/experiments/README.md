@@ -62,3 +62,36 @@ The app loads raw records and recomputes analysis locally. Reproduce with `pnpm 
 Each catalog entry pins an ordered binary archive (or its numbered parts) by SHA-256 and links its uniquely named report. Small and medium include exact latest weights, Adam state and training RNG. Large is explicitly inspection-only in the public archive: the complete 151 MB archive is preserved locally at `.local-experiments/stories-scale-v1/stories-large-complete.tissue` and can be imported through the lab. The public large archive still contains every raw captured activation, geometry diagnostics, metrics, sample and paired intervention probabilities.
 
 The binary format starts with `TISSUE-STORY-V1\n`, a little-endian JSON-header byte count, JSON metadata with typed-array ordinals, then contiguous float32 payloads. Reference assets above 20 MiB are split into ordered parts; the client verifies the hash of their concatenation before decoding. `stories-audit.json` records an independent check of all published artifacts, reports, source hashes and the original local complete checkpoints. Re-run using `node scripts/audit-stories.mjs`; use `--full-archives` only on a machine retaining the report's original local capture paths.
+
+## Subword TinyStories study
+
+`token-stories-index.json` identifies the measured 4,096-piece BPE reference and
+its complete resumable checkpoint. The separate `TISSUE-TOKEN-STORY-V1\n` binary
+format retains the exact train-only tokenizer, corpus identity, latest weights,
+Adam moments and training RNG, every captured activation map with literal token
+IDs and positions, learning curves, every generated sample, and raw paired
+selected-channel intervention probabilities. Checksum-verified ordered parts keep
+each hosted asset at most 20 MiB.
+
+See [the prospective protocol](../../docs/token-stories-design.md) and
+[the measured results](../../docs/token-stories-results.md). The declared captures
+at 0, 256, 1,024 and 4,096 updates remain selectable in the lab. Only the final
+public checkpoint can resume; intermediate complete checkpoints are also retained
+locally under `.local-experiments/token-stories-v1/`.
+
+- `token-stories-audit.json` independently checks the packed archive, corpus and
+  source identities, held-out unigram arithmetic, raw activation normalization,
+  original-space neighbors, 3D retention, tokenization and intervention arithmetic.
+- `token-stories-sample-audit.json` includes every completion's longest exact
+  contiguous training-story match and repeated four-token sequences. These are
+  descriptive overlap checks, not coherence or originality scores.
+- `token-stories-engine-smoke.json` retains engineering checks for the Medium and
+  Large WebGPU presets and the full Small WASM fallback. These one-update checks
+  do not establish language quality; their full model archives stay local.
+
+Recompute the public evidence checks without training:
+
+```sh
+node scripts/audit-token-stories.mjs --write
+node scripts/analyze-token-story-samples.mjs
+```

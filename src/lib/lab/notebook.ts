@@ -11,6 +11,25 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '018',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'Story-like phrases emerge; the shape still loses most neighbors.',
+		text: 'The 1.85M-parameter subword model completed the declared 4,096 updates on 1,868,552 nonpadding targets. Held-out loss reached 3.560 nats/token and accuracy 31.1%, versus 6.059 and 6.1% for the train-only unigram baseline on the same 2,040 fixed targets. All four measured maps and all five samples are retained. The continuations contain recognizable story phrasing but inconsistent pronouns, grammar and events.',
+		lesson:
+			'The final 3D map retains 6.12% of audited six-neighbor memberships, with 11.56% explained variance. Retention was 3.65%, 9.24% and 5.47% at the earlier captures: predictive improvement does not imply a more faithful projection. Inspect exact token responses and original-space neighbors. One seed and sixteen evaluation windows do not establish narrative competence; tokenization and training budget changed together. Next: matched story facts, disjoint templates and repeated intact controls before interpreting causal neighborhoods.',
+		links: [
+			{
+				title: 'Results, complete samples and limitations',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/token-stories-results.md'
+			},
+			{
+				title: 'Independent binary evidence audit',
+				href: 'https://github.com/NeoVand/tissue/blob/main/static/experiments/token-stories-audit.json'
+			}
+		]
+	},
+	{
 		id: '017',
 		date: '2026-09-16',
 		kind: 'decision',
