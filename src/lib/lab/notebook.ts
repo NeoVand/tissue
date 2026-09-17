@@ -11,6 +11,21 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '020',
+		date: '2026-09-16',
+		kind: 'decision',
+		title: 'Keep the quiet neurons in view.',
+		text: 'The subword viewer now defaults to fixed-size neuron cores with activity-driven brightness and shader glow. Size remains a separate encoding. Starting live generation or recorded replay preserves the chosen layout and layer filter, and the primary action becomes Pause or Resume in place.',
+		lesson:
+			'A visible baseline describes the model structure, not positive activity. Brightness remains relative to the visible maximum in each live frame; raw values stay in the inspector and archive. These are improvements to the viewing instrument, not new model measurements or evidence of a discovered circuit.',
+		links: [
+			{
+				title: 'Encoding and playback method',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/live-activations.md'
+			}
+		]
+	},
+	{
 		id: '019',
 		date: '2026-09-16',
 		kind: 'decision',

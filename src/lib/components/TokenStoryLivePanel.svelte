@@ -73,6 +73,11 @@
 		onclear: () => void;
 	} = $props();
 	let playing = $derived(running || replaying);
+	let primaryLabel = $derived(
+		playing
+			? `${paused ? 'Resume' : 'Pause'} ${replaying ? 'replay' : 'generation'}`
+			: 'Generate live'
+	);
 	let state = $derived(
 		playing
 			? paused
@@ -128,17 +133,15 @@
 			disabled={blocked}
 			maxlength="100000"
 			spellcheck="false"
-		/><button class="primary" onclick={onstart} disabled={!canStart}
-			><Icon name="play" size={12} />Generate live</button
+		/><button
+			class="primary"
+			onclick={playing ? onpause : onstart}
+			disabled={playing ? stopping : !canStart}
+			><Icon name={playing && !paused ? 'pause' : 'play'} size={12} />{primaryLabel}</button
 		>
 	</div>
 	<div class="playback-controls">
 		<div class="transport-controls">
-			<button onclick={onpause} disabled={!playing || stopping}
-				><Icon name={paused ? 'play' : 'pause'} size={12} />{paused
-					? 'Play playback'
-					: 'Pause playback'}</button
-			>
 			<button onclick={onnextlayer} disabled={stopping || (!playing && !frame)}
 				><Icon name="right" size={12} />Next layer</button
 			>

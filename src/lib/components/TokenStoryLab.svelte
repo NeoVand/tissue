@@ -87,6 +87,7 @@
 	let selected = $state<number | null>(null);
 	let layerFilter = $state<number | null>(null);
 	let viewMode = $state<'functional' | 'architecture'>('functional');
+	let activationEncoding = $state<'size' | 'brightness'>('brightness');
 	let token = $state(0);
 	let probePrompt = $state('Once upon a time, there was a little');
 	let probeOpen = $state(false);
@@ -147,6 +148,12 @@
 					snapshot.atlas.step === playbackFrame.step))
 			? playbackFrame
 			: null
+	);
+	let focusedLayerHidden = $derived(
+		!!activityFrame &&
+			layerFilter !== null &&
+			playbackLayer !== null &&
+			layerFilter !== playbackLayer
 	);
 	let historical = $derived(snapshotIndex !== null && snapshot?.atlas.step !== latestMetric?.step);
 	let matchingProbe = $derived(
@@ -308,6 +315,15 @@
 		void updateNeighbors();
 	}
 	function selectView(next: 'functional' | 'architecture'): void {
+		if (
+			next === 'functional' &&
+			playbackFrame &&
+			(snapshot?.atlas.modelId !== playbackFrame.modelId ||
+				snapshot.atlas.step !== playbackFrame.step)
+		) {
+			error = `No functional map is open for trace step ${playbackFrame.step}. Return to the probe or open a matching recorded map before changing layout.`;
+			return;
+		}
 		viewMode = next;
 		void updateNeighbors();
 	}
@@ -654,22 +670,23 @@
 		playbackClock.finishToken();
 		return true;
 	}
-	async function prepareTraceView(frame: LiveTokenStoryFrame): Promise<void> {
+	async function prepareTraceView(frame: LiveTokenStoryFrame): Promise<boolean> {
 		probeOpen = false;
 		const index =
 			record?.snapshots.findIndex(
 				(entry) => entry.atlas.step === frame.step && entry.atlas.modelId === frame.modelId
 			) ?? -1;
+		if (viewMode === 'functional' && index < 0) {
+			error = `No functional map was recorded at step ${frame.step}. Choose Model layout to inspect this trace without using coordinates from another checkpoint.`;
+			return false;
+		}
 		if (index >= 0 && snapshot !== record?.snapshots[index]) await selectSnapshot(index);
-		viewMode = 'architecture';
-		layerFilter = null;
-		nearest = [];
-		neighborRevision++;
+		return true;
 	}
 	async function inspectPlaybackFrame(index: number): Promise<void> {
 		if (blocked || !playbackFrames[index]) return;
 		const frame = playbackFrames[index];
-		await prepareTraceView(frame);
+		if (!(await prepareTraceView(frame))) return;
 		if (!mounted) return;
 		playbackFrame = frame;
 		playbackLayer = 0;
@@ -679,7 +696,7 @@
 	async function replayTrace(): Promise<void> {
 		if (blocked || !playbackFrames.length) return;
 		const frames = playbackFrames;
-		await prepareTraceView(frames[0]);
+		if (!(await prepareTraceView(frames[0]))) return;
 		if (!mounted) return;
 		const ticket = lifecycle;
 		setPhase('replaying');
@@ -706,6 +723,14 @@
 	}
 	async function generateLive(): Promise<void> {
 		if (!ready || !engine || !record) return;
+		if (
+			viewMode === 'functional' &&
+			(snapshot?.atlas.modelId !== residentModelId || snapshot.atlas.step !== latestMetric?.step)
+		) {
+			error =
+				'The functional map does not match the current checkpoint. Choose Model layout to generate without using coordinates from another checkpoint.';
+			return;
+		}
 		try {
 			playbackPrompt =
 				tokenizer?.decode(tokenizer.encode(samplePrompt, { bos: true }).slice(-config.context)) ??
@@ -725,10 +750,6 @@
 		playbackFrame = null;
 		playbackFrames = [];
 		playbackTokens = [];
-		viewMode = 'architecture';
-		layerFilter = null;
-		nearest = [];
-		neighborRevision++;
 		playbackClock.start();
 		playbackClock.setPace(playbackPace);
 		status = 'Live generation · measured layer playback';
@@ -1327,20 +1348,41 @@
 			<TokenStoryMetricsPanel unit="token" metrics={record?.metrics ?? []} compact />
 			<div class="view-toolbar">
 				<div class="segmented">
-					<button class:chosen={viewMode === 'functional'} onclick={() => selectView('functional')}
+					<button
+						class:chosen={viewMode === 'functional'}
+						aria-pressed={viewMode === 'functional'}
+						onclick={() => selectView('functional')}
 						><Icon name="cube" size={12} />Functional</button
 					><button
 						class:chosen={viewMode === 'architecture'}
+						aria-pressed={viewMode === 'architecture'}
 						onclick={() => selectView('architecture')}
 						><Icon name="network" size={12} />Model layout</button
+					>
+				</div>
+				<div class="segmented encoding-options" role="group" aria-label="Activation encoding">
+					<button
+						class:chosen={activationEncoding === 'size'}
+						aria-pressed={activationEncoding === 'size'}
+						onclick={() => (activationEncoding = 'size')}
+						title="Measured activity changes node size">Size</button
+					>
+					<button
+						class:chosen={activationEncoding === 'brightness'}
+						aria-pressed={activationEncoding === 'brightness'}
+						onclick={() => (activationEncoding = 'brightness')}
+						title="Fixed-size nodes; measured activity changes brightness and glow"
+						>Brightness</button
 					>
 				</div>
 				<div class="layer-options">
 					<span>Layers</span><button
 						class:chosen={layerFilter === null}
+						aria-pressed={layerFilter === null}
 						onclick={() => selectLayer(null)}>All</button
 					>{#each Array.from({ length: config.layers }, (_, i) => i) as layer (layer)}<button
 							class:chosen={layerFilter === layer}
+							aria-pressed={layerFilter === layer}
 							onclick={() => selectLayer(layer)}>L{layer + 1}</button
 						>{/each}
 				</div>
@@ -1421,6 +1463,11 @@
 				onreplay={replayTrace}
 				onclear={returnToProbe}
 			/>
+			{#if focusedLayerHidden}<div class="layer-filter-note">
+					Playback L{(playbackLayer ?? 0) + 1} is outside the L{(layerFilter ?? 0) + 1} filter. Showing
+					the selected layer’s measured activity.
+					<button onclick={() => selectLayer(null)}>Show all layers</button>
+				</div>{/if}
 			<div class="token-story-field" class:live-view={!!activityFrame}>
 				{#if snapshot || activityFrame}<NeuralField
 						{points}
@@ -1429,10 +1476,11 @@
 						onselect={selectUnit}
 						{theme}
 						{layerFilter}
+						{activationEncoding}
 						layoutKey={viewMode}
 						mode="activation"
 						activityMode={!!activityFrame}
-						activeLayer={activityFrame ? playbackLayer : null}
+						activeLayer={activityFrame && !focusedLayerHidden ? playbackLayer : null}
 						geometryLabel={viewMode === 'functional'
 							? `Calibration activation geometry · step ${snapshot?.atlas.step}`
 							: activityFrame
@@ -2097,10 +2145,32 @@
 	.view-toolbar {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: 8px;
 		padding: 9px 12px;
 		border-bottom: 1px solid var(--line);
 		background: var(--surface);
+	}
+	.encoding-options button {
+		font: 8px var(--mono);
+		padding: 5px 7px;
+	}
+	.layer-filter-note {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		flex-wrap: wrap;
+		padding: 7px 12px;
+		border-bottom: 1px solid var(--line);
+		color: var(--muted);
+		font: 8px/1.5 var(--mono);
+	}
+	.layer-filter-note button {
+		background: transparent;
+		border: 1px solid var(--line);
+		border-radius: 3px;
+		color: var(--accent);
+		font: 8px var(--mono);
+		padding: 3px 6px;
 	}
 	.layer-options {
 		display: flex;

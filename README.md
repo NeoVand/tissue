@@ -70,8 +70,12 @@ supervised token counts. Loss is **nats per subword token**, not comparable dire
 with the character-model loss.
 
 **Generate live** shows each measured forward pass through successive MLP layers
-as the continuation grows. Pause, advance one layer or one token, inspect raw
-channel values, then replay any saved trace without loading the model. The
+as the continuation grows, preserving the selected layout. That same button
+becomes **Pause generation** and **Resume generation**. **Brightness** is the
+default subword view: fixed-size neuron cores remain visible while measured
+activity changes their brightness and glow; **Size** remains available beside it.
+Advance one layer or one token, inspect raw channel values, then replay any saved
+trace without loading the model. The
 recorded **Live replay · TinyStories BPE small at 4096** specimen offers 24 measured
 token frames immediately. To generate your own, open the original resumable
 reference and choose **Resume step 4096**, or initialize a new model.

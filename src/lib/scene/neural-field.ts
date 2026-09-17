@@ -22,6 +22,8 @@ export interface FieldData {
 	activeLayer?: number | null;
 	/** Encode measured values relative to this frame's maximum; exact values stay in the inspector. */
 	activityMode?: boolean;
+	/** Size is the historical encoding; brightness keeps visible fixed-size cores. */
+	activationEncoding?: 'size' | 'brightness';
 }
 export interface FieldStats {
 	nodes: number;
@@ -58,6 +60,7 @@ interface NodeState {
 	colorTo: Triple;
 	selectionFrom: number;
 	selectionTo: number;
+	signal: number;
 }
 interface EdgeState {
 	a: number;
@@ -102,6 +105,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 	const progress = { value: 1 };
 	const activeLayer = { value: -1 };
 	const activityMode = { value: 0 };
+	const brightnessMode = { value: 0 };
 	const nodeMaterial = new THREE.ShaderMaterial({
 		vertexShader: nodeVertex,
 		fragmentShader: nodeFragment,
@@ -109,6 +113,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			progress,
 			activeLayer,
 			activityMode,
+			brightnessMode,
 			viewportHeight: { value: 600 },
 			dark: { value: 1 }
 		},
@@ -285,7 +290,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			['fromColor', 3],
 			['toColor', 3],
 			['emphasis', 2],
-			['layerIndex', 1]
+			['layerIndex', 1],
+			['activityLevel', 1]
 		] as const) {
 			nodeGeometry.setAttribute(
 				name,
@@ -317,11 +323,13 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		}
 	}
 	function update(next: FieldData) {
+		const brightness = next.activationEncoding === 'brightness';
 		activeLayer.value = next.activeLayer ?? -1;
 		activityMode.value = Number(Boolean(next.activityMode));
+		brightnessMode.value = Number(brightness);
 		// Faint context beads must not write opaque depth over measured activity behind them.
 		// Retain ordinary depth occlusion for static structural snapshots.
-		nodeMaterial.depthWrite = !next.activityMode;
+		nodeMaterial.depthWrite = !next.activityMode && !brightness;
 		// Layer stepping changes only shader uniforms. It never restarts a coordinate
 		// interpolation or uploads thousands of unchanged neuron attributes.
 		if (
@@ -331,7 +339,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			next.mode === data.mode &&
 			next.theme === data.theme &&
 			next.layerFilter === data.layerFilter &&
-			next.activityMode === data.activityMode
+			next.activityMode === data.activityMode &&
+			next.activationEncoding === data.activationEncoding
 		) {
 			data = next;
 			hovered = null;
@@ -359,7 +368,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		}
 		const nextStates = new Map<number, NodeState>();
 		let maximum = 0;
-		if (next.activityMode)
+		if (next.activityMode || brightness)
 			for (const point of next.points)
 				if (next.layerFilter == null || next.layerFilter === point.layer)
 					maximum = Math.max(
@@ -371,17 +380,21 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			const selected = point.id === next.selected;
 			const magnitude = Math.abs(next.mode === 'effect' ? (point.effect ?? 0) : point.activation);
 			const signal = maximum > 0 ? Math.sqrt(magnitude / maximum) : 0;
-			const radius = next.activityMode
-				? unit * (0.005 + 0.031 * signal)
-				: unit * (0.011 + 0.023 * Math.tanh(magnitude / (next.mode === 'effect' ? 0.12 : 2)));
+			const radius = brightness
+				? unit * 0.017
+				: next.activityMode
+					? unit * (0.005 + 0.031 * signal)
+					: unit * (0.011 + 0.023 * Math.tanh(magnitude / (next.mode === 'effect' ? 0.12 : 2)));
 			const active = next.layerFilter == null || next.layerFilter === point.layer;
 			const opacity = !active
 				? 0
-				: next.activityMode
-					? 0.07 + 0.93 * signal
-					: next.selected !== null && !selected && !neighbors.has(point.id)
-						? 0.7
-						: 1;
+				: brightness
+					? 1
+					: next.activityMode
+						? 0.07 + 0.93 * signal
+						: next.selected !== null && !selected && !neighbors.has(point.id)
+							? 0.7
+							: 1;
 			color.setHex(PALETTES[theme][point.layer % PALETTES[theme].length]);
 			if (selected) color.setHex(theme === 'dark' ? 0xdee7d3 : 0x5f7856);
 			const rgb: Triple = [color.r, color.g, color.b];
@@ -389,14 +402,21 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 				point,
 				from: old ? mix3(old.from, old.to, t) : [...point.position],
 				to: [...point.position],
-				radiusFrom: old ? mix(old.radiusFrom, old.radiusTo, t) : radius,
+				radiusFrom: brightness ? radius : old ? mix(old.radiusFrom, old.radiusTo, t) : radius,
 				radiusTo: radius,
-				alphaFrom: old ? mix(old.alphaFrom, old.alphaTo, t) : first ? opacity : 0,
+				alphaFrom: brightness
+					? opacity
+					: old
+						? mix(old.alphaFrom, old.alphaTo, t)
+						: first
+							? opacity
+							: 0,
 				alphaTo: opacity,
 				colorFrom: old ? mix3(old.colorFrom, old.colorTo, t) : rgb,
 				colorTo: rgb,
 				selectionFrom: old ? mix(old.selectionFrom, old.selectionTo, t) : Number(selected),
-				selectionTo: Number(selected)
+				selectionTo: Number(selected),
+				signal
 			});
 		}
 		for (const [id, old] of nodeStates)
@@ -427,6 +447,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			put('toColor', node.colorTo);
 			put('emphasis', [node.selectionFrom, node.selectionTo]);
 			put('layerIndex', [node.point.layer]);
+			put('activityLevel', [node.signal]);
 			i++;
 		}
 		nodeGeometry.instanceCount = nodeStates.size;
@@ -516,7 +537,12 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		let closest: FieldPoint | null = null;
 		let distance = Infinity;
 		for (const node of nodeStates.values()) {
-			if (data.activeLayer != null && node.point.layer !== data.activeLayer) continue;
+			if (
+				data.activationEncoding !== 'brightness' &&
+				data.activeLayer != null &&
+				node.point.layer !== data.activeLayer
+			)
+				continue;
 			if (node.alphaTo <= 0 || mix(node.alphaFrom, node.alphaTo, t) < 0.15) continue;
 			hitSphere.center.set(...mix3(node.from, node.to, t));
 			const viewDistance = camera.position.distanceTo(hitSphere.center);
@@ -643,6 +669,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			return {
 				activeLayer: data.activeLayer ?? null,
 				activityMode: Boolean(data.activityMode),
+				activationEncoding: data.activationEncoding ?? 'size',
 				progress: progress.value,
 				camera: camera.position.toArray(),
 				nodes: [...nodeStates].map(([id, node]) => ({
@@ -650,7 +677,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 					position: mix3(node.from, node.to, progress.value),
 					target: node.to,
 					radius: mix(node.radiusFrom, node.radiusTo, progress.value),
-					alpha: mix(node.alphaFrom, node.alphaTo, progress.value)
+					alpha: mix(node.alphaFrom, node.alphaTo, progress.value),
+					signal: node.signal
 				}))
 			};
 		},

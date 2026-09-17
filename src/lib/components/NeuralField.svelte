@@ -13,6 +13,7 @@
 		layerFilter?: number | null;
 		activeLayer?: number | null;
 		activityMode?: boolean;
+		activationEncoding?: 'size' | 'brightness';
 		/** Explicit layout changes fit the camera; token and checkpoint updates do not. */
 		layoutKey?: string;
 		geometryLabel?: string;
@@ -30,6 +31,7 @@
 		layerFilter = null,
 		activeLayer = null,
 		activityMode = false,
+		activationEncoding = 'size',
 		layoutKey,
 		geometryLabel = 'Functional geometry',
 		edgeLabel,
@@ -80,7 +82,17 @@
 	// Measurements update independently of scene lifecycle, preserving camera and interrupted motion.
 	function updateField() {
 		if (!field) return;
-		field.update({ points, edges, selected, mode, theme, layerFilter, activeLayer, activityMode });
+		field.update({
+			points,
+			edges,
+			selected,
+			mode,
+			theme,
+			layerFilter,
+			activeLayer,
+			activityMode,
+			activationEncoding
+		});
 		if (framedLayout !== undefined && layoutKey !== framedLayout) field.reset();
 		framedLayout = layoutKey;
 	}
@@ -147,9 +159,14 @@
 	<div class="view-caption" aria-hidden="true">
 		<span>{edgeLabel ?? (edges.length ? 'Similarity links · not causal' : 'Measured units')}</span>
 		<small
-			>{activityMode
-				? 'Size & brightness · relative to visible maximum'
-				: `Size · compressed |${mode === 'effect' ? 'effect' : 'activation'}|`}
+			title={activationEncoding === 'brightness'
+				? `Intensity and glow use sqrt(|${mode === 'effect' ? 'effect' : 'activation'}| / largest visible magnitude). Quiet cores remain at zero; layer focus dims other layers. Core size and halo envelope stay fixed.`
+				: undefined}
+			>{activationEncoding === 'brightness'
+				? `Fixed cores · relative intensity · quiet baseline${activityMode && activeLayer !== null ? ' · other layers dimmed' : ''}`
+				: activityMode
+					? 'Size & brightness · relative to visible maximum'
+					: `Size · compressed |${mode === 'effect' ? 'effect' : 'activation'}|`}
 			<span class="gesture-hint"> / Drag to orbit</span></small
 		>
 	</div>

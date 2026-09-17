@@ -41,7 +41,10 @@ and fuse operations much faster. Units within a layer are not given invented
 individual firing times, and interlayer attention/residual computation is not
 replaced by spatial edges.
 
-Pause holds the current frame. Layer and token stepping advance the playback at
+The primary **Generate live** button becomes **Pause generation**, then
+**Resume generation** while paused. Recorded replay uses the same primary control
+with **Pause replay** and **Resume replay**. Pause holds the current frame.
+Layer and token stepping advance the playback at
 explicit boundaries. Stop cancels the current provisional frame and retains only
 acknowledged output tokens with their matching frames. Stopping before the first
 acknowledgment produces an empty, cancelled completion. Computation has a watchdog;
@@ -49,19 +52,30 @@ waiting for the user to advance a paused frame does not time out. Teardown cance
 pending acknowledgments and terminates the worker after a bounded grace period.
 
 The architectural layout makes layer order easy to follow and includes every MLP
-channel. Functional positions remain the checkpoint's fixed calibration map;
+channel. Starting generation or replay preserves the selected layout and layer
+filter. A filter that excludes the playback layer is explicitly identified; the
+chosen layer remains available to inspect, with a **Show all layers** control.
+Functional positions remain the checkpoint's fixed calibration map;
 they are not fitted anew to each generated token. That map still uses three PCA
 coordinates from 128-dimensional activation fingerprints. Token progression is
 the temporal axis of playback, not a fourth PCA component. UMAP and ICA are not
 implemented by this change. The PCA solver retains a fourth eigenvalue to check
 separation at the three-component boundary; it is not a displayed coordinate.
+Replay selects the recorded map matching the trace's checkpoint. If no matching
+map exists, the interface explains that Model layout is available instead of
+assigning the trace coordinates from another checkpoint. Unresolved functional
+directions remain absent from that layout.
 
 The renderer focuses the current layer with shader uniforms, so advancing layers
 does not restart spatial interpolation or upload unchanged neuron geometry.
-During activity playback, point size and opacity use the square root of activation
-relative to the largest visible activation in that frame. This helps expose sparse
-responses; brightness is not an absolute scale across tokens. The inspector and
-saved trace retain unscaled values. Nonfocused layers are dimmed for orientation,
+The subword lab defaults to **Brightness**: neuron cores keep a fixed size and a
+muted baseline, while activation changes luminosity and a shader glow with a fixed
+spatial envelope. Quiet neurons remain visible; their baseline is structural
+context, not a positive activation. **Size** keeps the earlier variable-size view.
+During live playback, both modes use the square root of activation relative to
+the largest visible activation in that frame. Brightness is therefore not an
+absolute scale across tokens. The inspector and saved trace retain unscaled
+values. Nonfocused layers are dimmed for orientation,
 and similarity edges remain similarity edges rather than paths of signal flow.
 Live activation values switch directly between measured frames. They are not
 interpolated across tokens; this prevents fast playback from displaying blended
@@ -133,7 +147,8 @@ node scripts/analyze-token-story-samples.mjs
 
 ## Verification
 
-The change passed 165 unit tests and the full 12-flow production browser suite.
+The initial live-playback implementation passed 165 unit tests and the full
+12-flow production browser suite.
 After the final compact-layout, automatic-framing and transparent-depth fixes,
 the three affected live/subword browser flows passed again. TypeScript/Svelte
 checks, formatting, lint and component autofixers were clean.
@@ -163,6 +178,26 @@ automatic framing when switching from functional coordinates to model layout.
 
 A real WebGL framebuffer check verifies that faint foreground context cannot
 hide focused activity behind it, and that leaving activity mode restores normal
-snapshot rendering. The [renderer receipt](../static/experiments/live-field-renderer-check.json)
-retains measured pixels and source hashes. Re-run it with the development server
-open using `node scripts/verify-live-field.mjs`.
+snapshot rendering. The [original renderer receipt](../static/experiments/live-field-renderer-check.json)
+retains its historical measured pixels and source hashes.
+
+The subsequent brightness/control update passed the four affected production
+browser flows: live generation, offline replay controls, continuous training, and
+the existing train/probe/ablate/export/restore flow. The tests check the same primary
+button across Generate/Pause/Resume, actual paused worker progress, preservation
+of both layouts and layer filters, and the encoding selector.
+
+The new [brightness renderer receipt](../static/experiments/live-field-brightness-check.json)
+records real WebGL pixels for synthetic activation fixtures in both themes.
+Zero, intermediate, and maximum activity keep the same measured core width;
+quiet and nonfocused cores remain visible, activity changes intensity and halo,
+and encoding/focus changes preserve the camera. The original overlap/depth
+regression also passes. This checks the display, not model quality. Re-run it with
+the development server open using `node scripts/verify-live-field.mjs`.
+
+The [brightness screenshot](assets/live-brightness.png) shows the recorded first
+token paused at L1, with the other layers still visible and **Resume replay** in
+the primary action. Desktop dark/light and a 390-pixel mobile viewport were
+inspected. Screenshot checks scroll the canvas into view before capture: the
+renderer intentionally defers offscreen draws, so a full-page capture of an
+unvisited canvas can be blank without indicating missing measurements.

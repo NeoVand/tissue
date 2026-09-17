@@ -1,0 +1,2312 @@
+{
+  "version": 2,
+  "kind": "live-renderer-encoding-regression",
+  "recordedAt": "2026-09-17T04:00:14.834Z",
+  "method": "Real headless Chromium WebGL2 pixel readback: overlapping-node depth regression plus dark/light fixed-core brightness, zero-activation visibility, measured intensity and glow, uniform layer focus and stable camera. Synthetic measured-value fixtures exercise the renderer without model inference.",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "canvas": {
+    "width": 400,
+    "height": 400
+  },
+  "brightness": {
+    "dark": [
+      {
+        "activation": 0,
+        "focused": {
+          "center": [
+            48,
+            57,
+            54,
+            112
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            89,
+            112,
+            112,
+            112,
+            112,
+            87,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 0,
+                "position": [
+                  0.01881864408164558,
+                  0.011151789085419611,
+                  0.09757815449742152
+                ],
+                "target": [
+                  0.01881864408164558,
+                  0.011151789085419611,
+                  0.09757815449742152
+                ],
+                "radius": 0.02162869461698022,
+                "alpha": 0,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            31,
+            37,
+            35,
+            73
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            58,
+            73,
+            73,
+            73,
+            73,
+            57,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 0,
+                "position": [
+                  0.01881864408164558,
+                  0.011151789085419611,
+                  0.09757815449742152
+                ],
+                "target": [
+                  0.01881864408164558,
+                  0.011151789085419611,
+                  0.09757815449742152
+                ],
+                "radius": 0.02162869461698022,
+                "alpha": 0,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            48,
+            57,
+            54,
+            112
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            89,
+            112,
+            112,
+            112,
+            112,
+            87,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "activation": 0.25,
+        "focused": {
+          "center": [
+            114,
+            126,
+            122,
+            184
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            17,
+            31,
+            146,
+            184,
+            184,
+            184,
+            184,
+            143,
+            31,
+            17,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            38,
+            44,
+            42,
+            81
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            65,
+            81,
+            81,
+            81,
+            81,
+            63,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            114,
+            126,
+            122,
+            184
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            17,
+            31,
+            146,
+            184,
+            184,
+            184,
+            184,
+            143,
+            31,
+            17,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "activation": 1,
+        "focused": {
+          "center": [
+            193,
+            210,
+            204,
+            255
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7,
+            35,
+            63,
+            203,
+            255,
+            255,
+            255,
+            255,
+            198,
+            63,
+            35,
+            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            46,
+            52,
+            50,
+            90
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            7,
+            71,
+            90,
+            90,
+            90,
+            90,
+            70,
+            7,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            193,
+            210,
+            204,
+            255
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            7,
+            35,
+            63,
+            203,
+            255,
+            255,
+            255,
+            255,
+            198,
+            63,
+            35,
+            7,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "light": [
+      {
+        "activation": 0,
+        "focused": {
+          "center": [
+            27,
+            39,
+            36,
+            112
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            89,
+            112,
+            112,
+            112,
+            112,
+            87,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            18,
+            26,
+            23,
+            73
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            58,
+            73,
+            73,
+            73,
+            73,
+            57,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            27,
+            39,
+            36,
+            112
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            89,
+            112,
+            112,
+            112,
+            112,
+            87,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "activation": 0.25,
+        "focused": {
+          "center": [
+            51,
+            74,
+            67,
+            184
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            10,
+            18,
+            146,
+            184,
+            184,
+            184,
+            184,
+            143,
+            18,
+            10,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            20,
+            29,
+            27,
+            81
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            65,
+            81,
+            81,
+            81,
+            81,
+            63,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            51,
+            74,
+            67,
+            184
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            10,
+            18,
+            146,
+            184,
+            184,
+            184,
+            184,
+            143,
+            18,
+            10,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0.5
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "activation": 1,
+        "focused": {
+          "center": [
+            79,
+            113,
+            104,
+            255
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            20,
+            36,
+            203,
+            255,
+            255,
+            255,
+            255,
+            198,
+            36,
+            20,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "context": {
+          "center": [
+            23,
+            33,
+            30,
+            90
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            2,
+            4,
+            71,
+            90,
+            90,
+            90,
+            90,
+            70,
+            4,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 1,
+            "activityMode": false,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        },
+        "live": {
+          "center": [
+            79,
+            113,
+            104,
+            255
+          ],
+          "alpha": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            4,
+            20,
+            36,
+            203,
+            255,
+            255,
+            255,
+            255,
+            198,
+            36,
+            20,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "corePixels": 4,
+          "geometry": {
+            "activeLayer": 0,
+            "activityMode": true,
+            "activationEncoding": "brightness",
+            "progress": 1,
+            "camera": [
+              0.6966918198174749,
+              0.41285441174368914,
+              3.612476102757277
+            ],
+            "nodes": [
+              {
+                "id": 10,
+                "position": [
+                  0,
+                  0,
+                  0
+                ],
+                "target": [
+                  0,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 11,
+                "position": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "target": [
+                  0.8,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 1
+              },
+              {
+                "id": 2,
+                "position": [
+                  -1,
+                  0,
+                  0
+                ],
+                "target": [
+                  -1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              },
+              {
+                "id": 3,
+                "position": [
+                  1,
+                  0,
+                  0
+                ],
+                "target": [
+                  1,
+                  0,
+                  0
+                ],
+                "radius": 0.017,
+                "alpha": 1,
+                "signal": 0
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "cameraBefore": [
+    0.6966918198174749,
+    0.41285441174368914,
+    3.612476102757277
+  ],
+  "pixels": {
+    "normalBeforeBoth": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "normalBeforeFront": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "activityBoth": [
+      169,
+      162,
+      183,
+      255
+    ],
+    "activityBack": [
+      169,
+      162,
+      183,
+      255
+    ],
+    "activityFront": [
+      11,
+      13,
+      12,
+      19
+    ],
+    "normalRestoredBoth": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "normalRestoredFront": [
+      146,
+      169,
+      162,
+      255
+    ]
+  },
+  "checksPassed": [
+    "focused activity visible behind faint context",
+    "ordinary snapshot depth occlusion preserved",
+    "activity off restores original snapshot rendering",
+    "brightness core radius and rendered width stay fixed across activation and focus",
+    "zero-activation and nonfocused cores remain visible in both themes",
+    "measured activation increases intensity and produces a fixed-envelope halo",
+    "non-live brightness agrees with live brightness",
+    "encoding and focus changes preserve the camera"
+  ],
+  "sourceHashes": {
+    "src/lib/scene/neural-field.ts": "b3b7b3efd864f47f48c715926e5a3d942c32e7df83c9c32fb69d51c8594d555f",
+    "src/lib/scene/field-shaders.ts": "077c26b61987233abdfa80d2bf2c9b461d623b95248963b9752111bbd0409a5a",
+    "src/lib/components/NeuralField.svelte": "07404f63388b159880ebf2ac046a57704f1328fa4505f0128422e71ba3fe9c79"
+  },
+  "url": "http://127.0.0.1:5173/",
+  "scriptPath": "scripts/verify-live-field.mjs",
+  "scriptSha256": "b8a1da44fc05d27753b0f73b44029ab7c97db86119c0f429476cb66037530b3f"
+}
