@@ -50,7 +50,40 @@ pnpm research:query-shifts --seeds 42,7
 pnpm research:query-shifts --seeds 42,7 --analyze-only
 ```
 
-## Larger models and TinyStories
+## TinyStories with subword tokens
+
+**TinyStories → Subword** is the default language workspace. A deterministic
+4,096-piece BPE vocabulary is fitted on the same 2,097 training stories only.
+Words and fragments replace single-character targets; explicit BOS/EOS tokens keep
+story boundaries meaningful. Models have **1,851,392**, **5,308,416**, or
+**13,860,864** parameters, 128/256-token contexts, and the same 2,048/4,096/9,216
+individually mapped MLP channels. The training corpus averages **4.02 characters
+per text token**. Unsupported prompt characters are rejected explicitly.
+
+The tokenizer preview works before a GPU model is allocated. Inspect token pieces
+and IDs, follow a prompt one token at a time, inspect channel traces and next-token
+probabilities, silence a channel, and sample continuations until EOS or the chosen
+budget. Training masks padding, never crosses story boundaries, and records actual
+supervised token counts. Loss is **nats per subword token**, not comparable directly
+with the character-model loss.
+
+Recorded runs retain the exact tokenizer, parameters, Adam moments, training RNG,
+raw activations, token coordinates, measurements and generated samples. Both
+instruments have separate archives; **Characters** keeps every earlier specimen.
+The [prospective protocol](docs/token-stories-design.md) explains the initial
+learning diagnostic and its limits. See [data provenance](static/data/tinystories-bpe/provenance.json)
+for source recovery, train-only vocabulary fitting, and reproducible hashes.
+
+```sh
+# With pnpm dev running, train and record the declared subword specimen.
+pnpm research:token-stories --steps 4096 --output /tmp/tissue-token-stories --publish
+# Rebuild vocabulary and packed story tokens deterministically.
+node scripts/prepare-token-stories.mjs
+# Independently audit the published binary evidence.
+node scripts/audit-token-stories.mjs --write
+```
+
+## Character-model scale baseline
 
 ![Measured TinyStories model with 10.74M parameters](docs/assets/tinystories-large.png)
 

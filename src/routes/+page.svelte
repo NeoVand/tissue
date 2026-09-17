@@ -9,7 +9,7 @@
 	import ResearchJournal from '$lib/components/ResearchJournal.svelte';
 	import ResearchMethods from '$lib/components/ResearchMethods.svelte';
 	import QueryShiftStudy from '$lib/components/QueryShiftStudy.svelte';
-	import StoryLab from '$lib/components/StoryLab.svelte';
+	import TinyStoriesWorkbench from '$lib/components/TinyStoriesWorkbench.svelte';
 	import { QueryAnalysisEngine } from '$lib/lab/query-analysis-engine';
 	import type { QueryAnalysis } from '$lib/lab/query-analysis';
 	import {
@@ -326,7 +326,7 @@
 				metrics: [initialization.metrics],
 				snapshots: [],
 				observations: [],
-				provenance: { source: 'browser', appVersion: '0.4.0', userAgent: navigator.userAgent }
+				provenance: { source: 'browser', appVersion: '0.5.0', userAgent: navigator.userAgent }
 			};
 			observe(
 				'measurement',
@@ -848,7 +848,7 @@
 		<a class="brand" href={resolve('/')} aria-label="Tissue home"
 			><Icon name="atom" size={24} /><span>tissue<span class="brand-dot">.</span></span></a
 		>
-		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.4</span></span>
+		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.5</span></span>
 		<nav aria-label="Lab views">
 			<button class:active={tab === 'observatory'} onclick={() => (tab = 'observatory')}
 				><Icon name="cube" size={14} />Workbench</button
@@ -903,7 +903,7 @@
 		</div>{/if}
 	{#if storageError}<div class="storage-banner" role="status">{storageError}</div>{/if}
 	{#if storyVisited}<div hidden={tab !== 'stories'}>
-			<StoryLab
+			<TinyStoriesWorkbench
 				{theme}
 				active={tab === 'stories'}
 				disabled={(phase !== 'ready' && phase !== 'error') || queryBusy}

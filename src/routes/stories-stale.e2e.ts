@@ -15,6 +15,7 @@ for (const context of [
 			timeout: 90_000
 		});
 		await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
+		await page.getByRole('button', { name: 'Characters', exact: true }).click();
 		const lab = page.locator('.story-lab');
 		await lab.getByRole('button', { name: /TinyStories small.*Reference/ }).click();
 		const resume = lab.getByRole('button', { name: 'Resume step 100', exact: true });

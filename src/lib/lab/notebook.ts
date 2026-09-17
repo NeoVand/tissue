@@ -11,6 +11,21 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '017',
+		date: '2026-09-16',
+		kind: 'decision',
+		title: 'Give the context a larger unit of language.',
+		text: 'The previous TinyStories specimens predict characters and saw only 51,200 training characters. Study 004 adds a deterministic 4,096-piece vocabulary fitted only on the 2,097 training stories. Its 443,892 training tokens include explicit story boundaries. The same 32 calibration and 152 evaluation stories stay separate. On training text, one BPE text token averages 4.02 characters; 148 of the 152 evaluation stories fit a 256-token context including boundaries.',
+		lesson:
+			'Subword units extend effective context and make token-by-token probes easier to read. They do not guarantee coherent stories. This first run also increases training, so it cannot isolate tokenization as the cause of any improvement. Loss is now nats per subword token, and should not be numerically compared with the character loss. Keep both instruments and preserve every generated sample.',
+		links: [
+			{
+				title: 'Study 004 protocol recorded before measurement',
+				href: 'https://github.com/NeoVand/tissue/blob/1e1e7b5/docs/token-stories-design.md'
+			}
+		]
+	},
+	{
 		id: '016',
 		date: '2026-09-16',
 		kind: 'observation',

@@ -1,7 +1,11 @@
 <script lang="ts">
 	import type { StoryMetrics } from '$lib/stories/protocol';
 	import Icon from './Icon.svelte';
-	let { metrics, compact = false }: { metrics: StoryMetrics[]; compact?: boolean } = $props();
+	let {
+		metrics,
+		compact = false,
+		unit = 'character'
+	}: { metrics: StoryMetrics[]; compact?: boolean; unit?: 'character' | 'token' } = $props();
 	let latest = $derived(metrics.at(-1));
 	let observed = $derived(metrics.filter((metric) => Number.isFinite(metric.validationLoss)));
 	let maximumStep = $derived(Math.max(1, ...observed.map((metric) => metric.step)));
@@ -47,9 +51,10 @@
 <section class:compact class="story-metrics" aria-label="TinyStories training evidence">
 	<div class="metric-strip">
 		<div>
-			<span>Held-out loss <small>nats / char</small></span><strong
-				>{value(latest?.validationLoss)}</strong
-			><small>Train unigram {value(latest?.unigramLoss)}</small>
+			<span>Held-out loss <small>nats / {unit === 'character' ? 'char' : 'token'}</small></span
+			><strong>{value(latest?.validationLoss)}</strong><small
+				>Train unigram {value(latest?.unigramLoss)}</small
+			>
 		</div>
 		<div>
 			<span>Held-out accuracy</span><strong
@@ -57,14 +62,13 @@
 			><small>Unigram {latest ? `${(latest.unigramAccuracy * 100).toFixed(1)}%` : '—'}</small>
 		</div>
 		<div>
-			<span>Training loss <small>nats / char</small></span><strong
-				>{value(latest?.trainLoss)}</strong
-			><small>Latest training batch</small>
+			<span>Training loss <small>nats / {unit === 'character' ? 'char' : 'token'}</small></span
+			><strong>{value(latest?.trainLoss)}</strong><small>Latest training batch</small>
 		</div>
 		<div>
 			<span>Updates</span><strong>{latest?.step.toLocaleString() ?? '—'}</strong><small
 				>{latest
-					? `${latest.trainedTokens.toLocaleString()} training characters`
+					? `${latest.trainedTokens.toLocaleString()} training ${unit}s`
 					: 'No model initialized'}</small
 			>
 		</div>
@@ -75,14 +79,14 @@
 				<h3><Icon name="chart" size={13} />Fixed held-out evidence</h3>
 				<span
 					>{latest
-						? `${latest.evaluationTokens.toLocaleString()} evaluated characters`
+						? `${latest.evaluationTokens.toLocaleString()} evaluated ${unit}s`
 						: 'Measured after initialization and training bursts'}</span
 				>
 			</div>
 			{#if observed.length}<svg
 					viewBox="0 0 512 151"
 					role="img"
-					aria-label="Training and held-out character cross-entropy against the train-unigram baseline"
+					aria-label={`Training and held-out ${unit} cross-entropy against the train-unigram baseline`}
 				>
 					{#each [0, 0.5, 1] as fraction (fraction)}{@const loss =
 							minimumLoss + (maximumLoss - minimumLoss) * fraction}<line
@@ -108,7 +112,7 @@
 							cy={y(metric.validationLoss)}
 							r="2"
 							><title
-								>Step {metric.step}: held-out {metric.validationLoss.toFixed(5)} nats per character</title
+								>Step {metric.step}: held-out {metric.validationLoss.toFixed(5)} nats per {unit}</title
 							></circle
 						>{/each}
 					<text x="34" y="145">0</text><text x="490" y="145" text-anchor="end"
