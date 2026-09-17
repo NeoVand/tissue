@@ -53,3 +53,12 @@ Study 002 uses the same trained checkpoints with a new fixed paired-query measur
 - `query-shifts-audit.json`: independent hash and arithmetic checks, strength-matching distributions, and excluded-unit examples.
 
 The app loads raw records and recomputes analysis locally. Reproduce with `pnpm research:query-shifts --seeds 42,7`; use `--analyze-only` to retain measurements and recompute only the analysis. The first measured runtime was roughly 7–10 seconds per checkpoint on the tested WebGPU browser; this is a device-specific observation.
+
+
+## TinyStories scale study
+
+`stories-index.json` lists three measured reference runs: 827,392, 3,227,648 and 10,739,712 parameters. Every run used seed 42 and 51,200 supervised training characters, with four raw activation maps. See [the full results](../../docs/stories-results.md) for metrics, actual generation samples, geometry coverage and limitations.
+
+Each catalog entry pins an ordered binary archive (or its numbered parts) by SHA-256 and links its uniquely named report. Small and medium include exact latest weights, Adam state and training RNG. Large is explicitly inspection-only in the public archive: the complete 151 MB archive is preserved locally at `.local-experiments/stories-scale-v1/stories-large-complete.tissue` and can be imported through the lab. The public large archive still contains every raw captured activation, geometry diagnostics, metrics, sample and paired intervention probabilities.
+
+The binary format starts with `TISSUE-STORY-V1\n`, a little-endian JSON-header byte count, JSON metadata with typed-array ordinals, then contiguous float32 payloads. Reference assets above 20 MiB are split into ordered parts; the client verifies the hash of their concatenation before decoding. `stories-audit.json` records an independent check of all published artifacts, reports, source hashes and the original local complete checkpoints. Re-run using `node scripts/audit-stories.mjs`; use `--full-archives` only on a machine retaining the report's original local capture paths.

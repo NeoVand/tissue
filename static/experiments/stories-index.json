@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "references": [
+    {
+      "id": "c1dc85d5-202e-4703-8c4e-53fe60f670c0",
+      "title": "TinyStories small · seed 42",
+      "presetId": "small",
+      "seed": 42,
+      "step": 100,
+      "parameterCount": 827392,
+      "unitCount": 2048,
+      "file": "/experiments/stories-small-seed-42-step-100-c1dc85d5.tissue",
+      "reportFile": "/experiments/stories-small-seed-42-step-100-c1dc85d5-report.json",
+      "bytes": 14921005,
+      "sha256": "9fb954a20290176c95483a550f2481584b61211748e700f28c14a49494cf65c9",
+      "validationLoss": 2.4533971059190662,
+      "unigramLoss": 3.047753591136546
+    },
+    {
+      "id": "65fc202e-1a4b-4def-9876-2106b5b4f637",
+      "title": "TinyStories medium · seed 42",
+      "presetId": "medium",
+      "seed": 42,
+      "step": 100,
+      "parameterCount": 3227648,
+      "unitCount": 4096,
+      "file": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue",
+      "reportFile": "/experiments/stories-medium-seed-42-step-100-65fc202e-report.json",
+      "parts": [
+        "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-0",
+        "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-1",
+        "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-2"
+      ],
+      "bytes": 48627081,
+      "sha256": "792c598f3f027058835af0526812ebf88205712bdd809a94a8b7d53722657cc0",
+      "validationLoss": 2.454017328329428,
+      "unigramLoss": 3.047753591136546
+    },
+    {
+      "id": "671ea158-49a0-412f-95a6-e91a2158e75f",
+      "title": "TinyStories large · seed 42",
+      "presetId": "large",
+      "seed": 42,
+      "step": 200,
+      "parameterCount": 10739712,
+      "unitCount": 9216,
+      "file": "/experiments/stories-large-seed-42-step-200-671ea158.tissue",
+      "reportFile": "/experiments/stories-large-seed-42-step-200-671ea158-report.json",
+      "parts": [
+        "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-0",
+        "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-1"
+      ],
+      "bytes": 22139841,
+      "sha256": "b7a1a747504ee38cfbf0de787f01f77635daef53cb8f4bac78ac48870cea73bf",
+      "validationLoss": 2.4340854815563944,
+      "unigramLoss": 3.047753591136546
+    }
+  ]
+}

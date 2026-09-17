@@ -6,6 +6,8 @@ export interface FieldPoint {
 	id: number;
 	position: [number, number, number];
 	layer: number;
+	/** Channel within this layer; older binding views use their 128-channel layout. */
+	channel?: number;
 	activation: number;
 	effect?: number;
 }
@@ -28,6 +30,7 @@ export interface FieldStats {
 interface Anchor {
 	id: number;
 	layer: number;
+	channel: number;
 	x: number;
 	y: number;
 }
@@ -68,8 +71,8 @@ const mix3 = (a: Triple, b: Triple, t: number): Triple => [
 	mix(a[2], b[2], t)
 ];
 const PALETTES = {
-	dark: [0x91aaa2, 0xa8a0b8, 0xb5ab95, 0x879eaf],
-	light: [0x53776d, 0x7e708f, 0x8c7d5f, 0x5f798d]
+	dark: [0x91aaa2, 0xa8a0b8, 0xb5ab95, 0x879eaf, 0xb58d88, 0x8daab0],
+	light: [0x53776d, 0x7e708f, 0x8c7d5f, 0x5f798d, 0x995e58, 0x427b83]
 };
 
 /** All motion interpolates supplied measurements. Stable IDs survive reorder/filter/interruptions. */
@@ -155,6 +158,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 	let lastStats = 0;
 	let lastTransition = false;
 	let pointerStart: [number, number] | null = null;
+	let hoverFrame = 0;
+	let hoverEvent: PointerEvent | null = null;
 	let hovered: number | null = null;
 	const center = new THREE.Vector3();
 	const vector = new THREE.Vector3();
@@ -186,7 +191,13 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			const y = ((1 - vector.y) * height) / 2;
 			options.onanchor?.(
 				vector.z > -1 && vector.z < 1 && x > 0 && x < width && y > 0 && y < height
-					? { id: selected.point.id, layer: selected.point.layer, x, y }
+					? {
+							id: selected.point.id,
+							layer: selected.point.layer,
+							channel: selected.point.channel ?? selected.point.id % 128,
+							x,
+							y
+						}
 					: null
 			);
 		} else options.onanchor?.(null);
@@ -467,6 +478,9 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		return closest;
 	}
 	function pointerDown(event: PointerEvent) {
+		cancelAnimationFrame(hoverFrame);
+		hoverFrame = 0;
+		hoverEvent = null;
 		pointerStart = [event.clientX, event.clientY];
 		options.onhover(null, 0, 0);
 	}
@@ -482,6 +496,17 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 	}
 	function pointerMove(event: PointerEvent) {
 		if (pointerStart) return;
+		hoverEvent = event;
+		// Exact ray tests remain O(N), but a high-rate pointer never triggers several scans per frame.
+		if (hoverFrame) return;
+		hoverFrame = requestAnimationFrame(() => {
+			hoverFrame = 0;
+			const latest = hoverEvent;
+			hoverEvent = null;
+			if (!disposed && !pointerStart && latest) updateHover(latest);
+		});
+	}
+	function updateHover(event: PointerEvent) {
 		const point = hit(event);
 		canvas.style.cursor = point ? 'pointer' : 'grab';
 		if ((point?.id ?? null) !== hovered) {
@@ -495,6 +520,9 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		}
 	}
 	function pointerLeave() {
+		cancelAnimationFrame(hoverFrame);
+		hoverFrame = 0;
+		hoverEvent = null;
 		pointerStart = null;
 		hovered = null;
 		options.onhover(null, 0, 0);
@@ -569,6 +597,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		destroy() {
 			disposed = true;
 			cancelAnimationFrame(frame);
+			cancelAnimationFrame(hoverFrame);
 			observer.disconnect();
 			visibilityObserver.disconnect();
 			controls.removeEventListener('change', schedule);

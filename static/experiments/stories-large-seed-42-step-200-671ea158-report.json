@@ -1,0 +1,1172 @@
+{
+  "id": "671ea158-49a0-412f-95a6-e91a2158e75f",
+  "presetId": "large",
+  "seed": 42,
+  "title": "TinyStories large · seed 42",
+  "parameterCount": 10739712,
+  "unitCount": 9216,
+  "initializationMs": 7894.399999976158,
+  "metrics": [
+    {
+      "step": 0,
+      "trainLoss": null,
+      "validationLoss": 4.565700102364644,
+      "validationAccuracy": 0.0078125,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 0,
+      "elapsedMs": 0,
+      "stepMs": 0,
+      "backend": "webgpu"
+    },
+    {
+      "step": 25,
+      "trainLoss": 2.7050223350524902,
+      "validationLoss": 2.6829722733600647,
+      "validationAccuracy": 0.2763671875,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 6400,
+      "elapsedMs": 27017.100000023842,
+      "stepMs": 1064,
+      "backend": "webgpu"
+    },
+    {
+      "step": 50,
+      "trainLoss": 2.3981270790100098,
+      "validationLoss": 2.5542900286091026,
+      "validationAccuracy": 0.28759765625,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 12800,
+      "elapsedMs": 53644.90000003576,
+      "stepMs": 1315.199999988079,
+      "backend": "webgpu"
+    },
+    {
+      "step": 75,
+      "trainLoss": 2.426809549331665,
+      "validationLoss": 2.520347225556179,
+      "validationAccuracy": 0.2822265625,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 19200,
+      "elapsedMs": 96544.00000017881,
+      "stepMs": 1331.800000011921,
+      "backend": "webgpu"
+    },
+    {
+      "step": 100,
+      "trainLoss": 2.4175426959991455,
+      "validationLoss": 2.4868731157948787,
+      "validationAccuracy": 0.28515625,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 25600,
+      "elapsedMs": 155894.5000001788,
+      "stepMs": 1683,
+      "backend": "webgpu"
+    },
+    {
+      "step": 125,
+      "trainLoss": 2.4507343769073486,
+      "validationLoss": 2.4575378955560154,
+      "validationAccuracy": 0.275390625,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 32000,
+      "elapsedMs": 214577.40000009537,
+      "stepMs": 2155.800000011921,
+      "backend": "webgpu"
+    },
+    {
+      "step": 150,
+      "trainLoss": 2.273394823074341,
+      "validationLoss": 2.4543753081034083,
+      "validationAccuracy": 0.2880859375,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 38400,
+      "elapsedMs": 257432.5,
+      "stepMs": 1395.199999988079,
+      "backend": "webgpu"
+    },
+    {
+      "step": 175,
+      "trainLoss": 2.5025758743286133,
+      "validationLoss": 2.4502510427992092,
+      "validationAccuracy": 0.283203125,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 44800,
+      "elapsedMs": 293564.39999997616,
+      "stepMs": 1357.1000000238419,
+      "backend": "webgpu"
+    },
+    {
+      "step": 200,
+      "trainLoss": 2.426339626312256,
+      "validationLoss": 2.4340854815563944,
+      "validationAccuracy": 0.2841796875,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 51200,
+      "elapsedMs": 335568.90000009537,
+      "stepMs": 1393.0999999642372,
+      "backend": "webgpu"
+    }
+  ],
+  "timings": [
+    {
+      "step": 0,
+      "atlasMs": 2373.600000023842,
+      "geometryMs": 511.9000000357628,
+      "captureAndCheckpointMs": 3268.399999976158
+    },
+    {
+      "step": 50,
+      "atlasMs": 1830.199999988079,
+      "geometryMs": 498.5999999642372,
+      "captureAndCheckpointMs": 2637.5
+    },
+    {
+      "step": 100,
+      "atlasMs": 2748.300000011921,
+      "geometryMs": 701.1000000238419,
+      "captureAndCheckpointMs": 3790.5
+    },
+    {
+      "step": 200,
+      "atlasMs": 1823.6000000238419,
+      "geometryMs": 460.0999999642372,
+      "captureAndCheckpointMs": 2595.900000035763
+    }
+  ],
+  "generation": {
+    "modelId": "f4bd9507-839d-4525-895f-f2140695548f",
+    "step": 200,
+    "prompt": {
+      "original": "Once upon a time, there was a little",
+      "text": "Once upon a time, there was a little",
+      "tokenIds": [
+        48,
+        79,
+        68,
+        70,
+        1,
+        86,
+        81,
+        80,
+        79,
+        1,
+        66,
+        1,
+        85,
+        74,
+        78,
+        70,
+        13,
+        1,
+        85,
+        73,
+        70,
+        83,
+        70,
+        1,
+        88,
+        66,
+        84,
+        1,
+        66,
+        1,
+        77,
+        74,
+        85,
+        85,
+        77,
+        70
+      ],
+      "truncatedCharacters": 0,
+      "unsupportedCharacters": []
+    },
+    "completion": "ast s tor rar lichede w and tin the wasanalad ta t thelas torashe was acacid. is d hecond. t t c",
+    "tokenIds": [
+      66,
+      84,
+      85,
+      1,
+      84,
+      1,
+      85,
+      80,
+      83,
+      1,
+      83,
+      66,
+      83,
+      1,
+      77,
+      74,
+      68,
+      73,
+      70,
+      69,
+      70,
+      1,
+      88,
+      1,
+      66,
+      79,
+      69,
+      1,
+      85,
+      74,
+      79,
+      1,
+      85,
+      73,
+      70,
+      1,
+      88,
+      66,
+      84,
+      66,
+      79,
+      66,
+      77,
+      66,
+      69,
+      1,
+      85,
+      66,
+      1,
+      85,
+      1,
+      85,
+      73,
+      70,
+      77,
+      66,
+      84,
+      1,
+      85,
+      80,
+      83,
+      66,
+      84,
+      73,
+      70,
+      1,
+      88,
+      66,
+      84,
+      1,
+      66,
+      68,
+      66,
+      68,
+      74,
+      69,
+      15,
+      1,
+      74,
+      84,
+      1,
+      69,
+      1,
+      73,
+      70,
+      68,
+      80,
+      79,
+      69,
+      15,
+      1,
+      85,
+      1,
+      85,
+      1,
+      68
+    ],
+    "samplingSeed": 71,
+    "temperature": 0.8,
+    "topK": 20,
+    "requestedTokens": 96,
+    "cancelled": false
+  },
+  "probe": {
+    "unit": 4608,
+    "checkpointPreserved": true,
+    "maxProbabilityChange": 3.8743019104003906e-7
+  },
+  "projection": {
+    "validUnits": 7707,
+    "variance": 0.2904648354034981,
+    "retention": 0.22522522522522528,
+    "audit": {
+      "schedule": "fixed-seed-uniform-without-replacement-v1",
+      "seed": 1369948382,
+      "requested": 128,
+      "planned": 128,
+      "ids": [
+        57,
+        158,
+        233,
+        236,
+        305,
+        307,
+        308,
+        379,
+        418,
+        455,
+        534,
+        686,
+        732,
+        751,
+        761,
+        802,
+        898,
+        1078,
+        1328,
+        1603,
+        1646,
+        1733,
+        1734,
+        1754,
+        1803,
+        1837,
+        1933,
+        1942,
+        1953,
+        1975,
+        2054,
+        2061,
+        2432,
+        2444,
+        2507,
+        2548,
+        2607,
+        2660,
+        2712,
+        2733,
+        2744,
+        2755,
+        2891,
+        2899,
+        2941,
+        3042,
+        3104,
+        3212,
+        3304,
+        3312,
+        3391,
+        3434,
+        3506,
+        3629,
+        3786,
+        3861,
+        3959,
+        3979,
+        4014,
+        4084,
+        4202,
+        4210,
+        4233,
+        4252,
+        4262,
+        4446,
+        4471,
+        4625,
+        4657,
+        4701,
+        4885,
+        4977,
+        5021,
+        5280,
+        5396,
+        5406,
+        5444,
+        5447,
+        5507,
+        5586,
+        5598,
+        5901,
+        5953,
+        5989,
+        5990,
+        6274,
+        6667,
+        6674,
+        6705,
+        6737,
+        6828,
+        6836,
+        6932,
+        6936,
+        7160,
+        7165,
+        7222,
+        7279,
+        7384,
+        7391,
+        7435,
+        7452,
+        7550,
+        7574,
+        7584,
+        7763,
+        7825,
+        7836,
+        7957,
+        7974,
+        7985,
+        8012,
+        8014,
+        8317,
+        8450,
+        8485,
+        8526,
+        8547,
+        8705,
+        8711,
+        8730,
+        8768,
+        8775,
+        8797,
+        8834,
+        8994,
+        9047,
+        9134
+      ],
+      "validPopulation": 7707,
+      "resolvedFocals": 111,
+      "scoredFocals": 111,
+      "k": 6,
+      "neighborRetention": 0.22522522522522528,
+      "perFocal": [
+        {
+          "id": 57,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 158,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 233,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 236,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 305,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 307,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 308,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 379,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 418,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 455,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 534,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 686,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 732,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 751,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 761,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 802,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 898,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1078,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1328,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1603,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1646,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 1733,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 1734,
+          "neighborCount": 6,
+          "retention": 0.8333333333333334
+        },
+        {
+          "id": 1754,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 1803,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1837,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1933,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 1942,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1953,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1975,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2054,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2061,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 2432,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2444,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2507,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2548,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2607,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2660,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2712,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2733,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2744,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2755,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2891,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2899,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2941,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3042,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3104,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3212,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 3304,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3312,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3391,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3434,
+          "neighborCount": 6,
+          "retention": 1
+        },
+        {
+          "id": 3506,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3629,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3786,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3861,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3959,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3979,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4014,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4084,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 4202,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 4210,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 4233,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 4252,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4262,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4446,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 4471,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 4625,
+          "neighborCount": 6,
+          "retention": 1
+        },
+        {
+          "id": 4657,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4701,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4885,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 4977,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 5021,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 5280,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 5396,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 5406,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 5444,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 5447,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 5507,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 5586,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 5598,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 5901,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 5953,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 5989,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 5990,
+          "neighborCount": 6,
+          "retention": 1
+        },
+        {
+          "id": 6274,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 6667,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 6674,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 6705,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 6737,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 6828,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 6836,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 6932,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 6936,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7160,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7165,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7222,
+          "neighborCount": 6,
+          "retention": 1
+        },
+        {
+          "id": 7279,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7384,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7391,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7435,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7452,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7550,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7574,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7584,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 7763,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7825,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7836,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 7957,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 7974,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 7985,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 8012,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 8014,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 8317,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 8450,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 8485,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 8526,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 8547,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 8705,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 8711,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 8730,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 8768,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 8775,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 8797,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 8834,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 8994,
+          "neighborCount": 6,
+          "retention": 1
+        },
+        {
+          "id": 9047,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 9134,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        }
+      ]
+    },
+    "pca": {
+      "method": "feature-covariance-block-power",
+      "iterations": 27,
+      "maxIterations": 256,
+      "tolerance": 1e-8,
+      "converged": true,
+      "relativeResidual": 9.65818272367431e-9,
+      "eigenvalues": [
+        780.3021606619683,
+        760.0940307270262,
+        655.9201255242036,
+        558.9098084152396
+      ],
+      "totalVariance": 7561.384543716603,
+      "boundaryUncertain": false
+    }
+  },
+  "provenance": {
+    "source": "reference",
+    "commit": "a73098c917a56989ae3cdc7f78813a41f900ad09",
+    "workingTreeDirty": true,
+    "sourceHashes": {
+      "src/lib/stories/protocol.ts": "45c7a7312424d5b6c6c541e870db183320b81f02a46af580ab88a2ee7cdbb7a1",
+      "src/lib/stories/dataset.ts": "43c2fc396dbf4a5edf202e0409f0d7a3149b84376d7a9838f6c6f1d9d1f1b817",
+      "src/lib/stories/model.ts": "cd823039b932bf721157a761d1d3fd78fc84efd66e783be33a9488f90dd83c64",
+      "src/lib/stories/runtime.ts": "f26fc8c0af15e3c0fbca535c04749a535d7f7f67e71a8cece2f0a4e5efc8363b",
+      "src/lib/stories/worker.ts": "09dedcc4e2bc9ccd98a149bfa62c3ea9fa0fb6b70cfb859c1b6f16f03ea49cc6",
+      "src/lib/stories/engine.ts": "4a34a6233ff7c53ab675c1b8750d6636a569c7b90e9964bb219ac513fb5ebc7a",
+      "src/lib/stories/geometry.ts": "cca25adbeb1855509d495445bdd015151256dbf3db83bc5ac2defa9101d6a645",
+      "src/lib/stories/geometry-worker.ts": "1ba53e47c4cab7490ebbb8e3306e9980767e182f82e78ac2021f68626f95a1a5",
+      "src/lib/stories/geometry-engine.ts": "7a35c4577c84bdc3977a03fb55fc7b051d503661b4f8d7f995285effeb0a6c94",
+      "src/lib/stories/archive.ts": "1ff46e870f810662ab891d9adc4b123b1ab2a380c4b545bdd52f7c1bb0ea5334",
+      "src/lib/stories/validate-geometry.ts": "916ccaf50bf1acd71753d1ebba395dc04ef50e793b7372458eff1b4b76193b27",
+      "src/lib/lab/model/adam.ts": "34c5144709873083ddb89200fe987f3906bfb1aff5d1a5c0071807f65095e70b",
+      "src/lib/lab/geometry.ts": "46175f79854e72a44bdc59765b9da5b112597774eeaaec800c38fc77ed6dd59d",
+      "pnpm-lock.yaml": "7e41302916f57ea2e972b9700dd4b87668993284aa330e3e5445f8a40e287bf7",
+      "docs/stories-design.md": "42520bc99e74da84389ed33b34bced7f3ba580311cd380a2e549e90b959be473",
+      "scripts/measure-stories.mjs": "cc068e8f921179f197a4517c9b7352b1fa3e19d63fa60c5435065f80edf0ecb9",
+      "static/data/tinystories/provenance.json": "3a25cb491dfa09c736e49c96698fde0e93862ea5f1fae167991d9d350bde240a"
+    },
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+  },
+  "fullArchive": {
+    "path": "/tmp/tissue-stories-scale-v1/stories-large-complete.tissue",
+    "sha256": "a660118e35743280d2e906078a56ea93d9ab7fbd8ff9657fb3968812d719a406"
+  },
+  "published": {
+    "id": "671ea158-49a0-412f-95a6-e91a2158e75f",
+    "title": "TinyStories large · seed 42",
+    "presetId": "large",
+    "seed": 42,
+    "step": 200,
+    "parameterCount": 10739712,
+    "unitCount": 9216,
+    "file": "/experiments/stories-large-seed-42-step-200-671ea158.tissue",
+    "reportFile": "/experiments/stories-large-seed-42-step-200-671ea158-report.json",
+    "parts": [
+      "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-0",
+      "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-1"
+    ],
+    "bytes": 22139841,
+    "sha256": "b7a1a747504ee38cfbf0de787f01f77635daef53cb8f4bac78ac48870cea73bf",
+    "validationLoss": 2.4340854815563944,
+    "unigramLoss": 3.047753591136546
+  }
+}

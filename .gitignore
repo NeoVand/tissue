@@ -27,3 +27,6 @@ test-results
 # Local browser inspection
 .playwright-mcp/
 playwright-report/
+
+# Full local research checkpoints above hosted asset limits
+.local-experiments/

@@ -9,6 +9,7 @@
 	import ResearchJournal from '$lib/components/ResearchJournal.svelte';
 	import ResearchMethods from '$lib/components/ResearchMethods.svelte';
 	import QueryShiftStudy from '$lib/components/QueryShiftStudy.svelte';
+	import StoryLab from '$lib/components/StoryLab.svelte';
 	import { QueryAnalysisEngine } from '$lib/lab/query-analysis-engine';
 	import type { QueryAnalysis } from '$lib/lab/query-analysis';
 	import {
@@ -43,7 +44,9 @@
 	import { notebook } from '$lib/lab/notebook';
 	import { references } from '$lib/lab/references';
 
-	let tab = $state<'observatory' | 'journal' | 'methods' | 'queries'>('observatory');
+	let tab = $state<'observatory' | 'journal' | 'methods' | 'queries' | 'stories'>('observatory');
+	let storyVisited = $state(false);
+	let storyBusy = $state(false);
 	let phase = $state<
 		'booting' | 'ready' | 'training' | 'measuring' | 'probing' | 'repairing' | 'querying' | 'error'
 	>('booting');
@@ -96,8 +99,8 @@
 	let generation = 0;
 	let mounted = false;
 
-	let busy = $derived(phase !== 'ready' && phase !== 'error');
-	let ready = $derived(phase === 'ready');
+	let busy = $derived((phase !== 'ready' && phase !== 'error') || storyBusy);
+	let ready = $derived(phase === 'ready' && !storyBusy);
 	let lastSnapshot = $derived(run?.snapshots.at(-1));
 	let snapshot = $derived(cursor < 0 ? lastSnapshot : run?.snapshots[cursor]);
 	let historical = $derived(!!snapshot && snapshot.step !== lastSnapshot?.step);
@@ -323,7 +326,7 @@
 				metrics: [initialization.metrics],
 				snapshots: [],
 				observations: [],
-				provenance: { source: 'browser', appVersion: '0.3.0', userAgent: navigator.userAgent }
+				provenance: { source: 'browser', appVersion: '0.4.0', userAgent: navigator.userAgent }
 			};
 			observe(
 				'measurement',
@@ -812,6 +815,10 @@
 	let latestRepair = $derived(run?.repairs?.at(-1));
 	onMount(() => {
 		mounted = true;
+		if (new URLSearchParams(location.search).get('view') === 'tinystories') {
+			storyVisited = true;
+			tab = 'stories';
+		}
 		theme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
 		geometryEngine = new GeometryEngine();
 		queryAnalysisEngine = new QueryAnalysisEngine();
@@ -841,10 +848,17 @@
 		<a class="brand" href={resolve('/')} aria-label="Tissue home"
 			><Icon name="atom" size={24} /><span>tissue<span class="brand-dot">.</span></span></a
 		>
-		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.3</span></span>
+		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.4</span></span>
 		<nav aria-label="Lab views">
 			<button class:active={tab === 'observatory'} onclick={() => (tab = 'observatory')}
 				><Icon name="cube" size={14} />Workbench</button
+			>
+			<button
+				class:active={tab === 'stories'}
+				onclick={() => {
+					storyVisited = true;
+					tab = 'stories';
+				}}><Icon name="network" size={14} />TinyStories</button
 			>
 			<button class:active={tab === 'queries'} onclick={() => (tab = 'queries')}
 				><Icon name="target" size={14} />Query shifts</button
@@ -860,7 +874,9 @@
 		</nav>
 		<div class="header-actions">
 			<span class="backend"
-				><i class:working={busy}></i>{metrics?.backend?.toUpperCase() ?? 'INITIALIZING'}</span
+				><i class:working={busy}></i>{tab === 'stories'
+					? 'LANGUAGE LAB'
+					: (metrics?.backend?.toUpperCase() ?? 'INITIALIZING')}</span
 			><button
 				class="icon-button"
 				onclick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -886,6 +902,14 @@
 				>{/if}
 		</div>{/if}
 	{#if storageError}<div class="storage-banner" role="status">{storageError}</div>{/if}
+	{#if storyVisited}<div hidden={tab !== 'stories'}>
+			<StoryLab
+				{theme}
+				active={tab === 'stories'}
+				disabled={(phase !== 'ready' && phase !== 'error') || queryBusy}
+				onbusy={(value) => (storyBusy = value)}
+			/>
+		</div>{/if}
 	{#if tab === 'observatory'}
 		<div class="command-bar">
 			<div class="study-title">
@@ -1395,7 +1419,7 @@
 				addNote();
 			}}
 		/>
-	{:else}<ResearchMethods />{/if}
+	{:else if tab === 'methods'}<ResearchMethods />{/if}
 	<input
 		class="file-input"
 		type="file"

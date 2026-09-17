@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "auditedAt": "2026-09-17T01:51:55.017Z",
+  "auditScriptHash": "6dc14d8f4d142b8b5d736152737329c5dacabfbc6f702321603ec93c9ecc9a60",
+  "catalogHash": "3a85300630c4728782633193ec22c24364dd016af653f315532bd3a28557a16c",
+  "corpusProvenanceHash": "3a25cb491dfa09c736e49c96698fde0e93862ea5f1fae167991d9d350bde240a",
+  "methods": "Independent packed-file parsing; source/corpus/catalog/report checksums; tensor/config validation; independent fixed-window unigram baseline; raw activation variation; saved projection summary arithmetic; raw intervention probability difference. Optional restoration receipt: exact source/checkpoint identity and independent arithmetic over all four probability vectors. No model forward pass or PCA recomputation. Checkpoint-preservation is a recorded runtime assertion, not independently re-executed here.",
+  "restoration": {
+    "file": "static/experiments/stories-large-restoration.json",
+    "sha256": "8ea98240c2878426644966f0659ca881668685b293a117f9f632760707d0ef67",
+    "modelId": "f4bd9507-839d-4525-895f-f2140695548f",
+    "step": 200,
+    "prompt": "Once upon a time, there was a little",
+    "unit": 4608,
+    "backend": "webgpu",
+    "sourceArchiveSHA256": "a660118e35743280d2e906078a56ea93d9ab7fbd8ff9657fb3968812d719a406",
+    "maxIntactDifference": 2.682209014892578e-7,
+    "maxLesionedDifference": 4.470348358154297e-7,
+    "originalMaxEffect": 3.8743019104003906e-7,
+    "restoredMaxEffect": 5.21540641784668e-7,
+    "originalLoss": 2.4340854815563944,
+    "restoredLoss": 2.434085411741762,
+    "limitation": "One same-checkpoint cross-worker comparison; not a calibrated numerical noise floor."
+  },
+  "runs": [
+    {
+      "id": "c1dc85d5-202e-4703-8c4e-53fe60f670c0",
+      "presetId": "small",
+      "seed": 42,
+      "step": 100,
+      "trainedTokens": 51200,
+      "parameters": 827392,
+      "units": 2048,
+      "resumable": true,
+      "file": "/experiments/stories-small-seed-42-step-100-c1dc85d5.tissue",
+      "bytes": 14921005,
+      "sha256": "9fb954a20290176c95483a550f2481584b61211748e700f28c14a49494cf65c9",
+      "parts": [
+        {
+          "path": "/experiments/stories-small-seed-42-step-100-c1dc85d5.tissue",
+          "bytes": 14921005,
+          "sha256": "9fb954a20290176c95483a550f2481584b61211748e700f28c14a49494cf65c9"
+        }
+      ],
+      "reportFile": "static/experiments/stories-small-seed-42-step-100-c1dc85d5-report.json",
+      "reportHash": "4065666b8e869008af72cfca3f751c0e5ae7d665c3d82a74541df03200e12609",
+      "validationLoss": 2.4533971059190662,
+      "unigramLoss": 3.047753591136546,
+      "interventionMaximumProbabilityChange": 0.0005429685115814209,
+      "fullLocalVerified": true
+    },
+    {
+      "id": "65fc202e-1a4b-4def-9876-2106b5b4f637",
+      "presetId": "medium",
+      "seed": 42,
+      "step": 100,
+      "trainedTokens": 51200,
+      "parameters": 3227648,
+      "units": 4096,
+      "resumable": true,
+      "file": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue",
+      "bytes": 48627081,
+      "sha256": "792c598f3f027058835af0526812ebf88205712bdd809a94a8b7d53722657cc0",
+      "parts": [
+        {
+          "path": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-0",
+          "bytes": 20971520,
+          "sha256": "7b43360d435f3b098176cc814453e0f229cf4235b8a4482c9b574fa0a2480849"
+        },
+        {
+          "path": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-1",
+          "bytes": 20971520,
+          "sha256": "3145e79a69d696a916802430c0785095eddd218c8d52fd4fae0a10ab18974bb6"
+        },
+        {
+          "path": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-2",
+          "bytes": 6684041,
+          "sha256": "b0ffc4ef085187bd3d4c043dd363ba529ccce75c172b4092d94ec901db4faa05"
+        }
+      ],
+      "reportFile": "static/experiments/stories-medium-seed-42-step-100-65fc202e-report.json",
+      "reportHash": "838eaefcbdc573ee08a66ec0878ccf12bd8a8d134d2cef0c431ea7b359cf6d35",
+      "validationLoss": 2.454017328329428,
+      "unigramLoss": 3.047753591136546,
+      "interventionMaximumProbabilityChange": 0.0000037550926208496094,
+      "fullLocalVerified": true
+    },
+    {
+      "id": "671ea158-49a0-412f-95a6-e91a2158e75f",
+      "presetId": "large",
+      "seed": 42,
+      "step": 200,
+      "trainedTokens": 51200,
+      "parameters": 10739712,
+      "units": 9216,
+      "resumable": false,
+      "file": "/experiments/stories-large-seed-42-step-200-671ea158.tissue",
+      "bytes": 22139841,
+      "sha256": "b7a1a747504ee38cfbf0de787f01f77635daef53cb8f4bac78ac48870cea73bf",
+      "parts": [
+        {
+          "path": "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-0",
+          "bytes": 20971520,
+          "sha256": "f802daab539edbab8ab17a92a82e523f608fe1b691b3c02e2eafab27a5bdff49"
+        },
+        {
+          "path": "/experiments/stories-large-seed-42-step-200-671ea158.tissue.part-1",
+          "bytes": 1168321,
+          "sha256": "73a7759c5cd924ab652159ee1e0f070dd66ebff8eda835e05e883f979863ea15"
+        }
+      ],
+      "reportFile": "static/experiments/stories-large-seed-42-step-200-671ea158-report.json",
+      "reportHash": "e0c8c428d5fa89ffddc484aaf82319bdf17c89116f2e666b103f8c07d802b3cb",
+      "validationLoss": 2.4340854815563944,
+      "unigramLoss": 3.047753591136546,
+      "interventionMaximumProbabilityChange": 3.8743019104003906e-7,
+      "fullLocalVerified": true
+    }
+  ]
+}

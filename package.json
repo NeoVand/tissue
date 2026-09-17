@@ -1,7 +1,7 @@
 {
 	"name": "tissue",
 	"private": true,
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -16,6 +16,7 @@
 		"test": "pnpm test:unit --run && pnpm test:e2e",
 		"test:e2e": "playwright test",
 		"research:query-shifts": "node scripts/measure-query-shifts.mjs",
+		"research:stories": "node scripts/measure-stories.mjs",
 		"research:verify": "node scripts/verify-model.mjs",
 		"gen": "wrangler types"
 	},

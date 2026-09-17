@@ -12,6 +12,7 @@
 		theme?: 'dark' | 'light';
 		layerFilter?: number | null;
 		geometryLabel?: string;
+		edgeLabel?: string;
 		onstats?: (stats: FieldStats) => void;
 	}
 	let {
@@ -24,12 +25,19 @@
 		theme = 'dark',
 		layerFilter = null,
 		geometryLabel = 'Functional geometry',
+		edgeLabel,
 		onstats
 	}: Props = $props();
 	let rotating = $state(false);
 	let failure = $state('');
 	let hover = $state.raw<{ point: FieldPoint; x: number; y: number } | null>(null);
-	let anchor = $state.raw<{ id: number; layer: number; x: number; y: number } | null>(null);
+	let anchor = $state.raw<{
+		id: number;
+		layer: number;
+		channel: number;
+		x: number;
+		y: number;
+	} | null>(null);
 	let field: ReturnType<typeof createNeuralField> | undefined;
 	const visibleCount = $derived(
 		points.filter((point) => layerFilter === null || point.layer === layerFilter).length
@@ -104,14 +112,18 @@
 	{#if anchor && !hover && !failure}
 		<div class="selected-label" style:left="{anchor.x}px" style:top="{anchor.y}px">
 			<span class="label-leader"></span><span
-				>L{anchor.layer + 1} <b>U{anchor.id.toString().padStart(3, '0')}</b></span
+				>L{anchor.layer + 1} C{anchor.channel} <b>U{anchor.id.toString().padStart(3, '0')}</b></span
 			>
 		</div>
 	{/if}
 	{#if hover && !failure}
 		<div class="node-label" style:left="{hover.x}px" style:top="{hover.y}px">
 			<div>
-				<span>L{hover.point.layer + 1} · U{hover.point.id.toString().padStart(3, '0')}</span><strong
+				<span
+					>L{hover.point.layer + 1} C{hover.point.channel ?? hover.point.id % 128} · U{hover.point.id
+						.toString()
+						.padStart(3, '0')}</span
+				><strong
 					>{mode === 'effect'
 						? (hover.point.effect ?? 0).toFixed(4)
 						: hover.point.activation.toFixed(3)}</strong
@@ -121,7 +133,7 @@
 		</div>
 	{/if}
 	<div class="view-caption" aria-hidden="true">
-		<span>{edges.length ? 'Similarity links · not causal' : 'Measured units'}</span>
+		<span>{edgeLabel ?? (edges.length ? 'Similarity links · not causal' : 'Measured units')}</span>
 		<small
 			>Size · compressed |{mode === 'effect' ? 'effect' : 'activation'}|
 			<span class="gesture-hint"> / Drag to orbit</span></small

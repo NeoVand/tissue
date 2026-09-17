@@ -1,0 +1,1117 @@
+{
+  "id": "65fc202e-1a4b-4def-9876-2106b5b4f637",
+  "presetId": "medium",
+  "seed": 42,
+  "title": "TinyStories medium · seed 42",
+  "parameterCount": 3227648,
+  "unitCount": 4096,
+  "initializationMs": 2367.400000035763,
+  "metrics": [
+    {
+      "step": 0,
+      "trainLoss": null,
+      "validationLoss": 4.564281455473974,
+      "validationAccuracy": 0.00927734375,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 0,
+      "elapsedMs": 0,
+      "stepMs": 0,
+      "backend": "webgpu"
+    },
+    {
+      "step": 25,
+      "trainLoss": 2.6496243476867676,
+      "validationLoss": 2.6569692436314654,
+      "validationAccuracy": 0.28857421875,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 12800,
+      "elapsedMs": 20539.400000095367,
+      "stepMs": 625.2000000476837,
+      "backend": "webgpu"
+    },
+    {
+      "step": 50,
+      "trainLoss": 2.4838926792144775,
+      "validationLoss": 2.511000521320966,
+      "validationAccuracy": 0.279296875,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 25600,
+      "elapsedMs": 45037.80000001192,
+      "stepMs": 747.1999999880791,
+      "backend": "webgpu"
+    },
+    {
+      "step": 75,
+      "trainLoss": 2.371316432952881,
+      "validationLoss": 2.467801668044558,
+      "validationAccuracy": 0.29638671875,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 38400,
+      "elapsedMs": 68030.0000000596,
+      "stepMs": 1295.5,
+      "backend": "webgpu"
+    },
+    {
+      "step": 100,
+      "trainLoss": 2.4344429969787598,
+      "validationLoss": 2.454017328329428,
+      "validationAccuracy": 0.2939453125,
+      "unigramLoss": 3.047753591136546,
+      "unigramAccuracy": 0.18603515625,
+      "uniformLoss": 4.564348191467836,
+      "evaluationTokens": 2048,
+      "trainedTokens": 51200,
+      "elapsedMs": 100110.70000010729,
+      "stepMs": 806.8999999761581,
+      "backend": "webgpu"
+    }
+  ],
+  "timings": [
+    {
+      "step": 0,
+      "atlasMs": 1279.300000011921,
+      "geometryMs": 193.19999998807907,
+      "captureAndCheckpointMs": 1711.199999988079
+    },
+    {
+      "step": 25,
+      "atlasMs": 504.10000002384186,
+      "geometryMs": 165.80000001192093,
+      "captureAndCheckpointMs": 858
+    },
+    {
+      "step": 50,
+      "atlasMs": 583.3000000119209,
+      "geometryMs": 276,
+      "captureAndCheckpointMs": 1046
+    },
+    {
+      "step": 100,
+      "atlasMs": 613.3999999761581,
+      "geometryMs": 253.89999997615814,
+      "captureAndCheckpointMs": 1046.4000000357628
+    }
+  ],
+  "generation": {
+    "modelId": "4b604dd4-b5f3-462c-9704-74cb784cf3af",
+    "step": 100,
+    "prompt": {
+      "original": "Once upon a time, there was a little",
+      "text": "Once upon a time, there was a little",
+      "tokenIds": [
+        48,
+        79,
+        68,
+        70,
+        1,
+        86,
+        81,
+        80,
+        79,
+        1,
+        66,
+        1,
+        85,
+        74,
+        78,
+        70,
+        13,
+        1,
+        85,
+        73,
+        70,
+        83,
+        70,
+        1,
+        88,
+        66,
+        84,
+        1,
+        66,
+        1,
+        77,
+        74,
+        85,
+        85,
+        77,
+        70
+      ],
+      "truncatedCharacters": 0,
+      "unsupportedCharacters": []
+    },
+    "completion": "y w s to schede m hed we t hee s are the de litis and ple to s in and aceey pllinghe e t l t tha",
+    "tokenIds": [
+      90,
+      1,
+      88,
+      1,
+      84,
+      1,
+      85,
+      80,
+      1,
+      84,
+      68,
+      73,
+      70,
+      69,
+      70,
+      1,
+      78,
+      1,
+      73,
+      70,
+      69,
+      1,
+      88,
+      70,
+      1,
+      85,
+      1,
+      73,
+      70,
+      70,
+      1,
+      84,
+      1,
+      66,
+      83,
+      70,
+      1,
+      85,
+      73,
+      70,
+      1,
+      69,
+      70,
+      1,
+      77,
+      74,
+      85,
+      74,
+      84,
+      1,
+      66,
+      79,
+      69,
+      1,
+      81,
+      77,
+      70,
+      1,
+      85,
+      80,
+      1,
+      84,
+      1,
+      74,
+      79,
+      1,
+      66,
+      79,
+      69,
+      1,
+      66,
+      68,
+      70,
+      70,
+      90,
+      1,
+      81,
+      77,
+      77,
+      74,
+      79,
+      72,
+      73,
+      70,
+      1,
+      70,
+      1,
+      85,
+      1,
+      77,
+      1,
+      85,
+      1,
+      85,
+      73,
+      66
+    ],
+    "samplingSeed": 71,
+    "temperature": 0.8,
+    "topK": 20,
+    "requestedTokens": 96,
+    "cancelled": false
+  },
+  "probe": {
+    "unit": 2048,
+    "checkpointPreserved": true,
+    "maxProbabilityChange": 0.0000037550926208496094
+  },
+  "projection": {
+    "validUnits": 3819,
+    "variance": 0.42839099393593355,
+    "retention": 0.16814159292035402,
+    "audit": {
+      "schedule": "fixed-seed-uniform-without-replacement-v1",
+      "seed": 1369948382,
+      "requested": 128,
+      "planned": 128,
+      "ids": [
+        1,
+        4,
+        34,
+        49,
+        57,
+        90,
+        128,
+        155,
+        168,
+        169,
+        186,
+        202,
+        221,
+        240,
+        248,
+        331,
+        341,
+        347,
+        362,
+        420,
+        446,
+        488,
+        631,
+        737,
+        764,
+        780,
+        792,
+        811,
+        818,
+        852,
+        872,
+        889,
+        915,
+        920,
+        941,
+        947,
+        1104,
+        1122,
+        1149,
+        1161,
+        1162,
+        1207,
+        1220,
+        1223,
+        1234,
+        1265,
+        1310,
+        1317,
+        1352,
+        1394,
+        1431,
+        1479,
+        1500,
+        1536,
+        1568,
+        1569,
+        1638,
+        1692,
+        1735,
+        1778,
+        1793,
+        1796,
+        1831,
+        1875,
+        1881,
+        1888,
+        1892,
+        1925,
+        1990,
+        1993,
+        2061,
+        2074,
+        2114,
+        2197,
+        2244,
+        2257,
+        2354,
+        2422,
+        2430,
+        2435,
+        2473,
+        2485,
+        2513,
+        2637,
+        2667,
+        2669,
+        2672,
+        2802,
+        2972,
+        2975,
+        2995,
+        3003,
+        3044,
+        3050,
+        3082,
+        3087,
+        3191,
+        3195,
+        3225,
+        3244,
+        3285,
+        3291,
+        3312,
+        3319,
+        3358,
+        3375,
+        3458,
+        3486,
+        3488,
+        3539,
+        3546,
+        3549,
+        3564,
+        3700,
+        3758,
+        3776,
+        3793,
+        3803,
+        3870,
+        3874,
+        3882,
+        3899,
+        3903,
+        3913,
+        3927,
+        3998,
+        4022,
+        4060
+      ],
+      "validPopulation": 3819,
+      "resolvedFocals": 113,
+      "scoredFocals": 113,
+      "k": 6,
+      "neighborRetention": 0.16814159292035402,
+      "perFocal": [
+        {
+          "id": 1,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 4,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 34,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 49,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 57,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 90,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 128,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 155,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 168,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 169,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 186,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 202,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 221,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 240,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 248,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 331,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 341,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 347,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 362,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 420,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 446,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 488,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 631,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 737,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 764,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 780,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 792,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 811,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 818,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 852,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 872,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 889,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 915,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 920,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 941,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 947,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1104,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1122,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 1149,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1161,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1162,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1207,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1220,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1223,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1234,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1265,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1310,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1317,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1352,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1394,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1431,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1479,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1500,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1536,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1568,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1569,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 1638,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1692,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 1735,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1778,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1793,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1796,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1831,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1875,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1881,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1888,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1892,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 1925,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 1990,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 1993,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2061,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 2074,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2114,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2197,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2244,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 2257,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2354,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2422,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 2430,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2435,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2473,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 2485,
+          "neighborCount": 6,
+          "retention": 0.5
+        },
+        {
+          "id": 2513,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2637,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2667,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 2669,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2672,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 2802,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 2972,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 2975,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 2995,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3003,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3044,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3050,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3082,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3087,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3191,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3195,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3225,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3244,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3285,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3291,
+          "neighborCount": 6,
+          "retention": 0.8333333333333334
+        },
+        {
+          "id": 3312,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3319,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3358,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3375,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3458,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3486,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3488,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3539,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3546,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3549,
+          "neighborCount": 6,
+          "retention": 0.3333333333333333
+        },
+        {
+          "id": 3564,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3700,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3758,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3776,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3793,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3803,
+          "neighborCount": 6,
+          "retention": 0.6666666666666666
+        },
+        {
+          "id": 3870,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3874,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3882,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3899,
+          "neighborCount": 6,
+          "retention": 0.16666666666666666
+        },
+        {
+          "id": 3903,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3913,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 3927,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 3998,
+          "neighborCount": 0,
+          "retention": null
+        },
+        {
+          "id": 4022,
+          "neighborCount": 6,
+          "retention": 0
+        },
+        {
+          "id": 4060,
+          "neighborCount": 0,
+          "retention": null
+        }
+      ]
+    },
+    "pca": {
+      "method": "feature-covariance-block-power",
+      "iterations": 12,
+      "maxIterations": 256,
+      "tolerance": 1e-8,
+      "converged": true,
+      "relativeResidual": 3.6654560269590663e-9,
+      "eigenvalues": [
+        650.4977689196834,
+        500.7140797650152,
+        462.06407276655983,
+        372.3521864030406
+      ],
+      "totalVariance": 3765.895978878889,
+      "boundaryUncertain": false
+    }
+  },
+  "provenance": {
+    "source": "reference",
+    "commit": "a73098c917a56989ae3cdc7f78813a41f900ad09",
+    "workingTreeDirty": true,
+    "sourceHashes": {
+      "src/lib/stories/protocol.ts": "45c7a7312424d5b6c6c541e870db183320b81f02a46af580ab88a2ee7cdbb7a1",
+      "src/lib/stories/dataset.ts": "43c2fc396dbf4a5edf202e0409f0d7a3149b84376d7a9838f6c6f1d9d1f1b817",
+      "src/lib/stories/model.ts": "cd823039b932bf721157a761d1d3fd78fc84efd66e783be33a9488f90dd83c64",
+      "src/lib/stories/runtime.ts": "f26fc8c0af15e3c0fbca535c04749a535d7f7f67e71a8cece2f0a4e5efc8363b",
+      "src/lib/stories/worker.ts": "09dedcc4e2bc9ccd98a149bfa62c3ea9fa0fb6b70cfb859c1b6f16f03ea49cc6",
+      "src/lib/stories/engine.ts": "4a34a6233ff7c53ab675c1b8750d6636a569c7b90e9964bb219ac513fb5ebc7a",
+      "src/lib/stories/geometry.ts": "cca25adbeb1855509d495445bdd015151256dbf3db83bc5ac2defa9101d6a645",
+      "src/lib/stories/geometry-worker.ts": "1ba53e47c4cab7490ebbb8e3306e9980767e182f82e78ac2021f68626f95a1a5",
+      "src/lib/stories/geometry-engine.ts": "7a35c4577c84bdc3977a03fb55fc7b051d503661b4f8d7f995285effeb0a6c94",
+      "src/lib/stories/archive.ts": "1ff46e870f810662ab891d9adc4b123b1ab2a380c4b545bdd52f7c1bb0ea5334",
+      "src/lib/stories/validate-geometry.ts": "916ccaf50bf1acd71753d1ebba395dc04ef50e793b7372458eff1b4b76193b27",
+      "src/lib/lab/model/adam.ts": "34c5144709873083ddb89200fe987f3906bfb1aff5d1a5c0071807f65095e70b",
+      "src/lib/lab/geometry.ts": "46175f79854e72a44bdc59765b9da5b112597774eeaaec800c38fc77ed6dd59d",
+      "pnpm-lock.yaml": "7e41302916f57ea2e972b9700dd4b87668993284aa330e3e5445f8a40e287bf7",
+      "docs/stories-design.md": "42520bc99e74da84389ed33b34bced7f3ba580311cd380a2e549e90b959be473",
+      "scripts/measure-stories.mjs": "cc068e8f921179f197a4517c9b7352b1fa3e19d63fa60c5435065f80edf0ecb9",
+      "static/data/tinystories/provenance.json": "3a25cb491dfa09c736e49c96698fde0e93862ea5f1fae167991d9d350bde240a"
+    },
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+  },
+  "fullArchive": {
+    "path": "/tmp/tissue-stories-scale-v1/stories-medium-complete.tissue",
+    "sha256": "792c598f3f027058835af0526812ebf88205712bdd809a94a8b7d53722657cc0"
+  },
+  "published": {
+    "id": "65fc202e-1a4b-4def-9876-2106b5b4f637",
+    "title": "TinyStories medium · seed 42",
+    "presetId": "medium",
+    "seed": 42,
+    "step": 100,
+    "parameterCount": 3227648,
+    "unitCount": 4096,
+    "file": "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue",
+    "reportFile": "/experiments/stories-medium-seed-42-step-100-65fc202e-report.json",
+    "parts": [
+      "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-0",
+      "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-1",
+      "/experiments/stories-medium-seed-42-step-100-65fc202e.tissue.part-2"
+    ],
+    "bytes": 48627081,
+    "sha256": "792c598f3f027058835af0526812ebf88205712bdd809a94a8b7d53722657cc0",
+    "validationLoss": 2.454017328329428,
+    "unigramLoss": 3.047753591136546
+  }
+}

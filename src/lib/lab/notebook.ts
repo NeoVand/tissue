@@ -11,6 +11,51 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '016',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'A tiny computed effect can overlap numerical variation.',
+		text: 'Restoring the full 10.74M checkpoint in a separate browser worker preserved its step and held-out accuracy; held-out loss differed by about 7e-8 nats. For the same prompt, the maximum intact probability difference across workers was 2.68e-7. The prespecified unit-4608 ablation changed a probability by at most 3.87e-7 in the original worker and 5.22e-7 after restoration.',
+		lesson:
+			'This single cross-worker comparison does not calibrate a numerical noise floor. It does show why this tiny ablation cannot support a substantive causal interpretation by itself. Raw intact/ablated distributions are retained; small displayed effects use scientific notation. Future causal studies need repeated intact controls and effects large enough to distinguish from numerical variation.',
+		links: [
+			{
+				title: 'Raw restoration comparison',
+				href: 'https://github.com/NeoVand/tissue/blob/main/static/experiments/stories-large-restoration.json'
+			}
+		]
+	},
+	{
+		id: '015',
+		date: '2026-09-16',
+		kind: 'observation',
+		title: 'Larger models run; attractive geometry still loses neighbors.',
+		text: 'At the declared 51,200-character budget, the 827k, 3.23M and 10.74M TinyStories models reached held-out losses of 2.453, 2.454 and 2.434 nats per character, versus a 3.048 training-unigram baseline. All three trained on WebGPU and retained four measured maps, samples and raw selected-unit interventions. Their generated text remains fragmented.',
+		lesson:
+			'The final 3D maps retain 25.8%, 16.8% and 22.5% of audited six-neighbor memberships, over 119, 113 and 111 scorable focal units respectively. Every channel was captured, but unresolved directions are omitted from functional placement. These shapes are navigable measurements, not established semantic circuits. Next: train longer, repeat seeds, then test whether neighborhoods predict held-out intervention responses.',
+		links: [
+			{
+				title: 'Results, raw samples, and limitations',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/stories-results.md'
+			}
+		]
+	},
+	{
+		id: '014',
+		date: '2026-09-16',
+		kind: 'decision',
+		title: 'Scale the specimen; keep the measurements accountable.',
+		text: 'Study 003 moves from the 25,920-parameter binding model to TinyStories character models with 827,392, 3,227,648 and 10,739,712 parameters. Every MLP channel is measured: 2,048, 4,096 and 9,216 points with real layer/channel addresses. The corpus is attributed to its source and split by story before fixed calibration and evaluation windows are selected.',
+		lesson:
+			'The first comparison fixes 51,200 training characters and seed 42. Architecture, learning rate, and batch size differ, so this is not a causal scaling law. PCA uses every resolved fingerprint, while projection retention audits 128 preselected focal IDs. The TinyStories workspace records maps, loss curves, generated samples, exact selected-unit ablations, and binary archives.',
+		links: [
+			{
+				title: 'Design recorded before the scale comparison',
+				href: 'https://github.com/NeoVand/tissue/blob/a73098c/docs/stories-design.md'
+			}
+		]
+	},
+	{
 		id: '013',
 		date: '2026-09-16',
 		kind: 'observation',

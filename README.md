@@ -1,6 +1,6 @@
 # Tissue
 
-A browser laboratory for discovering useful spatial descriptions of small language models. Real training, measured geometry, interventions, and a persistent research journal share one interface.
+A browser laboratory for discovering useful spatial descriptions of language models trained in the browser. Real training, measured geometry, interventions, and a persistent research journal share one interface.
 
 ## Run
 
@@ -50,6 +50,27 @@ pnpm research:query-shifts --seeds 42,7
 pnpm research:query-shifts --seeds 42,7 --analyze-only
 ```
 
+## Larger models and TinyStories
+
+![Measured TinyStories model with 10.74M parameters](docs/assets/tinystories-large.png)
+
+**TinyStories** opens a separate language-model workspace. Its three presets contain **827,392**, **3,227,648**, and **10,739,712** parameters, with **2,048**, **4,096**, and **9,216** individually addressed MLP channels. Four or six causal transformer layers predict the next character using JaxJS in a worker. The larger two presets require WebGPU; the compact preset also supports WASM.
+
+The attributed corpus from Pattern contains 2,097 training stories. The original 184 validation stories are separated into 32 calibration and 152 evaluation stories before window selection. The lab shows cross-entropy and accuracy on 2,048 fixed held-out characters against a training-only unigram baseline. This is a 96-character model with a 128-character context, not a pretrained TinyStories checkpoint. See the [recorded design](docs/stories-design.md), [source attribution](static/data/tinystories/provenance.json), and [dataset license](static/data/tinystories/LICENSE.html).
+
+Every map retains the raw responses of every MLP channel on eight fixed calibration windows at 16 positions each. Feature-covariance PCA avoids an all-neuron distance matrix. Six selected neighbors are queried exactly in the original fingerprint space; projection retention uses 128 activation-independent focal IDs and reports coverage. Undefined directions remain absent. The [geometry validation](docs/stories-geometry-validation.md) distinguishes this sampled audit from an all-unit claim.
+
+Open a recorded specimen to inspect measured maps without allocating its model. Explicitly resume a saved checkpoint to train, run prompt probes, silence a channel at every prompt position, or sample text. Historical maps retain measurements; only the latest checkpoint retains weights. Binary `.tissue` export/import preserves typed activations, learning curves, samples, paired ablation probabilities, provenance, and, when present, exact parameters, Adam state, and training RNG. The public large reference is explicitly inspection-only; initialize a fresh large run to train it. Full large checkpoints can be saved and exported locally.
+
+```sh
+# Keep pnpm dev running. Trains each preset on the same 51,200 characters.
+pnpm research:stories --presets small,medium,large --output /tmp/tissue-stories --publish
+# Audit published binary artifacts, reports, and implementation hashes.
+node scripts/audit-stories.mjs
+```
+
+The runner preserves each capture before proceeding, records source hashes, and verifies that probes and generation leave weights, optimizer, and training randomness unchanged. Public archives above 20 MiB are served in checksum-verified chunks to respect the adapter's asset limits. At the first 51,200-character budget, held-out loss reached **2.453, 2.454, and 2.434**, against **3.048** for the unigram baseline. Generated text is still fragmented; [recorded results and actual samples](docs/stories-results.md) include those limitations. Different learning rates, batch sizes, widths, and depths make this an initial scale comparison, not a controlled scaling law. [Engine validation](docs/stories-model-validation.md) records the numerical and lifecycle checks.
+
 ## Feedback loops
 
 ```sh
@@ -79,7 +100,8 @@ The first browser run exposed silently incorrect synchronous WebGPU readbacks. P
 
 ## Where to work
 
-- `src/lib/lab/model/`: task, JaxJS transformer, optimizer, training, interventions, repair.
+- `src/lib/stories/`: larger TinyStories models, worker engine, scalable geometry, validated binary archives.
+- `src/lib/lab/model/`: controlled task, JaxJS transformer, optimizer, training, interventions, repair.
 - `src/lib/lab/protocol.ts`: versioned worker and model data contracts.
 - `src/lib/lab/geometry.ts`: measurable fingerprint geometry and diagnostics.
 - `src/lib/lab/geometry-worker.ts`: analysis off the UI thread.
