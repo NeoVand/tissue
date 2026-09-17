@@ -1,3 +1,4 @@
+import { publicAsset } from '../deployment/public-assets';
 import {
 	STORY_PRESETS,
 	STORY_CHARACTERS,
@@ -530,7 +531,7 @@ export async function loadStoryReference(reference: StoryReference): Promise<Sto
 	const chunks: ArrayBuffer[] = [];
 	let total = 0;
 	for (const path of paths) {
-		const response = await fetch(path, { signal: AbortSignal.timeout(60000) });
+		const response = await fetch(publicAsset(path), { signal: AbortSignal.timeout(60000) });
 		if (!response.ok) throw new Error('The recorded story model could not be loaded.');
 		const chunk = await response.arrayBuffer();
 		total += chunk.byteLength;

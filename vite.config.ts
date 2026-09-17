@@ -1,8 +1,12 @@
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
-import adapter from '@sveltejs/adapter-cloudflare';
+import cloudflare from '@sveltejs/adapter-cloudflare';
+import staticAdapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
+
+// Cloudflare remains the default; GitHub Pages is a separate, explicit build target.
+const githubPages = process.env.TISSUE_DEPLOY_TARGET === 'github-pages';
 
 export default defineConfig({
 	worker: { format: 'es' },
@@ -16,7 +20,9 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			adapter: githubPages ? staticAdapter({ fallback: '404.html' }) : cloudflare(),
+			// Absolute build paths also keep BASE_URL reliable inside model workers.
+			paths: { base: githubPages ? '/tissue' : '', relative: false }
 		})
 	],
 	test: {

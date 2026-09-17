@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { publicAsset } from '$lib/deployment/public-assets';
 	import { StoryEngine } from '$lib/stories/engine';
 	import { StoryGeometryEngine } from '$lib/stories/geometry-engine';
 	import type { StoryNeighbor } from '$lib/stories/geometry';
@@ -777,7 +778,7 @@
 		void refreshRuns().catch((reason) => {
 			if (mounted) storageWarning = String(reason);
 		});
-		void fetch('/experiments/stories-index.json')
+		void fetch(publicAsset('/experiments/stories-index.json'))
 			.then(async (response) => {
 				if (!response.ok) return;
 				const data = (await response.json()) as { version?: number; references?: StoryReference[] };

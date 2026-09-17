@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
+	import { publicAsset } from '$lib/deployment/public-assets';
 	import { LiveTokenStoryEngine } from '$lib/token-stories/live-engine';
 	import type { LiveTokenStoryFrame } from '$lib/token-stories/live-protocol';
 	import { LayerPlaybackClock } from './layer-playback-clock';
@@ -1105,8 +1106,8 @@
 	async function loadTokenizerPreview(): Promise<void> {
 		try {
 			const responses = await Promise.all([
-				fetch('/data/tinystories-bpe/tokenizer.json'),
-				fetch('/data/tinystories-bpe/corpus.json')
+				fetch(publicAsset('/data/tinystories-bpe/tokenizer.json')),
+				fetch(publicAsset('/data/tinystories-bpe/corpus.json'))
 			]);
 			if (!responses.every((response) => response.ok))
 				throw new Error('Tokenizer assets could not be loaded.');
@@ -1127,7 +1128,7 @@
 		void refreshRuns().catch((reason) => {
 			if (mounted) storageWarning = String(reason);
 		});
-		void fetch('/experiments/token-stories-index.json')
+		void fetch(publicAsset('/experiments/token-stories-index.json'))
 			.then(async (response) => {
 				if (!response.ok) return;
 				const data = (await response.json()) as {

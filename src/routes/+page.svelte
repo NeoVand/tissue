@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
+	import { publicAsset } from '$lib/deployment/public-assets';
 	import NeuralField from '$lib/components/NeuralField.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import ModelAnatomy from '$lib/components/ModelAnatomy.svelte';
@@ -599,7 +600,7 @@
 	async function openReference(path = '/experiments/binding-seed-42.json') {
 		if (busy) return;
 		try {
-			const response = await fetch(path);
+			const response = await fetch(publicAsset(path));
 			if (!response.ok) throw new Error('The reference experiment could not be loaded.');
 			const source = parseRun(await response.text());
 			const now = new Date().toISOString();
@@ -701,7 +702,9 @@
 		queryActivity = 'loading';
 		queryStatus = `Loading recorded query study · seed ${referenceSeed}…`;
 		try {
-			const response = await fetch(`/experiments/query-shifts-seed-${referenceSeed}.json`);
+			const response = await fetch(
+				publicAsset(`/experiments/query-shifts-seed-${referenceSeed}.json`)
+			);
 			if (!response.ok) throw new Error('The recorded query study could not be loaded.');
 			const record = parseQueryStudy(await response.text());
 			if (!mounted || ticket !== queryGeneration) return;

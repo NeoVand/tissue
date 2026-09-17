@@ -1,0 +1,32 @@
+{
+	"capturedAt": "2026-09-17T18:20:17.731Z",
+	"image": "tissue-banner.png",
+	"imageSha256": "b41f5bca278aeb91c5ff76d5f780e02e04889663af40599a7c0619acb8e49151",
+	"viewport": {
+		"width": 1600,
+		"height": 1120
+	},
+	"deviceScaleFactor": 2,
+	"pixelDimensions": {
+		"width": 3200,
+		"height": 2240
+	},
+	"source": "Actual browser screenshot, with the published measured replay paused using the lab controls. No UI injection or image compositing.",
+	"reference": {
+		"id": "d474f204-c23a-4a7a-a7c0-69a06ca1e3ff",
+		"file": "/experiments/token-stories-live-demo-d474f204.tissue",
+		"sha256": "12f9d034dc2aedcfe32b74dc6f13fcfb237d8560ffe020d03f95e9a618030f39",
+		"step": 4096,
+		"parameterCount": 1851392,
+		"unitCount": 2048
+	},
+	"view": {
+		"layout": "functional",
+		"encoding": "brightness",
+		"displayedUnits": 2018,
+		"frameIndex": 10,
+		"layerIndex": 2,
+		"selectedUnit": 1403
+	},
+	"url": "http://127.0.0.1:4180/tissue/?view=tinystories"
+}

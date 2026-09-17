@@ -11,6 +11,22 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '021',
+		date: '2026-09-17',
+		kind: 'decision',
+		title: 'Make the laboratory shareable.',
+		text: 'GitHub Actions builds and publishes the lab to GitHub Pages, with trained reference specimens available for inspection. The README opens with a real high-resolution capture of the 1.85M-parameter model at step 4,096, paused during measured replay. Dataset and checkpoint requests resolve beneath the repository hosting path in both the interface and model workers.',
+		lesson:
+			'Publishing the instrument is not a new model experiment. Original data and provenance stay unchanged; the predeployment checkout preserves the source hashes for strict historical audits. Training and personal archives remain local to each browser.',
+		links: [
+			{ title: 'Public laboratory', href: 'https://neovand.github.io/tissue/' },
+			{
+				title: 'Deployment, screenshot, and historical source verification',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/github-pages.md'
+			}
+		]
+	},
+	{
 		id: '020',
 		date: '2026-09-16',
 		kind: 'decision',

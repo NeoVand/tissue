@@ -1,3 +1,4 @@
+import { publicAsset } from '../deployment/public-assets';
 import {
 	createTokenStoryTokenizer,
 	validateTokenStoryTokenizerIdentity,
@@ -204,7 +205,9 @@ export async function loadTokenStoryCorpus(config: TokenStoryConfig): Promise<To
 	const signal = AbortSignal.timeout(30000),
 		root = '/data/tinystories-bpe/';
 	const [tokens, metadata, tokenizer] = await Promise.all(
-		['tokens.bin', 'corpus.json', 'tokenizer.json'].map((file) => fetch(root + file, { signal }))
+		['tokens.bin', 'corpus.json', 'tokenizer.json'].map((file) =>
+			fetch(publicAsset(root + file), { signal })
+		)
 	);
 	if (!tokens.ok || !metadata.ok || !tokenizer.ok)
 		throw new Error('BPE TinyStories data could not be loaded');

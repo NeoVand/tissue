@@ -1,187 +1,130 @@
 # Tissue
 
-A browser laboratory for discovering useful spatial descriptions of language models trained in the browser. Real training, measured geometry, interventions, and a persistent research journal share one interface.
+**A browser research lab for seeing what language models learn.** Train small transformers, map measured activations into 3D, follow generation token by token, and test what changes when a channel is silenced.
 
-## Run
+[![A trained TinyStories transformer in Tissue, with measured live activity on its functional 3D map](docs/assets/tissue-banner.png)](https://neovand.github.io/tissue/?view=tinystories)
+
+_An actual 1.85M-parameter TinyStories BPE model at training step 4,096. Positions are a three-component PCA projection of calibration activations; brightness shows measured next-token activity. The functional map places 2,018 of 2,048 MLP channels with defined fingerprint directions._
+
+[**Open the lab →**](https://neovand.github.io/tissue/?view=tinystories) · [Measured results](docs/token-stories-results.md) · [How the view works](docs/live-activations.md) · [Evidence archive](static/experiments/README.md)
+
+## Start with a trained model
+
+1. Open **TinyStories → Subword**, then the recorded specimen **Live replay · TinyStories BPE small at 4096**. Choose **Replay trace** to explore 24 measured token frames. No model allocation or training is required.
+2. Switch between **Functional** and **Model layout**, select a channel, and inspect its exact activation. Pause, advance a layer or token, and compare the raw next-token probabilities.
+3. To generate your own continuation, open **TinyStories BPE small · seed 42**, choose **Resume step 4096**, then **Generate live**. The same button pauses and resumes generation. Or initialize a fresh model and watch it train.
+
+The replay specimen contains measurements only. The original specimen contains the trained weights. WebGPU is preferred for training and inference; the compact preset also supports WASM. The first model operation compiles kernels and takes longer than subsequent ones.
+
+## What you can explore
+
+- **Train in the browser.** Continuous training or finite update budgets, held-out loss and accuracy, and a train-only unigram baseline. Maps and complete checkpoints are saved every 100 updates and when training pauses.
+- **Follow measured activity.** Each live frame retains all post-ReLU MLP channels at the final input position, the exact input token IDs, and the full next-token distribution. Pause, step, and replay without recomputing a model.
+- **Keep the model connection.** Stable layer/channel identities, incoming and outgoing tensor addresses, prompt-position probes, original-space neighbors, and single-channel ablations.
+- **Compare spatial descriptions.** Functional activation geometry and architectural coordinates, fixed-size brightness or size encoding, layer filters, and camera-preserving shader rendering.
+- **Keep the evidence.** Local IndexedDB history and portable `.tissue` archives retain raw measurements, samples, provenance, and—when present—weights, Adam state, and training RNG. Failed samples and negative results stay in the journal.
+- **Explore earlier experiments.** The controlled variable-binding task, paired-query intervention study, and character-based TinyStories models remain separate, inspectable workspaces.
+
+## Model sizes
+
+The subword models use a deterministic **4,096-piece BPE vocabulary**, fitted only on 2,097 training stories. Calibration and evaluation stories are separate; story boundaries and EOS targets are preserved. The corpus averages 4.02 characters per text token. Unsupported prompt characters are rejected explicitly.
+
+| Preset   | Parameters | Layers × width |    Context | Measured MLP channels |
+| :------- | ---------: | :------------- | ---------: | --------------------: |
+| Compact  |  1,851,392 | 4 × 128        | 128 tokens |                 2,048 |
+| Expanded |  5,308,416 | 4 × 256        | 256 tokens |                 4,096 |
+| Large    | 13,860,864 | 6 × 384        | 256 tokens |                 9,216 |
+
+The compact preset has a published 4,096-update training run. Expanded and Large passed real one-update WebGPU training, capture, and intervention checks; they are **not a trained model-size comparison**. Larger presets require WebGPU and sufficient browser memory. See the [protocol](docs/token-stories-design.md), [engine validation](docs/token-stories-engine-validation.md), and [data provenance](static/data/tinystories-bpe/provenance.json).
+
+## Read the picture carefully
+
+- **A point is an MLP channel**, with a real address in the model. Attention heads and residual-stream coordinates are not separately visualized.
+- **Functional positions summarize calibration responses.** Centered, normalized 128-dimensional activation fingerprints are projected into three PCA coordinates. Undefined directions are omitted; Model layout includes every channel.
+- **Links are similarity, not communication.** Selected neighbors are computed in the original fingerprint space. Nearby points in 3D need not be nearby there; the lab reports projection quality beside the map.
+- **Brightness is relative within a frame.** Inactive neurons have a visible structural floor; layers outside the playback focus are dimmed. Exact values remain available in the inspector. The scale is not absolute across tokens.
+- **Layer pacing is presentation timing.** One measured forward pass is displayed layer by layer. Its final input position predicts the next output token; this is not a recording of GPU execution times or individual neurons firing.
+
+The aim is to find spatial descriptions that help make and test predictions about model behavior. An attractive shape alone does not identify a concept, mechanism, or circuit. [Measurement details →](docs/live-activations.md)
+
+## What we have learned so far
+
+The trained subword specimen processed **1,868,552 supervised targets**. Loss reached **3.560 nats/token**, versus **6.059** for the unigram baseline, with **31.1%** next-token accuracy on 2,040 fixed held-out targets. Continuations have local story-like phrasing but still confuse characters, grammar, and events. This is one seed on a small subset, not evidence of reliable story understanding. [Unedited samples and results](docs/token-stories-results.md)
+
+Its final 3D map retains only **6.12%** of audited six-neighbor memberships and explains **11.56%** of fingerprint variance. Predictive loss improved while projection fidelity varied nonmonotonically. The map is useful to interrogate, but the recorded result does not justify trusting its clusters.
+
+Earlier controlled studies also keep their less favorable findings: activation neighborhoods were strongly confounded by layer; a repair pilot **did not favor functional neighborhoods**; and paired-query neighborhoods transferred above a matched random baseline but scored below full-effect neighborhoods in both tested seeds. [Fingerprint comparison](docs/fingerprint-comparison.md) · [Paired-query results](docs/query-shifts-results.md) · [Repair evidence](static/experiments/README.md)
+
+These are working instruments and bounded experiments, not a claim of a newly established interpretability method. The next useful test is whether neighborhoods predict held-out intervention effects under matched prompts and appropriate controls.
+
+## Run locally
+
+Use **Node.js 24+** and **pnpm**:
 
 ```sh
+git clone https://github.com/NeoVand/tissue.git
+cd tissue
 pnpm install
 pnpm dev
 ```
 
-Open the local URL. WebGPU is preferred; initialization validates numerical readback and can fall back to WASM. The first compilation takes a few seconds. **Explore that specimen** loads a measured, trained reference without a training wait. The source model runs entirely in your browser.
-
-## What is here
-
-- A 25,920-parameter causal transformer: two layers, width 32, four heads, 256 MLP neurons.
-- A controlled next-token task: `a=3;b=7;c=2;?b → 7`. Answer-only cross-entropy. Whole assignment mappings are disjoint across training, calibration, and evaluation.
-- Activation and exact zero-ablation fingerprints, deterministic 3D PCA, temporal Procrustes alignment, original-space neighbor links, and projection-quality measurements.
-- A dense dark-default workbench with persistent light mode and HugeIcons. Functional and architectural layouts share the same stable neuron identities.
-- Linked model anatomy, token-by-neuron activation matrix, exact weight slices, token responses, original-space neighbor distances, and selected-neuron interventions.
-- Instanced shader nodes and similarity edges interpolate measured checkpoint positions while preserving the camera. Intermediate frames are display interpolation, not measurements.
-- Development checkpoints and four-arm constrained repair pilots.
-- IndexedDB experiment history; JSON export/import includes model, Adam state, RNG, metrics, snapshots, notes, latest raw fingerprints, and repair receipts. Reload resumes the active specimen.
-- A curated research notebook that records findings and limitations alongside measured reference runs.
-
-The visualization does not impose a spatial training objective or a brain-shaped layout. Size encodes compressed activation (or intervention strength); color identifies the layer; links mean fingerprint similarity, not causal connections. Projection does lose information—inspect neighbor retention before interpreting a cluster.
-
-## Evidence, including the unhelpful result
-
-Seed 42 was near the 33.3% random input-copy baseline at 500 steps and reached 97.9% on 96 fixed held-out prompts at 2,000 steps. Seed 7 independently exhibited a similar late transition. These are two small-model runs, not a general training guarantee.
-
-Across both final checkpoints, 89–95% of activation-neighbor selections stay within a layer, versus about 69% for intervention neighbors. The two maps share 19–20% of nearest-neighbor selections (the independent-uniform expectation is 2.35%). This descriptive comparison exposes a layer confound; it does not establish a new interpretability method. The in-app Findings tab and [reproducible comparison](docs/fingerprint-comparison.md) preserve the full counts, earlier checkpoints, null definitions, and source hashes.
-
-The first four-arm repair pilot **did not favor functional neighborhoods**. The lesion caused little damage, and unlesioned fine-tuning controls were absent. The next experiments are recorded in the lab, not hidden behind the attractive geometry.
-
-Measured artifacts and provenance live in [`static/experiments`](static/experiments/README.md). The method is described in [`docs/methods.md`](docs/methods.md).
-
-## Paired-query study
-
-Open **Query shifts** to measure the current checkpoint or inspect recorded results for both trained seeds. Three prompts share an identical assignment and order; only the queried variable changes. Every MLP unit is silenced at all positions. Calibration query-effect contrasts define the map and neighborhood selections; disjoint held-out assignments supply the evaluation target.
-
-The [prospectively recorded protocol](docs/query-shifts-design.md) fixes six neighbors, a shared same-layer pool of 32 units matched by calibration full-effect strength, and four comparison methods. Query-effect neighborhoods transfer above the matched random expectation, but full-effect neighborhoods score slightly better in both seeds. See [the results](docs/query-shifts-results.md) for cohort exclusions, per-layer results, matching quality, and limitations.
-
-Completed studies retain raw probes, exact checkpoint identity, and numerical checks in their own IndexedDB archive. The Field journal links to them. Study JSON export/import preserves raw evidence and provenance; analysis is recomputed in a worker when opened. The model, Adam state, and training RNG remain unchanged. Reference studies are clearly distinguished from the current resident model.
+Open the URL printed by Vite. The app runs model computation in browser workers; there is no inference server. Recorded specimens can be inspected before allocating a model. Export important runs: browser storage and memory are finite.
 
 ```sh
-# Keep pnpm dev running; no retraining is required.
-pnpm research:query-shifts --seeds 42,7
-# Recompute analysis from preserved raw records without running a model.
-pnpm research:query-shifts --seeds 42,7 --analyze-only
+pnpm check                           # TypeScript and Svelte checks
+pnpm exec vitest run --project server # Numerical, data, and archive contracts
+pnpm lint                            # Formatting and ESLint
+pnpm build                           # Production app and workers
+pnpm exec playwright install chromium
+pnpm test:e2e                        # Production browser flows
 ```
 
-## TinyStories with subword tokens
-
-![Measured live layer playback in the trained subword model](docs/assets/live-token-activations.png)
-
-**TinyStories → Subword** is the default language workspace. A deterministic
-4,096-piece BPE vocabulary is fitted on the same 2,097 training stories only.
-Words and fragments replace single-character targets; explicit BOS/EOS tokens keep
-story boundaries meaningful. Models have **1,851,392**, **5,308,416**, or
-**13,860,864** parameters, 128/256-token contexts, and the same 2,048/4,096/9,216
-individually mapped MLP channels. The training corpus averages **4.02 characters
-per text token**. Unsupported prompt characters are rejected explicitly.
-
-The tokenizer preview works before a GPU model is allocated. Inspect token pieces
-and IDs, follow a prompt one token at a time, inspect channel traces and next-token
-probabilities, silence a channel, and sample continuations until EOS or the chosen
-budget. Training masks padding, never crosses story boundaries, and records actual
-supervised token counts. Loss is **nats per subword token**, not comparable directly
-with the character-model loss.
-
-**Generate live** shows each measured forward pass through successive MLP layers
-as the continuation grows, preserving the selected layout. That same button
-becomes **Pause generation** and **Resume generation**. **Brightness** is the
-default subword view: fixed-size neuron cores remain visible while measured
-activity changes their brightness and glow; **Size** remains available beside it.
-Advance one layer or one token, inspect raw channel values, then replay any saved
-trace without loading the model. The
-recorded **Live replay · TinyStories BPE small at 4096** specimen offers 24 measured
-token frames immediately. To generate your own, open the original resumable
-reference and choose **Resume step 4096**, or initialize a new model.
-
-**Continuous** is the default training mode: Train runs until Pause, saving a map
-and exact checkpoint every 100 updates and at the paused step. Finite bursts are
-also available. Browser memory and storage still bound a session.
-
-The [live activation method](docs/live-activations.md) explains exact token-ID
-contexts, preserved evidence, and checks. These are measured post-ReLU MLP values
-at the final input position, paced for inspection; the playback speed is not GPU
-execution time. The map has **three PCA coordinates**, with token progression as
-time. Attention and residual-stream internals are not separately displayed.
-
-Recorded runs retain the exact tokenizer, parameters, Adam moments, training RNG,
-raw activations, token coordinates, measurements and generated samples. Both
-instruments have separate archives; **Characters** keeps every earlier specimen.
-The [prospective protocol](docs/token-stories-design.md) explains the initial
-learning diagnostic and its limits. See [data provenance](static/data/tinystories-bpe/provenance.json)
-for source recovery, train-only vocabulary fitting, and reproducible hashes.
-
-The saved **1.85M** specimen completed **4,096 updates** on **1,868,552** real
-training targets. Held-out loss reached **3.560 nats/token**, versus a **6.059**
-unigram baseline; next-token accuracy reached **31.1%** on 2,040 fixed targets.
-Its story-like continuations still mix characters and events. The final 3D map
-retains only **6.12%** of audited neighbor memberships, so use token probes and
-original-space neighbors alongside the picture. [Results and unedited samples](docs/token-stories-results.md)
-record all declared captures and limitations. The larger presets passed real
-one-update WebGPU checks; they are available to train, but this is not a trained
-model-size comparison. [Engine validation](docs/token-stories-engine-validation.md)
-records the GPU, WASM and application checks.
+For the GitHub Pages build and local preview:
 
 ```sh
-# With pnpm dev running, train and record the declared subword specimen.
-pnpm research:token-stories --steps 4096 --output /tmp/tissue-token-stories --publish
-# Rebuild vocabulary and packed story tokens deterministically.
-node scripts/prepare-token-stories.mjs
-# Independently audit the published binary evidence.
-node scripts/audit-token-stories.mjs --write
-# Check every saved completion for exact training spans and repeated four-grams.
+pnpm build:pages
+pnpm preview:pages                   # http://localhost:4180/tissue/
+```
+
+The [Pages workflow](.github/workflows/pages.yml) publishes the static app under `/tissue/`. See [deployment and provenance notes](docs/github-pages.md) for configuration, verification, and the historical audit checkout.
+
+## Reproduce and audit
+
+Published records include exact tokenizers, source hashes, raw measurements, checkpoint identities, and declared samples. Their archived data remains unchanged. Deployment changes dataset/archive fetch URLs and the dependency lockfile, so historical source hashes intentionally differ from this checkout. Run strict source-hash audits and original experiment reproductions from the predeployment commit **`73cf9d9`**, following the isolated-checkout instructions in [the provenance notes](docs/github-pages.md). Audits recompute stored arithmetic; they do not substitute for rerunning the model.
+
+```sh
+# Recompute published-data diagnostics; no model execution.
 node scripts/analyze-token-story-samples.mjs
-# Capture a measured live replay from the published checkpoint, without training.
-node scripts/measure-live-stories.mjs --backend webgpu --publish
-```
-
-## Character-model scale baseline
-
-![Measured TinyStories model with 10.74M parameters](docs/assets/tinystories-large.png)
-
-**TinyStories** opens a separate language-model workspace. Its three presets contain **827,392**, **3,227,648**, and **10,739,712** parameters, with **2,048**, **4,096**, and **9,216** individually addressed MLP channels. Four or six causal transformer layers predict the next character using JaxJS in a worker. The larger two presets require WebGPU; the compact preset also supports WASM.
-
-The attributed corpus from Pattern contains 2,097 training stories. The original 184 validation stories are separated into 32 calibration and 152 evaluation stories before window selection. The lab shows cross-entropy and accuracy on 2,048 fixed held-out characters against a training-only unigram baseline. This is a 96-character model with a 128-character context, not a pretrained TinyStories checkpoint. See the [recorded design](docs/stories-design.md), [source attribution](static/data/tinystories/provenance.json), and [dataset license](static/data/tinystories/LICENSE.html).
-
-Every map retains the raw responses of every MLP channel on eight fixed calibration windows at 16 positions each. Feature-covariance PCA avoids an all-neuron distance matrix. Six selected neighbors are queried exactly in the original fingerprint space; projection retention uses 128 activation-independent focal IDs and reports coverage. Undefined directions remain absent. The [geometry validation](docs/stories-geometry-validation.md) distinguishes this sampled audit from an all-unit claim.
-
-Open a recorded specimen to inspect measured maps without allocating its model. Explicitly resume a saved checkpoint to train, run prompt probes, silence a channel at every prompt position, or sample text. Historical maps retain measurements; only the latest checkpoint retains weights. Binary `.tissue` export/import preserves typed activations, learning curves, samples, paired ablation probabilities, provenance, and, when present, exact parameters, Adam state, and training RNG. The public large reference is explicitly inspection-only; initialize a fresh large run to train it. Full large checkpoints can be saved and exported locally.
-
-```sh
-# Keep pnpm dev running. Trains each preset on the same 51,200 characters.
-pnpm research:stories --presets small,medium,large --output /tmp/tissue-stories --publish
-# Audit published binary artifacts, reports, and implementation hashes.
-node scripts/audit-stories.mjs
-```
-
-The runner preserves each capture before proceeding, records source hashes, and verifies that probes and generation leave weights, optimizer, and training randomness unchanged. Public archives above 20 MiB are served in checksum-verified chunks to respect the adapter's asset limits. At the first 51,200-character budget, held-out loss reached **2.453, 2.454, and 2.434**, against **3.048** for the unigram baseline. Generated text is still fragmented; [recorded results and actual samples](docs/stories-results.md) include those limitations. Different learning rates, batch sizes, widths, and depths make this an initial scale comparison, not a controlled scaling law. [Engine validation](docs/stories-model-validation.md) records the numerical and lifecycle checks.
-
-## Feedback loops
-
-```sh
-pnpm check                         # TypeScript, Svelte, and generated runtime types
-pnpm exec vitest run --project server # numerical, data, and record contracts
-pnpm lint                          # application formatting and lint
-pnpm build                         # production worker and app build
-pnpm test:e2e                      # production browser flows; install Chromium first if needed
-```
-
-Recompute the five-capture geometric comparison without retraining (Node 24+):
-
-```sh
 node scripts/compare-fingerprints.mjs
 ```
 
-The slower research reproduction is separate from routine checks:
-
 ```sh
-# Keep pnpm dev running in another terminal.
-pnpm research:verify --output /tmp/tissue-study --seed 42 --checkpoints 500,2000
+# In the historical 73cf9d9 checkout, with its dependencies installed:
+node scripts/audit-token-stories.mjs --write
+
+# Keep pnpm dev running there in another terminal for browser reproductions.
+pnpm research:token-stories --steps 4096 --output /tmp/tissue-token-stories --publish
+node scripts/measure-live-stories.mjs --backend webgpu --publish
+pnpm research:query-shifts --seeds 42,7
 ```
 
-It saves every requested stage before assessing the final learning threshold, including unsuccessful runs. Results contain source hashes, numerical backend, complete checkpoints, calibration measurements, and evaluation metrics. `--seed 7`, `--backend wasm`, and `--skip-repair` support controlled comparisons.
+`--publish` writes a new reference into the local repository's experiment catalog. The sample audit checks exact training-text overlap and repeated four-grams; it is not a coherence or originality score. Device-specific timings are not isolated throughput benchmarks.
 
-The first browser run exposed silently incorrect synchronous WebGPU readbacks. Production uses asynchronous readback with known-answer arithmetic and probability-mass checks. Other numerical contracts check capture parity, actual ablation, exact continuation, frozen repair weights, PCA behavior, and corrupt-record rejection.
+More reproduction paths: [deterministic corpus preparation](scripts/prepare-token-stories.mjs), [controlled training and repair runner](scripts/verify-model.mjs), [character-model scale runner](scripts/measure-stories.mjs), [paired-query protocol](docs/query-shifts-design.md), and [artifact formats and provenance](static/experiments/README.md). The [methods](docs/methods.md) and [character-model results](docs/stories-results.md) preserve the earlier experiments and their limits.
 
-## Where to work
+## Code and contributions
 
-- `src/lib/token-stories/`: subword models, tokenizer, and measured live generation/replay.
-- `src/lib/stories/`: larger TinyStories models, worker engine, scalable geometry, validated binary archives.
-- `src/lib/lab/model/`: controlled task, JaxJS transformer, optimizer, training, interventions, repair.
-- `src/lib/lab/protocol.ts`: versioned worker and model data contracts.
-- `src/lib/lab/geometry.ts`: measurable fingerprint geometry and diagnostics.
-- `src/lib/lab/geometry-worker.ts`: analysis off the UI thread.
-- `src/lib/lab/journal.ts`: validated durable experiment records.
-- `src/lib/lab/notebook.ts`: the research narrative, including negative findings.
-- `src/lib/lab/model-inspection.ts`: neuron addresses and exact checkpoint tensor slices.
-- `src/lib/components/`: linked research views, findings, and journal.
-- `src/lib/scene/neural-field.ts`: Three.js scene, stable selection, and camera controls.
-- `src/lib/scene/field-shaders.ts`: instanced node and edge interpolation shaders.
+Tissue uses **Svelte 5 / SvelteKit, TypeScript, JaxJS + Optax, WebGPU / WASM, Three.js with instanced GLSL shaders, and HugeIcons**. Model execution and geometry analysis run in workers; Svelte connects their measurements to the renderer and persistent research views.
 
-The original Jaxverse and Pattern projects supplied the browser-training patterns; the JaxJS skill supplied verified array ownership and optimizer conventions. New experiments should preserve these contracts and add evidence to the lab.
+| Location                                                                           | Responsibility                                              |
+| :--------------------------------------------------------------------------------- | :---------------------------------------------------------- |
+| [`src/lib/token-stories`](src/lib/token-stories)                                   | BPE models, tokenizer, live generation, validated archives  |
+| [`src/lib/stories`](src/lib/stories)                                               | Character models and scalable activation geometry           |
+| [`src/lib/lab`](src/lib/lab)                                                       | Controlled tasks, interventions, geometry, research journal |
+| [`src/lib/components`](src/lib/components)                                         | Linked workbench, probes, playback, findings                |
+| [`src/lib/scene`](src/lib/scene)                                                   | Three.js rendering, shader encodings, camera and selection  |
+| [`scripts`](scripts) · [`docs`](docs) · [`static/experiments`](static/experiments) | Reproducible runs, protocols, evidence and limitations      |
+
+Contributions are welcome: a sharper experiment, a better diagnostic, or a clearer way to inspect measured behavior. State the hypothesis and comparison before measuring; preserve raw evidence and failures; add meaningful numerical or interaction checks. Keep published source identities reproducible when introducing new model paths, and record the result in the lab rather than only in a screenshot.
+
+TinyStories is by **Ronen Eldan and Yuanzhi Li**; the bundled subset retains its [CDLA-Sharing 1.0 license](static/data/tinystories-bpe/LICENSE.html) and [source provenance](static/data/tinystories-bpe/provenance.json). Jaxverse and Pattern supplied the earlier browser-training and tokenization patterns. Tissue's trained models and measurements are its own experiments, not the TinyStories authors' pretrained checkpoints.

@@ -1,3 +1,4 @@
+import { publicAsset } from '../deployment/public-assets';
 import {
 	STORY_CHARACTERS,
 	type StoryConfig,
@@ -111,8 +112,8 @@ export async function prepareStoryCorpus(
 export async function loadStoryCorpus(config: StoryConfig): Promise<StoryCorpus> {
 	const signal = AbortSignal.timeout(30000);
 	const [bytes, metadata] = await Promise.all([
-		fetch('/data/tinystories/tokens.bin', { signal }),
-		fetch('/data/tinystories/corpus.json', { signal })
+		fetch(publicAsset('/data/tinystories/tokens.bin'), { signal }),
+		fetch(publicAsset('/data/tinystories/corpus.json'), { signal })
 	]);
 	if (!bytes.ok || !metadata.ok) throw new Error('TinyStories data could not be loaded');
 	return prepareStoryCorpus(
