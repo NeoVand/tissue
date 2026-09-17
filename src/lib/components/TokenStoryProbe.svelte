@@ -6,9 +6,11 @@
 		type TokenStoryAtlas
 	} from '$lib/token-stories/protocol';
 	import type { TokenStoryTokenizer } from '$lib/token-stories/tokenizer';
+	import type { LiveTokenStoryFrame } from '$lib/token-stories/live-protocol';
 	import Icon from './Icon.svelte';
 	let {
 		probe,
+		liveFrame = null,
 		tokenizer,
 		atlas = null,
 		lesioned,
@@ -22,6 +24,7 @@
 		oncontext
 	}: {
 		probe: TokenStoryProbe | null;
+		liveFrame?: LiveTokenStoryFrame | null;
 		tokenizer: TokenStoryTokenizer | null;
 		atlas?: TokenStoryAtlas | null;
 		lesioned: TokenStoryProbe | null;
@@ -73,7 +76,11 @@
 			: []
 	);
 	let maximum = $derived(Math.max(0, ...activations));
-	let currentActivation = $derived(activations[Math.min(token, activations.length - 1)]);
+	let currentActivation = $derived(
+		liveFrame && selected !== null
+			? liveFrame.activations[selected]
+			: activations[Math.min(token, activations.length - 1)]
+	);
 	let topTokens = $derived.by(() => {
 		if (!probe) return [];
 		return Array.from(probe.probabilities, (probability, id) => ({
@@ -161,9 +168,11 @@
 			<strong>L{(layer ?? 0) + 1} / {String(channel).padStart(4, '0')}</strong><span
 				>layers[{layer}] · channel {channel}</span
 			><small
-				>{probe
-					? `Activity measured at step ${probe.step}`
-					: 'Run a prompt to measure activity'}</small
+				>{liveFrame
+					? `Live trace · step ${liveFrame.step}`
+					: probe
+						? `Activity measured at step ${probe.step}`
+						: 'Run a prompt to measure activity'}</small
 			>
 		</div>
 		{#if address}<div class="tensor-address">
@@ -177,12 +186,19 @@
 			</div>{/if}
 		<div class="activation-summary">
 			<span
-				>{probe
-					? `At token ${Math.min(token + 1, probe.prompt.tokenIds.length)}`
-					: 'No prompt measured'}</span
+				>{liveFrame
+					? `Final input token ${liveFrame.position + 1}`
+					: probe
+						? `At token ${Math.min(token + 1, probe.prompt.tokenIds.length)}`
+						: 'No prompt measured'}</span
 			><strong>{numeric(currentActivation)}</strong>
 		</div>
-		{#if activations.length}
+		{#if liveFrame}
+			<p class="scale">
+				Measured at the final input position, predicting output token {liveFrame.index + 1}. Earlier
+				positions are not captured in this trace.
+			</p>
+		{:else if activations.length}
 			<svg
 				class="activation-strip"
 				viewBox="0 0 250 72"
@@ -208,7 +224,7 @@
 					? 'Recorded calibration responses below. Resume the checkpoint to probe new text.'
 					: 'Prompt activations will appear after a forward pass.'}
 			</div>{/if}
-		{#if !probe && atlas && calibration.length}<div class="calibration-panel">
+		{#if !probe && !liveFrame && atlas && calibration.length}<div class="calibration-panel">
 				<div class="minor-heading">
 					<span>Recorded calibration · step {atlas.step}</span><span>8 × 16</span>
 				</div>

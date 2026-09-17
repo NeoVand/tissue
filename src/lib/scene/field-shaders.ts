@@ -6,8 +6,11 @@ attribute vec4 radiusAlpha;
 attribute vec3 fromColor;
 attribute vec3 toColor;
 attribute vec2 emphasis;
+attribute float layerIndex;
 uniform float progress;
 uniform float viewportHeight;
+uniform float activeLayer;
+uniform float activityMode;
 varying vec2 disc;
 varying vec3 beadColor;
 varying float alpha;
@@ -16,13 +19,15 @@ void main() {
   vec3 center = mix(fromPosition, toPosition, progress);
   vec4 viewCenter = modelViewMatrix * vec4(center, 1.0);
   float radius = mix(radiusAlpha.x, radiusAlpha.y, progress);
-  float minimumRadius = 4.4 * max(0.001, -viewCenter.z) / (viewportHeight * projectionMatrix[1][1]);
+  float focused = activeLayer < -0.5 || abs(layerIndex - activeLayer) < 0.5 ? 1.0 : 0.0;
+  float minimumRadius = mix(4.4, 2.4, activityMode) * max(0.001, -viewCenter.z) / (viewportHeight * projectionMatrix[1][1]);
   radius = max(radius, minimumRadius);
+  radius *= mix(0.62, 1.0, focused);
   disc = position.xy * 1.65;
   viewCenter.xy += disc * radius;
   gl_Position = projectionMatrix * viewCenter;
   beadColor = mix(fromColor, toColor, progress);
-  alpha = mix(radiusAlpha.z, radiusAlpha.w, progress);
+  alpha = mix(radiusAlpha.z, radiusAlpha.w, progress) * mix(0.075, 1.0, focused);
   selected = mix(emphasis.x, emphasis.y, progress);
 }
 `;
@@ -56,12 +61,15 @@ attribute vec3 fromPosition;
 attribute vec3 toPosition;
 attribute vec2 opacity;
 attribute vec2 emphasis;
+attribute vec2 endpointLayers;
 uniform float progress;
+uniform float activeLayer;
 varying float edgeAlpha;
 varying float selected;
 void main() {
   gl_Position = projectionMatrix * modelViewMatrix * vec4(mix(fromPosition, toPosition, progress), 1.0);
-  edgeAlpha = mix(opacity.x, opacity.y, progress);
+  float focused = activeLayer < -0.5 || (abs(endpointLayers.x - activeLayer) < 0.5 && abs(endpointLayers.y - activeLayer) < 0.5) ? 1.0 : 0.0;
+  edgeAlpha = mix(opacity.x, opacity.y, progress) * mix(0.08, 1.0, focused);
   selected = mix(emphasis.x, emphasis.y, progress);
 }
 `;

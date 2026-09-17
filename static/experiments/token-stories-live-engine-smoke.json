@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "backend": "wasm",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "modelId": "8a391af5-c9d3-4f7f-a6ce-c7a3c0566c62",
+  "parameterCount": 1851392,
+  "step": 1,
+  "generatedIds": [
+    1211,
+    15,
+    695,
+    2403
+  ],
+  "completion": " puppy. lived wore",
+  "frameCount": 4,
+  "probabilityDifference": 0,
+  "activationDifference": 0,
+  "backpressurePassed": true,
+  "activeCancellationPassed": true,
+  "queuedCancellationPassed": true,
+  "checkpointPreserved": true,
+  "liveArchiveRoundTripPassed": true,
+  "archiveBytes": 22400705,
+  "recordedAt": "2026-09-17T03:16:41.093Z",
+  "sourceHashes": {
+    "src/lib/token-stories/protocol.ts": "94561604f9c44af801aa9a0fe766b4816b6cdaa76ba50e8a73a768bd6ee51dd5",
+    "src/lib/token-stories/runtime.ts": "3ccc6c3d52cb2583ccf15d11a27743a90723e407d24a9f3e7d1d7bebfd998181",
+    "src/lib/token-stories/worker.ts": "b867f80b155aff4628547f56f39e3025d76a947207b1088a1e09f6c50e17554e",
+    "src/lib/token-stories/engine.ts": "a4c4a24cad7953364d5b67767f3e6cb850436430b021d8b57dfb740bb31e9ebd",
+    "src/lib/token-stories/archive.ts": "70ce4448b58099cb1e6e4ed30dc65980029558f2c6272c21ba129b82b21da869",
+    "src/lib/token-stories/dataset.ts": "1a15456e25a4d7de939fa567e543022e2d51b5e94cf08816c80c79590a89e6c1",
+    "src/lib/token-stories/model.ts": "9c516a7c3f3d5147d83672e832d8a8ee3a4ad169ede5663db773151c199fa193",
+    "src/lib/token-stories/tokenizer.ts": "ce4e46b1dbb5ea439f3df5281a7b65888a3d2665e3569ff0ee32e9235e2e10c1",
+    "src/lib/token-stories/live-protocol.ts": "ce3f5dfc5e895b726b56e6ab54964759b052ed3183fe60164c3d92a8f720a7be",
+    "src/lib/token-stories/live-runtime.ts": "d354326212104001e8965141e8ad2caf1be0ba2d94d7ab5041c41900e674e198",
+    "src/lib/token-stories/live-worker.ts": "6545b57d7a0312009cc0598c4edf2b1c2c2e6328e9cd08da11710699092f18a2",
+    "src/lib/token-stories/live-engine.ts": "4c6df4613eac55cfc3fdda5f37becf4af40a61004b1cc325aff19eb42decf8f8",
+    "src/lib/token-stories/live-archive.ts": "d38040bed0eb648393d1e47d07ba50d782a1a6daaa5eec4e93b06a3b9b41c09f"
+  },
+  "archive": {
+    "path": "/Users/neo/repos/tissue/.local-experiments/token-stories-live-smoke/live-worker-smoke.tissue",
+    "sha256": "46c02a53b9feb273943294d6db0c53980081f2e754a3bbc33e979a57f06e97b0"
+  }
+}

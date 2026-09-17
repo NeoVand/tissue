@@ -19,6 +19,21 @@
       "sha256": "4daa2e6e3e9a08d07bbd93464c4f20c6f961539bc3f07fa5a7efd905acd00f12",
       "validationLoss": 3.5601262191955034,
       "unigramLoss": 6.059190466906367
+    },
+    {
+      "id": "d474f204-c23a-4a7a-a7c0-69a06ca1e3ff",
+      "title": "Live replay · TinyStories BPE small at 4096",
+      "presetId": "small",
+      "seed": 42,
+      "step": 4096,
+      "parameterCount": 1851392,
+      "unitCount": 2048,
+      "file": "/experiments/token-stories-live-demo-d474f204.tissue",
+      "reportFile": "/experiments/token-stories-live-demo-d474f204-report.json",
+      "bytes": 5897238,
+      "sha256": "12f9d034dc2aedcfe32b74dc6f13fcfb237d8560ffe020d03f95e9a618030f39",
+      "validationLoss": 3.5601262191955034,
+      "unigramLoss": 6.059190466906367
     }
   ]
 }

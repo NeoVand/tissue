@@ -52,7 +52,7 @@ pnpm research:query-shifts --seeds 42,7 --analyze-only
 
 ## TinyStories with subword tokens
 
-![Trained subword model with token-linked probes](docs/assets/tinystories-subword.png)
+![Measured live layer playback in the trained subword model](docs/assets/live-token-activations.png)
 
 **TinyStories → Subword** is the default language workspace. A deterministic
 4,096-piece BPE vocabulary is fitted on the same 2,097 training stories only.
@@ -68,6 +68,23 @@ probabilities, silence a channel, and sample continuations until EOS or the chos
 budget. Training masks padding, never crosses story boundaries, and records actual
 supervised token counts. Loss is **nats per subword token**, not comparable directly
 with the character-model loss.
+
+**Generate live** shows each measured forward pass through successive MLP layers
+as the continuation grows. Pause, advance one layer or one token, inspect raw
+channel values, then replay any saved trace without loading the model. The
+recorded **Live replay · TinyStories BPE small at 4096** specimen offers 24 measured
+token frames immediately. To generate your own, open the original resumable
+reference and choose **Resume step 4096**, or initialize a new model.
+
+**Continuous** is the default training mode: Train runs until Pause, saving a map
+and exact checkpoint every 100 updates and at the paused step. Finite bursts are
+also available. Browser memory and storage still bound a session.
+
+The [live activation method](docs/live-activations.md) explains exact token-ID
+contexts, preserved evidence, and checks. These are measured post-ReLU MLP values
+at the final input position, paced for inspection; the playback speed is not GPU
+execution time. The map has **three PCA coordinates**, with token progression as
+time. Attention and residual-stream internals are not separately displayed.
 
 Recorded runs retain the exact tokenizer, parameters, Adam moments, training RNG,
 raw activations, token coordinates, measurements and generated samples. Both
@@ -96,6 +113,8 @@ node scripts/prepare-token-stories.mjs
 node scripts/audit-token-stories.mjs --write
 # Check every saved completion for exact training spans and repeated four-grams.
 node scripts/analyze-token-story-samples.mjs
+# Capture a measured live replay from the published checkpoint, without training.
+node scripts/measure-live-stories.mjs --backend webgpu --publish
 ```
 
 ## Character-model scale baseline
@@ -148,6 +167,7 @@ The first browser run exposed silently incorrect synchronous WebGPU readbacks. P
 
 ## Where to work
 
+- `src/lib/token-stories/`: subword models, tokenizer, and measured live generation/replay.
 - `src/lib/stories/`: larger TinyStories models, worker engine, scalable geometry, validated binary archives.
 - `src/lib/lab/model/`: controlled task, JaxJS transformer, optimizer, training, interventions, repair.
 - `src/lib/lab/protocol.ts`: versioned worker and model data contracts.

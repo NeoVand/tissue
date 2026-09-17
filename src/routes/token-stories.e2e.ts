@@ -19,6 +19,7 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 		'aria-pressed',
 		'true'
 	);
+	await lab.locator('.prompt-probe > summary').click();
 	await expect(lab.getByText('All text fits.', { exact: false }).first()).toBeVisible({
 		timeout: 30_000
 	});

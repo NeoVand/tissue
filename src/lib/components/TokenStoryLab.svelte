@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { TokenStoryEngine } from '$lib/token-stories/engine';
+	import { onMount, tick } from 'svelte';
+	import { LiveTokenStoryEngine } from '$lib/token-stories/live-engine';
+	import type { LiveTokenStoryFrame } from '$lib/token-stories/live-protocol';
+	import { LayerPlaybackClock } from './layer-playback-clock';
+	import TokenStoryLivePanel from './TokenStoryLivePanel.svelte';
 	import { TokenStoryGeometryEngine } from '$lib/token-stories/geometry-engine';
 	import type { TokenStoryNeighbor } from '$lib/token-stories/geometry';
 	import {
@@ -25,7 +28,7 @@
 		type TokenStoryRunRecord,
 		type TokenStoryRunSummary,
 		type TokenStoryReference
-	} from '$lib/token-stories/archive';
+	} from '$lib/token-stories/live-archive';
 	import Icon from './Icon.svelte';
 	import NeuralField from './NeuralField.svelte';
 	import TokenStoryMetricsPanel from './StoryMetrics.svelte';
@@ -59,6 +62,7 @@
 		| 'measuring'
 		| 'probing'
 		| 'generating'
+		| 'replaying'
 		| 'loading'
 		| 'saving'
 		| 'error';
@@ -71,7 +75,8 @@
 	let tokenizer = $state.raw<TokenStoryTokenizer | null>(null);
 	let corpusMetadata = $state.raw<TokenStoryCorpusMetadata | null>(null);
 	let backend = $state<TokenStoryBackend | 'auto'>('auto');
-	let budget = $state(100);
+	let budget = $state<number | null>(null);
+	const mapCadence = 100;
 	let record = $state.raw<TokenStoryRunRecord | null>(null);
 	let runs = $state.raw<TokenStoryRunSummary[]>([]);
 	let references = $state.raw<TokenStoryReference[]>([]);
@@ -84,6 +89,7 @@
 	let viewMode = $state<'functional' | 'architecture'>('functional');
 	let token = $state(0);
 	let probePrompt = $state('Once upon a time, there was a little');
+	let probeOpen = $state(false);
 	let probe = $state.raw<TokenStoryProbe | null>(null);
 	let lesioned = $state.raw<TokenStoryProbe | null>(null);
 	let nearest = $state.raw<TokenStoryNeighbor[]>([]);
@@ -93,12 +99,22 @@
 	let sampleLength = $state(128);
 	let topK = $state(40);
 	let sample = $state.raw<TokenStoryGeneration | null>(null);
+	let liveGeneration = $state(false);
+	let playbackFrame = $state.raw<LiveTokenStoryFrame | null>(null);
+	let playbackFrames = $state.raw<LiveTokenStoryFrame[]>([]);
+	let playbackLayer = $state<number | null>(null);
+	let playbackPaused = $state(false);
+	let playbackPace = $state(160);
+	let playbackTokens = $state.raw<number[]>([]);
+	let playbackPrompt = $state('');
+	let playbackComplete = $state(false);
+	const playbackClock = new LayerPlaybackClock();
 	let trainingTarget = $state<number | null>(null);
 	let stopRequested = $state(false);
 	let measurementProgress = $state({ completed: 0, total: 0 });
 	let footerTab = $state<'samples' | 'history'>('samples');
 	let importInput: HTMLInputElement | undefined;
-	let engine: TokenStoryEngine | null = null;
+	let engine: LiveTokenStoryEngine | null = null;
 	let geometryEngine: TokenStoryGeometryEngine | null = null;
 	let mounted = false;
 	let lifecycle = 0;
@@ -115,6 +131,7 @@
 		{ name: 'Who is speaking?', text: 'Tom gave Anna a toy. She smiled and said' },
 		{ name: 'A negative statement', text: 'The box was not empty. Inside the box there was' }
 	];
+	let playing = $derived((phase === 'generating' && liveGeneration) || phase === 'replaying');
 	let busy = $derived(!['idle', 'ready', 'archived', 'error'].includes(phase));
 	let blocked = $derived(busy || disabled);
 	let config = $derived(TOKEN_STORY_PRESETS[record?.presetId ?? preset]);
@@ -122,6 +139,14 @@
 	let latestMetric = $derived(record?.metrics.at(-1));
 	let snapshot = $derived(
 		record ? record.snapshots[snapshotIndex ?? record.snapshots.length - 1] : undefined
+	);
+	let activityFrame = $derived(
+		playbackFrame &&
+			(viewMode === 'architecture' ||
+				(snapshot?.atlas.modelId === playbackFrame.modelId &&
+					snapshot.atlas.step === playbackFrame.step))
+			? playbackFrame
+			: null
 	);
 	let historical = $derived(snapshotIndex !== null && snapshot?.atlas.step !== latestMetric?.step);
 	let matchingProbe = $derived(
@@ -144,27 +169,30 @@
 	);
 	let ready = $derived(runtimeReady && !blocked && !historical);
 	let points = $derived.by(() => {
-		if (!snapshot) return [];
-		const { atlas, geometry } = snapshot;
+		if (!snapshot && !(activityFrame && viewMode === 'architecture')) return [];
+		const atlas = snapshot?.atlas;
+		const geometry = snapshot?.geometry;
 		const columns = 32;
 		const rows = Math.ceil(config.hidden / columns);
-		return Array.from({ length: atlas.unitCount }, (_, id) => {
-			if (viewMode === 'functional' && !geometry.valid[id]) return null;
+		return Array.from({ length: activityFrame?.unitCount ?? atlas!.unitCount }, (_, id) => {
+			if (viewMode === 'functional' && !geometry?.valid[id]) return null;
 			const layer = Math.floor(id / config.hidden);
 			const channel = id % config.hidden;
 			const position: [number, number, number] =
 				viewMode === 'functional'
-					? geometry.positions[id]
+					? geometry!.positions[id]
 					: [
 							(layer / Math.max(1, config.layers - 1) - 0.5) * 2.8,
 							(0.5 - Math.floor(channel / columns) / Math.max(1, rows - 1)) * 1.35,
 							((channel % columns) / (columns - 1) - 0.5) * 1.1
 						];
-			const activation = matchingProbe
-				? matchingProbe.activations[
-						Math.min(token, matchingProbe.prompt.tokenIds.length - 1) * unitCount + id
-					]
-				: atlas.fingerprints[id * atlas.dimensions];
+			const activation = activityFrame
+				? activityFrame.activations[id]
+				: matchingProbe
+					? matchingProbe.activations[
+							Math.min(token, matchingProbe.prompt.tokenIds.length - 1) * unitCount + id
+						]
+					: atlas!.fingerprints[id * atlas!.dimensions];
 			return { id, position, layer, channel, activation };
 		}).filter((point) => point !== null);
 	});
@@ -236,6 +264,8 @@
 		}
 	}
 	async function disposeRuntime(): Promise<void> {
+		playbackClock.stop();
+		clearPlaybackView();
 		const previous = engine;
 		engine = null;
 		runtimeReady = false;
@@ -350,7 +380,7 @@
 			geometryEngine?.destroy();
 			geometryEngine = null;
 			neighborRevision++;
-			const owner = new TokenStoryEngine((event) => handleEvent(event, ticket));
+			const owner = new LiveTokenStoryEngine((event) => handleEvent(event, ticket));
 			engine = owner;
 			status = `Initializing ${(tokenStoryParameterCount(TOKEN_STORY_PRESETS[preset]) / 1e6).toFixed(3)}M parameters…`;
 			const init = await owner.initialize(preset, seed, backend);
@@ -378,7 +408,7 @@
 			};
 			probe = null;
 			lesioned = null;
-			sample = null;
+			chooseSample(null);
 			snapshotIndex = null;
 			selected = null;
 			layerFilter = null;
@@ -416,26 +446,45 @@
 		const ticket = lifecycle;
 		error = '';
 		stopRequested = false;
-		trainingTarget = (latestMetric?.step ?? 0) + budget;
+		clearPlaybackView();
+		trainingTarget = budget === null ? null : (latestMetric?.step ?? 0) + budget;
 		setPhase('training');
 		try {
-			while (!stopRequested && (latestMetric?.step ?? 0) < trainingTarget) {
-				status = `Training toward step ${trainingTarget}…`;
+			while (
+				!stopRequested &&
+				(trainingTarget === null || (latestMetric?.step ?? 0) < trainingTarget)
+			) {
+				status =
+					trainingTarget === null
+						? `Continuous training · step ${latestMetric?.step ?? 0}; map and checkpoint every ${mapCadence} updates…`
+						: `Training toward step ${trainingTarget}…`;
+				measurementProgress = { completed: 0, total: 0 };
 				trainCallActive = true;
 				const next = await engine
-					.train(Math.min(25, trainingTarget - (latestMetric?.step ?? 0)))
+					.train(
+						trainingTarget === null ? 25 : Math.min(25, trainingTarget - (latestMetric?.step ?? 0))
+					)
 					.finally(() => {
 						trainCallActive = false;
 					});
 				if (!current(ticket)) return;
 				appendMetric(next);
-				await capture(ticket, true);
+				const lastMapStep = record.snapshots.at(-1)?.atlas.step ?? -mapCadence;
+				if (
+					next.step - lastMapStep >= mapCadence ||
+					stopRequested ||
+					(trainingTarget !== null && next.step >= trainingTarget)
+				)
+					await capture(ticket, true);
+				else await persist();
 				if (!current(ticket)) return;
 			}
 
+			if (record.snapshots.at(-1)?.atlas.step !== latestMetric?.step) await capture(ticket, true);
+			if (!current(ticket)) return;
 			observe(
 				stopRequested ? 'Training paused' : 'Training interval completed',
-				`At step ${latestMetric?.step}. Calibration atlases measured at burst boundaries, at most 25 updates apart.`
+				`At step ${latestMetric?.step}. Worker bursts are at most 25 updates. Calibration maps and checkpoints are saved every 100 updates and at the final paused step.`
 			);
 			await persist();
 			if (!current(ticket)) return;
@@ -448,6 +497,10 @@
 		}
 	}
 	async function pause(): Promise<void> {
+		if (liveGeneration || phase === 'replaying') {
+			await stopPlayback();
+			return;
+		}
 		stopRequested = true;
 		status =
 			phase === 'generating'
@@ -461,6 +514,7 @@
 	}
 	async function inspectPrompt(): Promise<void> {
 		if (!ready) return;
+		clearPlaybackView();
 		const ticket = lifecycle;
 		setPhase('probing');
 		error = '';
@@ -528,8 +582,218 @@
 			if (current(ticket)) setPhase('ready');
 		}
 	}
+	function clearPlaybackView(): void {
+		playbackClock.stop();
+		playbackFrame = null;
+		playbackLayer = null;
+		playbackPaused = false;
+	}
+	function returnToProbe(): void {
+		clearPlaybackView();
+		probeOpen = true;
+	}
+	function chooseSample(next: TokenStoryGeneration | null): void {
+		clearPlaybackView();
+		sample = next;
+		const index = next ? record?.samples?.indexOf(next) : -1;
+		playbackFrames =
+			record?.liveTraces?.find((trace) => trace.generationIndex === index)?.frames ?? [];
+		playbackTokens = next?.tokenIds ?? [];
+		playbackPrompt = next?.prompt.text ?? '';
+		playbackComplete = !!next;
+	}
+	function togglePlaybackPause(): void {
+		playbackPaused = !playbackPaused;
+		if (playbackPaused) playbackClock.pause();
+		else playbackClock.play();
+	}
+	function nextPlaybackLayer(): void {
+		if (playing) {
+			playbackPaused = true;
+			playbackClock.nextLayer();
+		} else if (playbackFrame)
+			playbackLayer = Math.min(config.layers - 1, (playbackLayer ?? -1) + 1);
+	}
+	async function nextPlaybackToken(): Promise<void> {
+		if (playing) {
+			playbackPaused = true;
+			playbackClock.nextToken();
+		} else
+			await inspectPlaybackFrame(
+				Math.min(playbackFrames.length - 1, (playbackFrame?.index ?? -1) + 1)
+			);
+	}
+	function setPlaybackPace(value: number): void {
+		playbackPace = value;
+		playbackClock.setPace(value);
+	}
+	async function stopPlayback(): Promise<void> {
+		stopRequested = true;
+		status = liveGeneration
+			? 'Stopping live generation; preserving acknowledged tokens…'
+			: 'Stopping recorded playback…';
+		try {
+			// The worker must discard its provisional sample before a UI gate is released.
+			if (liveGeneration) await engine?.pause();
+		} catch (reason) {
+			if (mounted) error = reason instanceof Error ? reason.message : String(reason);
+		} finally {
+			playbackClock.stop();
+		}
+	}
+	async function presentFrame(frame: LiveTokenStoryFrame, ticket: number): Promise<boolean> {
+		if (!current(ticket) || stopRequested || !(await playbackClock.waitForFrame())) return false;
+		if (!current(ticket) || stopRequested) return false;
+		playbackFrame = frame;
+		for (let layer = 0; layer < frame.config.layers; layer++) {
+			if (!current(ticket) || stopRequested) return false;
+			playbackLayer = layer;
+			await tick();
+			if (!(await playbackClock.waitLayer()) || !current(ticket) || stopRequested) return false;
+		}
+		playbackClock.finishToken();
+		return true;
+	}
+	async function prepareTraceView(frame: LiveTokenStoryFrame): Promise<void> {
+		probeOpen = false;
+		const index =
+			record?.snapshots.findIndex(
+				(entry) => entry.atlas.step === frame.step && entry.atlas.modelId === frame.modelId
+			) ?? -1;
+		if (index >= 0 && snapshot !== record?.snapshots[index]) await selectSnapshot(index);
+		viewMode = 'architecture';
+		layerFilter = null;
+		nearest = [];
+		neighborRevision++;
+	}
+	async function inspectPlaybackFrame(index: number): Promise<void> {
+		if (blocked || !playbackFrames[index]) return;
+		const frame = playbackFrames[index];
+		await prepareTraceView(frame);
+		if (!mounted) return;
+		playbackFrame = frame;
+		playbackLayer = 0;
+		playbackTokens = sample?.tokenIds.slice(0, frame.index + 1) ?? [];
+		status = `Recorded next-token frame ${frame.index + 1} · checkpoint ${frame.step}`;
+	}
+	async function replayTrace(): Promise<void> {
+		if (blocked || !playbackFrames.length) return;
+		const frames = playbackFrames;
+		await prepareTraceView(frames[0]);
+		if (!mounted) return;
+		const ticket = lifecycle;
+		setPhase('replaying');
+		stopRequested = false;
+		playbackPaused = false;
+		playbackTokens = [];
+		playbackComplete = false;
+		playbackClock.start();
+		playbackClock.setPace(playbackPace);
+		try {
+			for (const frame of frames) {
+				if (!(await presentFrame(frame, ticket))) break;
+				playbackTokens = [...playbackTokens, frame.sampledToken];
+			}
+		} finally {
+			playbackClock.stop();
+			if (current(ticket)) {
+				playbackComplete = true;
+				playbackPaused = false;
+				status = 'Recorded trace playback · no model inference performed';
+				setPhase(runtimeReady ? 'ready' : 'archived');
+			}
+		}
+	}
+	async function generateLive(): Promise<void> {
+		if (!ready || !engine || !record) return;
+		try {
+			playbackPrompt =
+				tokenizer?.decode(tokenizer.encode(samplePrompt, { bos: true }).slice(-config.context)) ??
+				samplePrompt;
+		} catch (reason) {
+			error = reason instanceof Error ? reason.message : String(reason);
+			return;
+		}
+		const ticket = lifecycle;
+		error = '';
+		probeOpen = false;
+		liveGeneration = true;
+		setPhase('generating');
+		stopRequested = false;
+		playbackPaused = false;
+		playbackComplete = false;
+		playbackFrame = null;
+		playbackFrames = [];
+		playbackTokens = [];
+		viewMode = 'architecture';
+		layerFilter = null;
+		nearest = [];
+		neighborRevision++;
+		playbackClock.start();
+		playbackClock.setPace(playbackPace);
+		status = 'Live generation · measured layer playback';
+		const frames: LiveTokenStoryFrame[] = [];
+		try {
+			const result = await engine.generateLive(
+				samplePrompt,
+				{ maxTokens: sampleLength, temperature, seed: samplingSeed, topK },
+				async (frame) => {
+					if (!current(ticket) || stopRequested) return;
+					if (
+						frame.modelId !== residentModelId ||
+						frame.step !== latestMetric?.step ||
+						frame.tokenizerId !== record?.tokenizer.id ||
+						frame.corpusId !== record?.corpusId
+					)
+						throw new Error('Live frame does not match the resident checkpoint and tokenizer.');
+					if (!(await presentFrame(frame, ticket))) return;
+					frames.push(frame);
+					playbackFrames = [...frames];
+					playbackTokens = [...playbackTokens, frame.sampledToken];
+				}
+			);
+			if (!current(ticket) || !record) return;
+			const committed = frames.slice(0, result.tokenIds.length);
+			if (
+				committed.length !== result.tokenIds.length ||
+				committed.some(
+					(frame, index) => frame.index !== index || frame.sampledToken !== result.tokenIds[index]
+				)
+			)
+				throw new Error('Live trace is incomplete; refusing to record mismatched token evidence.');
+			const generationIndex = record.samples?.length ?? 0;
+			record = {
+				...record,
+				samples: [...(record.samples ?? []), result],
+				liveTraces: [...(record.liveTraces ?? []), { generationIndex, frames: committed }]
+			};
+			sample = result;
+			playbackFrames = committed;
+			playbackTokens = result.tokenIds;
+			playbackFrame = committed.at(-1) ?? null;
+			playbackLayer = committed.length ? config.layers - 1 : null;
+			playbackComplete = true;
+			observe(
+				'Live token trace recorded',
+				`${result.tokenIds.length} acknowledged tokens at step ${result.step}; all measured final-input MLP activations and raw next-token probabilities retained${result.cancelled ? '; stopped early' : ''}. Layer pacing is presentation timing.`
+			);
+			await persist();
+			if (current(ticket))
+				status = `${result.cancelled ? 'Stopped' : 'Completed'} live generation · ${result.tokenIds.length} tokens and frames recorded`;
+		} catch (reason) {
+			if (current(ticket)) error = reason instanceof Error ? reason.message : String(reason);
+		} finally {
+			playbackClock.stop();
+			if (current(ticket)) {
+				liveGeneration = false;
+				playbackPaused = false;
+				setPhase('ready');
+			}
+		}
+	}
 	async function generate(): Promise<void> {
 		if (!ready || !engine || !record) return;
+		clearPlaybackView();
 		const ticket = lifecycle;
 		error = '';
 		setPhase('generating');
@@ -543,8 +807,8 @@
 				topK
 			});
 			if (!current(ticket) || !record) return;
-			sample = result;
 			record = { ...record, samples: [...(record.samples ?? []), result] };
+			chooseSample(result);
 			observe(
 				'Text sampled',
 				`Step ${result.step}; sampling seed ${result.samplingSeed}; temperature ${result.temperature}; top-k ${result.topK}; ${result.tokenIds.length} generated tokens${result.cancelled ? '; cancelled' : ''}.`
@@ -576,7 +840,7 @@
 			nearest = [];
 			probe = null;
 			lesioned = null;
-			sample = next.samples?.at(-1) ?? null;
+			chooseSample(next.samples?.at(-1) ?? null);
 			savedCheckpointStep = next.checkpoint?.step ?? null;
 			geometryEngine?.destroy();
 			geometryEngine = null;
@@ -690,6 +954,14 @@
 					metrics: source.metrics.filter((metric) => metric.step <= checkpoint.step),
 					snapshots: source.snapshots.filter((entry) => entry.atlas.step <= checkpoint.step),
 					samples: source.samples?.filter((entry) => entry.step <= checkpoint.step),
+					liveTraces: source.liveTraces?.flatMap((trace) => {
+						const original = source.samples?.[trace.generationIndex];
+						if (!original || original.step > checkpoint.step) return [];
+						const generationIndex = source
+							.samples!.slice(0, trace.generationIndex)
+							.filter((entry) => entry.step <= checkpoint.step).length;
+						return [{ generationIndex, frames: trace.frames }];
+					}),
 					interventions: source.interventions?.filter((entry) => entry.step <= checkpoint.step),
 					provenance: { ...source.provenance, source: 'browser', parentRunId: source.id },
 					observations: [
@@ -702,7 +974,7 @@
 					]
 				};
 			}
-			const owner = new TokenStoryEngine((event) => handleEvent(event, ticket));
+			const owner = new LiveTokenStoryEngine((event) => handleEvent(event, ticket));
 			engine = owner;
 			const restored = await owner.loadCheckpoint(checkpoint, backend);
 			if (!current(ticket)) return;
@@ -713,7 +985,7 @@
 			residentModelId = restored.modelId;
 			runtimeReady = true;
 			snapshotIndex = null;
-			sample = record?.samples?.at(-1) ?? null;
+			chooseSample(record?.samples?.at(-1) ?? null);
 			if (snapshot?.atlas.step === metric.step) {
 				await getGeometry().setAtlas(snapshot.atlas);
 				if (!current(ticket)) return;
@@ -732,6 +1004,7 @@
 	}
 	async function selectSnapshot(index: number | null): Promise<void> {
 		if (blocked || !record) return;
+		clearPlaybackView();
 		neighborRevision++;
 		snapshotIndex = index;
 		nearest = [];
@@ -846,6 +1119,7 @@
 			.catch(() => {});
 		return () => {
 			mounted = false;
+			playbackClock.stop();
 			lifecycle++;
 			neighborRevision++;
 			onbusy?.(false);
@@ -879,14 +1153,18 @@
 			<span class="study-label">Study 004</span>
 		</div>
 		<div class="transport">
-			<span>Updates</span>
+			<span>Training</span>
 			<div class="segmented">
-				{#each [25, 100, 500] as steps (steps)}<button
+				{#each [null, 25, 100, 500] as steps (steps)}<button
 						class:chosen={budget === steps}
+						aria-pressed={budget === steps}
 						onclick={() => (budget = steps)}
-						disabled={blocked}>{steps}</button
+						disabled={blocked}>{steps ?? 'Continuous'}</button
 					>{/each}
 			</div>
+			<small class="training-cadence"
+				>Map + checkpoint every {mapCadence} updates · pause saves current state</small
+			>
 			{#if phase === 'training'}<button class="primary" onclick={pause} disabled={stopRequested}
 					><Icon name="pause" size={13} />{stopRequested ? 'Pausing…' : 'Pause'}</button
 				>{:else if phase === 'generating'}<button
@@ -1070,44 +1348,96 @@
 					>{config.layers} × {config.width} · {unitCount.toLocaleString()} units</span
 				>
 			</div>
-			<div class="probe-input">
-				<div class="prompt-seeds">
-					<span>Try a context</span>{#each promptSeeds as choice (choice.name)}<button
-							class:chosen={probePrompt === choice.text}
-							onclick={() => (probePrompt = choice.text)}
-							disabled={blocked}>{choice.name}</button
-						>{/each}
+			<details class="prompt-probe" bind:open={probeOpen}>
+				<summary>Prompt probe <span>Inspect every input position</span></summary>
+				<div class="probe-input">
+					<div class="prompt-seeds">
+						<span>Try a context</span>{#each promptSeeds as choice (choice.name)}<button
+								class:chosen={probePrompt === choice.text}
+								onclick={() => (probePrompt = choice.text)}
+								disabled={blocked}>{choice.name}</button
+							>{/each}
+					</div>
+					<label for="token-story-probe-text">Probe context</label><textarea
+						id="token-story-probe-text"
+						bind:value={probePrompt}
+						rows="2"
+						maxlength="100000"
+						spellcheck="false"
+						disabled={blocked}
+						placeholder="Enter a prompt using the subword vocabulary"></textarea><button
+						class="secondary"
+						onclick={inspectPrompt}
+						disabled={!ready}><Icon name="activity" size={13} />Run prompt</button
+					><span
+						>{liveProbe
+							? `Measured ${liveProbe.prompt.tokenIds.length} tokens at step ${liveProbe.step}`
+							: 'This input is unmeasured. Run the prompt on a resident checkpoint to inspect its activations.'}</span
+					>
 				</div>
-				<label for="token-story-probe-text">Probe context</label><textarea
-					id="token-story-probe-text"
-					bind:value={probePrompt}
-					rows="2"
-					maxlength="100000"
-					spellcheck="false"
-					disabled={blocked}
-					placeholder="Enter a prompt using the subword vocabulary"></textarea><button
-					class="secondary"
-					onclick={inspectPrompt}
-					disabled={!ready}><Icon name="activity" size={13} />Run prompt</button
-				><span
-					>{liveProbe
-						? `Measured ${liveProbe.prompt.tokenIds.length} tokens at step ${liveProbe.step}`
-						: 'This input is unmeasured. Run the prompt on a resident checkpoint to inspect its activations.'}</span
-				>
-			</div>
-			<TokenStoryTokenization text={probePrompt} {tokenizer} context={config.context} />
-			<div class="token-story-field">
-				{#if snapshot}<NeuralField
+				<TokenStoryTokenization text={probePrompt} {tokenizer} context={config.context} />
+			</details>
+			<TokenStoryLivePanel
+				prompt={samplePrompt}
+				sample={liveGeneration ? null : sample}
+				{tokenizer}
+				frame={activityFrame}
+				frames={playbackFrames}
+				layer={playbackLayer}
+				layers={config.layers}
+				{selected}
+				tokens={playbackTokens}
+				prefix={playbackPrompt}
+				running={liveGeneration && phase === 'generating'}
+				replaying={phase === 'replaying'}
+				paused={playbackPaused}
+				stopping={stopRequested && playing}
+				complete={playbackComplete}
+				{blocked}
+				canStart={ready &&
+					Number.isInteger(samplingSeed) &&
+					samplingSeed >= 0 &&
+					samplingSeed <= 0xffffffff &&
+					Number.isFinite(temperature) &&
+					temperature >= 0.1 &&
+					temperature <= 2 &&
+					Number.isInteger(topK) &&
+					topK >= 1 &&
+					topK <= 256}
+				pace={playbackPace}
+				limit={sampleLength}
+				{temperature}
+				{samplingSeed}
+				{topK}
+				onprompt={(text) => (samplePrompt = text)}
+				onstart={generateLive}
+				onpause={togglePlaybackPause}
+				onnextlayer={nextPlaybackLayer}
+				onnexttoken={nextPlaybackToken}
+				onstop={stopPlayback}
+				onpace={setPlaybackPace}
+				onlayer={(layer) => (playbackLayer = layer)}
+				onframe={inspectPlaybackFrame}
+				onreplay={replayTrace}
+				onclear={returnToProbe}
+			/>
+			<div class="token-story-field" class:live-view={!!activityFrame}>
+				{#if snapshot || activityFrame}<NeuralField
 						{points}
 						{edges}
 						{selected}
 						onselect={selectUnit}
 						{theme}
 						{layerFilter}
+						layoutKey={viewMode}
 						mode="activation"
+						activityMode={!!activityFrame}
+						activeLayer={activityFrame ? playbackLayer : null}
 						geometryLabel={viewMode === 'functional'
-							? `Calibration activation geometry · step ${snapshot.atlas.step}`
-							: 'Layer / channel coordinates'}
+							? `Calibration activation geometry · step ${snapshot?.atlas.step}`
+							: activityFrame
+								? `Model layout · next-token frame ${activityFrame.index + 1} · step ${activityFrame.step}`
+								: 'Layer / channel coordinates'}
 						edgeLabel={viewMode === 'functional'
 							? 'Selected neighbors · full fingerprint space'
 							: 'Architectural coordinates · no graph edges'}
@@ -1158,9 +1488,11 @@
 							.planned} preselected focal units ({snapshot.geometry.audit.resolvedFocals} resolved; {snapshot
 							.geometry.audit.requested} requested). This sample does not establish all-unit retention.
 						Links are selected exact nearest neighbors, not model connections.{/if}<span
-						>{matchingProbe
-							? `Activity: prompt token ${token + 1}, measured step ${matchingProbe.step}.`
-							: `Activity: calibration window 1, token ${(snapshot.atlas.tokenPositions[0]?.[0] ?? 0) + 1}.`}</span
+						>{activityFrame
+							? `Activity: measured final input token ${activityFrame.position + 1}, predicting output token ${activityFrame.index + 1}. Layer playback is paced, not GPU timing.`
+							: matchingProbe
+								? `Activity: prompt token ${token + 1}, measured step ${matchingProbe.step}.`
+								: `Activity: calibration window 1, token ${(snapshot.atlas.tokenPositions[0]?.[0] ?? 0) + 1}.`}</span
 					>{:else}Coordinates will be fitted from every channel’s fixed calibration responses.
 					Measured captures form the timeline.{/if}
 			</div>
@@ -1206,10 +1538,14 @@
 		</main>
 		<div class="token-story-inspector">
 			<TokenStoryProbePanel
+				liveFrame={activityFrame}
 				{tokenizer}
 				atlas={snapshot?.atlas ?? null}
-				oncontext={(text) => (probePrompt = text)}
-				probe={liveProbe}
+				oncontext={(text) => {
+					probePrompt = text;
+					probeOpen = true;
+				}}
+				probe={activityFrame ? null : liveProbe}
 				{lesioned}
 				{selected}
 				{token}
@@ -1232,6 +1568,7 @@
 				>
 			</div>
 			{#if footerTab === 'samples'}<div class="sample-controls">
+					<span class="batch-caption">Batch sampling · no live trace</span>
 					<label for="token-story-sample-prompt">Sampling prompt</label><input
 						id="token-story-sample-prompt"
 						bind:value={samplePrompt}
@@ -1324,7 +1661,8 @@
 				{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
 						<span>Recorded samples</span
 						>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
-								onclick={() => (sample = past)}
+								onclick={() => chooseSample(past)}
+								disabled={blocked}
 								aria-label={`Inspect sample ${i + 1}: step ${past.step}, seed ${past.samplingSeed}`}
 								title={`Original prefix: ${past.prompt.original}`}
 								class:chosen={sample === past}>Step {past.step} · seed {past.samplingSeed}</button
@@ -1381,8 +1719,10 @@
 	<footer class="token-story-status" role="status">
 		<span class:working={busy}></span>
 		<p>{status}</p>
-		{#if phase === 'training' && trainingTarget !== null}<span
-				>{latestMetric?.step ?? 0} / {trainingTarget} updates</span
+		{#if phase === 'training'}<span
+				>{latestMetric?.step ?? 0}{trainingTarget === null
+					? ' · continuous'
+					: ` / ${trainingTarget}`} updates</span
 			>{/if}{#if measurementProgress.total > 0 && busy && phase !== 'generating'}<span
 				>Calibration {measurementProgress.completed} / {measurementProgress.total}</span
 			>{/if}<span>{latestMetric?.backend.toUpperCase() ?? 'No backend allocated'}</span><span
@@ -1392,6 +1732,16 @@
 </div>
 
 <style>
+	.training-cadence {
+		font: 7px/1.5 var(--mono);
+		color: var(--faint);
+		max-width: 165px;
+	}
+	.batch-caption {
+		width: 100%;
+		font: 8px var(--mono);
+		color: var(--muted);
+	}
 	.prompt-seeds {
 		grid-column: 1/-1;
 		display: flex;
@@ -1729,6 +2079,21 @@
 	.token-story-main {
 		min-width: 0;
 	}
+	.prompt-probe {
+		background: var(--surface);
+		border-bottom: 1px solid var(--line);
+	}
+	.prompt-probe > summary {
+		padding: 9px 12px;
+		color: var(--muted);
+		font: 9px var(--mono);
+		cursor: pointer;
+	}
+	.prompt-probe > summary span {
+		color: var(--faint);
+		font-size: 8px;
+		margin-left: 9px;
+	}
 	.view-toolbar {
 		display: flex;
 		align-items: center;
@@ -1768,6 +2133,9 @@
 	.token-story-field {
 		height: 480px;
 		min-width: 0;
+	}
+	.token-story-field.live-view {
+		height: clamp(340px, calc(100dvh - 610px), 480px);
 	}
 	.field-empty {
 		display: flex;

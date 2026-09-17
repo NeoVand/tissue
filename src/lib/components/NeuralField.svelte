@@ -11,6 +11,10 @@
 		loading?: boolean;
 		theme?: 'dark' | 'light';
 		layerFilter?: number | null;
+		activeLayer?: number | null;
+		activityMode?: boolean;
+		/** Explicit layout changes fit the camera; token and checkpoint updates do not. */
+		layoutKey?: string;
 		geometryLabel?: string;
 		edgeLabel?: string;
 		onstats?: (stats: FieldStats) => void;
@@ -24,6 +28,9 @@
 		loading = false,
 		theme = 'dark',
 		layerFilter = null,
+		activeLayer = null,
+		activityMode = false,
+		layoutKey,
 		geometryLabel = 'Functional geometry',
 		edgeLabel,
 		onstats
@@ -39,6 +46,7 @@
 		y: number;
 	} | null>(null);
 	let field: ReturnType<typeof createNeuralField> | undefined;
+	let framedLayout: string | undefined;
 	const visibleCount = $derived(
 		points.filter((point) => layerFilter === null || point.layer === layerFilter).length
 	);
@@ -62,6 +70,7 @@
 			return () => {
 				view.destroy();
 				field = undefined;
+				framedLayout = undefined;
 			};
 		} catch {
 			failure =
@@ -70,7 +79,10 @@
 	}
 	// Measurements update independently of scene lifecycle, preserving camera and interrupted motion.
 	function updateField() {
-		field?.update({ points, edges, selected, mode, theme, layerFilter });
+		if (!field) return;
+		field.update({ points, edges, selected, mode, theme, layerFilter, activeLayer, activityMode });
+		if (framedLayout !== undefined && layoutKey !== framedLayout) field.reset();
+		framedLayout = layoutKey;
 	}
 	function toggleRotation() {
 		rotating = !rotating;
@@ -135,7 +147,9 @@
 	<div class="view-caption" aria-hidden="true">
 		<span>{edgeLabel ?? (edges.length ? 'Similarity links · not causal' : 'Measured units')}</span>
 		<small
-			>Size · compressed |{mode === 'effect' ? 'effect' : 'activation'}|
+			>{activityMode
+				? 'Size & brightness · relative to visible maximum'
+				: `Size · compressed |${mode === 'effect' ? 'effect' : 'activation'}|`}
 			<span class="gesture-hint"> / Drag to orbit</span></small
 		>
 	</div>

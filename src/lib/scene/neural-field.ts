@@ -18,6 +18,10 @@ export interface FieldData {
 	mode: 'activation' | 'effect';
 	theme?: 'dark' | 'light';
 	layerFilter?: number | null;
+	/** Playback focus only. Other layers remain faintly visible; values are not changed. */
+	activeLayer?: number | null;
+	/** Encode measured values relative to this frame's maximum; exact values stay in the inspector. */
+	activityMode?: boolean;
 }
 export interface FieldStats {
 	nodes: number;
@@ -96,10 +100,18 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 	controls.zoomSpeed = 0.7;
 	controls.rotateSpeed = 0.6;
 	const progress = { value: 1 };
+	const activeLayer = { value: -1 };
+	const activityMode = { value: 0 };
 	const nodeMaterial = new THREE.ShaderMaterial({
 		vertexShader: nodeVertex,
 		fragmentShader: nodeFragment,
-		uniforms: { progress, viewportHeight: { value: 600 }, dark: { value: 1 } },
+		uniforms: {
+			progress,
+			activeLayer,
+			activityMode,
+			viewportHeight: { value: 600 },
+			dark: { value: 1 }
+		},
 		transparent: true,
 		depthWrite: true
 	});
@@ -119,6 +131,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		fragmentShader: edgeFragment,
 		uniforms: {
 			progress,
+			activeLayer,
 			baseColor: { value: new THREE.Color(0x71857e) },
 			selectedColor: { value: new THREE.Color(0xb6c8c0) }
 		},
@@ -271,7 +284,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			['radiusAlpha', 4],
 			['fromColor', 3],
 			['toColor', 3],
-			['emphasis', 2]
+			['emphasis', 2],
+			['layerIndex', 1]
 		] as const) {
 			nodeGeometry.setAttribute(
 				name,
@@ -291,7 +305,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			['fromPosition', 3],
 			['toPosition', 3],
 			['opacity', 2],
-			['emphasis', 2]
+			['emphasis', 2],
+			['endpointLayers', 2]
 		] as const) {
 			edgeGeometry.setAttribute(
 				name,
@@ -302,6 +317,28 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		}
 	}
 	function update(next: FieldData) {
+		activeLayer.value = next.activeLayer ?? -1;
+		activityMode.value = Number(Boolean(next.activityMode));
+		// Faint context beads must not write opaque depth over measured activity behind them.
+		// Retain ordinary depth occlusion for static structural snapshots.
+		nodeMaterial.depthWrite = !next.activityMode;
+		// Layer stepping changes only shader uniforms. It never restarts a coordinate
+		// interpolation or uploads thousands of unchanged neuron attributes.
+		if (
+			next.points === data.points &&
+			next.edges === data.edges &&
+			next.selected === data.selected &&
+			next.mode === data.mode &&
+			next.theme === data.theme &&
+			next.layerFilter === data.layerFilter &&
+			next.activityMode === data.activityMode
+		) {
+			data = next;
+			hovered = null;
+			options.onhover(null, 0, 0);
+			schedule();
+			return;
+		}
 		const now = performance.now();
 		const t = amount(now);
 		const first = !hasFramed;
@@ -321,18 +358,30 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			if (b === next.selected) neighbors.add(a);
 		}
 		const nextStates = new Map<number, NodeState>();
+		let maximum = 0;
+		if (next.activityMode)
+			for (const point of next.points)
+				if (next.layerFilter == null || next.layerFilter === point.layer)
+					maximum = Math.max(
+						maximum,
+						Math.abs(next.mode === 'effect' ? (point.effect ?? 0) : point.activation)
+					);
 		for (const point of next.points) {
 			const old = nodeStates.get(point.id);
 			const selected = point.id === next.selected;
 			const magnitude = Math.abs(next.mode === 'effect' ? (point.effect ?? 0) : point.activation);
-			const radius =
-				unit * (0.011 + 0.023 * Math.tanh(magnitude / (next.mode === 'effect' ? 0.12 : 2)));
+			const signal = maximum > 0 ? Math.sqrt(magnitude / maximum) : 0;
+			const radius = next.activityMode
+				? unit * (0.005 + 0.031 * signal)
+				: unit * (0.011 + 0.023 * Math.tanh(magnitude / (next.mode === 'effect' ? 0.12 : 2)));
 			const active = next.layerFilter == null || next.layerFilter === point.layer;
 			const opacity = !active
 				? 0
-				: next.selected !== null && !selected && !neighbors.has(point.id)
-					? 0.7
-					: 1;
+				: next.activityMode
+					? 0.07 + 0.93 * signal
+					: next.selected !== null && !selected && !neighbors.has(point.id)
+						? 0.7
+						: 1;
 			color.setHex(PALETTES[theme][point.layer % PALETTES[theme].length]);
 			if (selected) color.setHex(theme === 'dark' ? 0xdee7d3 : 0x5f7856);
 			const rgb: Triple = [color.r, color.g, color.b];
@@ -377,6 +426,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 			put('fromColor', node.colorFrom);
 			put('toColor', node.colorTo);
 			put('emphasis', [node.selectionFrom, node.selectionTo]);
+			put('layerIndex', [node.point.layer]);
 			i++;
 		}
 		nodeGeometry.instanceCount = nodeStates.size;
@@ -435,13 +485,19 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 					[edge.selectedFrom, edge.selectedTo],
 					i * 2
 				);
+				(edgeGeometry.getAttribute('endpointLayers').array as Float32Array).set(
+					[nodeStates.get(edge.a)!.point.layer, nodeStates.get(edge.b)!.point.layer],
+					i * 2
+				);
 				i++;
 			}
 		edgeGeometry.setDrawRange(0, edgeStates.size * 2);
 		for (const [name, attribute] of Object.entries(edgeGeometry.attributes))
 			if (name !== 'position') attribute.needsUpdate = true;
 		startTime = now;
-		duration = motion.matches || first ? 0 : 480;
+		// A live token's values must be visible during even the shortest layer dwell.
+		// Do not blend in the previous token's activity and present it as this frame.
+		duration = motion.matches || first || next.activityMode ? 0 : 480;
 		progress.value = duration ? 0 : 1;
 		hovered = null;
 		options.onhover(null, 0, 0);
@@ -460,6 +516,7 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		let closest: FieldPoint | null = null;
 		let distance = Infinity;
 		for (const node of nodeStates.values()) {
+			if (data.activeLayer != null && node.point.layer !== data.activeLayer) continue;
 			if (node.alphaTo <= 0 || mix(node.alphaFrom, node.alphaTo, t) < 0.15) continue;
 			hitSphere.center.set(...mix3(node.from, node.to, t));
 			const viewDistance = camera.position.distanceTo(hitSphere.center);
@@ -574,7 +631,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		update,
 		reset() {
 			reset();
-			update(data);
+			// Recompute radii after the explicit camera/coordinate-scale reset.
+			update({ ...data, points: [...data.points] });
 		},
 		rotate(enabled: boolean) {
 			controls.autoRotate = enabled;
@@ -583,6 +641,8 @@ export function createNeuralField(canvas: HTMLCanvasElement, options: FieldOptio
 		/** A measured view snapshot, useful for verification without inventing motion. */
 		inspect() {
 			return {
+				activeLayer: data.activeLayer ?? null,
+				activityMode: Boolean(data.activityMode),
 				progress: progress.value,
 				camera: camera.position.toArray(),
 				nodes: [...nodeStates].map(([id, node]) => ({

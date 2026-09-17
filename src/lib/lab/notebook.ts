@@ -11,6 +11,25 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '019',
+		date: '2026-09-16',
+		kind: 'decision',
+		title: 'Follow each token through measured layers.',
+		text: 'Live subword generation now waits for the viewer after every forward pass. The lab presents actual post-ReLU MLP values layer by layer, then reveals the sampled token and advances the exact token-ID context. Pause, layer stepping, token stepping and recorded replay share the same measurements. A 24-token WebGPU trace from the saved 4,096-update model preserves all 2,048 channel values and 4,096 raw output probabilities per frame; weights, Adam state and training randomness remained unchanged.',
+		lesson:
+			'This is an instrument, not evidence of a discovered circuit. The final input position predicts the next token; paced layer playback does not measure GPU timing or show attention and residual-stream internals. Brightness is normalized within each frame; the inspector retains raw values. The replay still changes a little girl called Tom into “He”. Its training evidence is inherited from Study 004, not a new training run. Continuous training now saves maps and weights every 100 updates and on pause. The spatial map remains 3D PCA; token progression supplies time.',
+		links: [
+			{
+				title: 'Live measurement and playback method',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/live-activations.md'
+			},
+			{
+				title: 'Measured replay and checkpoint-preservation checks',
+				href: 'https://github.com/NeoVand/tissue/blob/main/static/experiments/token-stories-live-demo-d474f204-report.json'
+			}
+		]
+	},
+	{
 		id: '018',
 		date: '2026-09-16',
 		kind: 'observation',

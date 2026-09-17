@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "live-renderer-depth-regression",
+  "recordedAt": "2026-09-17T03:32:51.625Z",
+  "method": "Real headless Chromium WebGL2 center-pixel readback from overlapping instanced nodes. Earlier foreground layer is faint context; later background layer carries measured maximum activity. No numerical model or frozen study source modified.",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+  "canvas": {
+    "width": 400,
+    "height": 400
+  },
+  "pixels": {
+    "normalBeforeBoth": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "normalBeforeFront": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "activityBoth": [
+      169,
+      162,
+      183,
+      255
+    ],
+    "activityBack": [
+      169,
+      162,
+      183,
+      255
+    ],
+    "activityFront": [
+      11,
+      13,
+      12,
+      19
+    ],
+    "normalRestoredBoth": [
+      146,
+      169,
+      162,
+      255
+    ],
+    "normalRestoredFront": [
+      146,
+      169,
+      162,
+      255
+    ]
+  },
+  "checksPassed": [
+    "focused activity visible behind faint context",
+    "ordinary snapshot depth occlusion preserved",
+    "activity off restores original snapshot rendering"
+  ],
+  "sourceHashes": {
+    "src/lib/scene/neural-field.ts": "b7e70a096570f58dc3446a726f0a22b732664ab177e3b78c8ebc25ffb41e2012",
+    "src/lib/scene/field-shaders.ts": "fd3893d72df61b7d58508e325e43850788106e1c49db5a5a11e766bd1fd11cfa"
+  },
+  "url": "http://127.0.0.1:5173/",
+  "scriptPath": "scripts/verify-live-field.mjs",
+  "scriptSha256": "8679f44c578b82848f84ea8e1b1af7137543f5f4797945fe792557ad838b4b70"
+}

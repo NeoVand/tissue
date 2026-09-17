@@ -95,3 +95,28 @@ Recompute the public evidence checks without training:
 node scripts/audit-token-stories.mjs --write
 node scripts/analyze-token-story-samples.mjs
 ```
+
+## Live subword generation
+
+The catalog also includes **Live replay · TinyStories BPE small at 4096**:
+`token-stories-live-demo-d474f204.tissue`, a 5,897,238-byte inspection-only archive
+with 24 measured autoregressive frames. Each frame retains the exact input IDs,
+2,048 post-ReLU MLP values at the final input position and all 4,096 raw output
+probabilities. Open it in TinyStories → Subword and choose **Replay trace**; replay
+does not allocate a model.
+
+This capture restores the original 4,096-update weights and performs no training.
+The four maps, 319 training/evaluation records, five previous samples and selected
+unit intervention are inherited unchanged, with their source identity retained.
+Only the additional completion and its live trace were newly measured. The
+public artifact has `checkpoint: null`; the original resumable reference is
+unchanged, and the complete replay archive with weights stays at the local path
+in `token-stories-live-demo-d474f204-report.json`.
+
+`token-stories-live-demo-validation.json` records public live-schema validation,
+hashes, probability mass and exact inheritance checks. Both catalog audits now
+cover both references. `token-stories-live-engine-smoke.json` records a separate
+full Small WASM check of direct-probe parity, live/batch sampling, worker
+backpressure, cancellation, typed archive round-trip and checkpoint preservation.
+See [the measurement and playback method](../../docs/live-activations.md) for the
+distinction between measured layer values and presentation timing.
