@@ -10,9 +10,11 @@ _An actual 1.85M-parameter TinyStories BPE model at training step 4,096. Positio
 
 ## Start with a trained model
 
-1. Open **TinyStories → Subword**, then the recorded specimen **Live replay · TinyStories BPE small at 4096**. Choose **Replay trace** to explore 24 measured token frames. No model allocation or training is required.
+1. Open **TinyStories → Subword → Model & runs**, then the recorded specimen **Live replay · TinyStories BPE small at 4096**. Choose **Replay trace** to explore 24 measured token frames. No model allocation or training is required.
 2. Switch between **Functional** and **Model layout**, select a channel, and inspect its exact activation. Pause, advance a layer or token, and compare the raw next-token probabilities.
 3. To generate your own continuation, open **TinyStories BPE small · seed 42**, choose **Resume step 4096**, then **Generate live**. The same button pauses and resumes generation. Or initialize a fresh model and watch it train.
+
+Drag the tools-panel divider to resize it, or collapse it to give the network more room. **Inspect** holds prompt probes and channel details; **Measurement details** and **Samples & evidence** reveal projection diagnostics, training curves, and run history.
 
 The replay specimen contains measurements only. The original specimen contains the trained weights. WebGPU is preferred for training and inference; the compact preset also supports WASM. The first model operation compiles kernels and takes longer than subsequent ones.
 

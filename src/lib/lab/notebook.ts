@@ -11,6 +11,21 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '022',
+		date: '2026-09-17',
+		kind: 'decision',
+		title: 'Give the instrument a clear hierarchy.',
+		text: 'The interface audit found competing toolbars, fixed narrow sidebars, and labels as small as 7–9 pixels. The lab now puts the measured network first, with one resizable Model/Inspect panel, readable typography, and named disclosures for setup, training, projection diagnostics, and evidence. The journal presents a readable sequence of decisions rather than three crowded columns.',
+		lesson:
+			'Progressive disclosure must preserve the information needed to interpret a view. Model identity, measured checkpoint, generated text, raw selected activity, and projection caveats remain accessible. This redesign changes the instrument, not the recorded experiment or the strength of its evidence.',
+		links: [
+			{
+				title: 'Interface audit and interaction design',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/interface-audit.md'
+			}
+		]
+	},
+	{
 		id: '021',
 		date: '2026-09-17',
 		kind: 'decision',

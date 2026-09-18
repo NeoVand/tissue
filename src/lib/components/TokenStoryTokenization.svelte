@@ -73,7 +73,7 @@
 		gap: 8px;
 		flex-wrap: wrap;
 		color: var(--muted);
-		font: 8px/1.6 var(--mono);
+		font: 12px/1.6 var(--mono);
 	}
 	.encoding-meta b {
 		color: var(--ink);
@@ -93,7 +93,7 @@
 		background: var(--surface-raised);
 		padding: 4px 6px;
 		color: var(--ink);
-		font: 10px/1.3 var(--mono);
+		font: 12px/1.3 var(--mono);
 		overflow-wrap: anywhere;
 	}
 	.pieces > span:nth-child(3n + 2) {
@@ -112,7 +112,7 @@
 	}
 	.coverage,
 	.token-error {
-		font: 8px/1.65 var(--mono);
+		font: 12px/1.65 var(--mono);
 		color: var(--muted);
 		margin: 7px 0 0;
 	}

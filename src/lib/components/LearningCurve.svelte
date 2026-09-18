@@ -50,7 +50,7 @@
 		overflow: visible;
 	}
 	text {
-		font: 11px var(--mono);
+		font: 13px var(--mono);
 		fill: var(--muted);
 	}
 	.grid {
@@ -76,6 +76,6 @@
 		stroke-width: 2;
 	}
 	.axis-label {
-		font-size: 10px;
+		font-size: 12px;
 	}
 </style>

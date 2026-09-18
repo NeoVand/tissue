@@ -236,7 +236,7 @@
 		border-radius: 8px;
 		overflow: hidden;
 		font:
-			11px/1.45 'DM Sans',
+			13px/1.45 'DM Sans',
 			sans-serif;
 	}
 	.inspector[data-theme='light'] {
@@ -252,7 +252,7 @@
 	}
 	.section-label,
 	.subheading strong {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 600;
 	}
 	.mono,
@@ -266,7 +266,7 @@
 	}
 	.meta {
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.empty {
 		display: grid;
@@ -280,18 +280,18 @@
 		color: var(--muted, #8c9aaa);
 	}
 	.empty strong {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 	}
 	.empty p {
 		max-width: 220px;
 		margin: 0;
 		color: var(--muted, #8c9aaa);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.65;
 	}
 	.empty > span {
-		font-size: 8px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 		margin-top: 3px;
 	}
@@ -332,7 +332,7 @@
 		background: var(--surface-raised, #161f29);
 		color: var(--muted, #8c9aaa);
 		font:
-			11px 'IBM Plex Mono',
+			13px 'IBM Plex Mono',
 			monospace;
 		cursor: pointer;
 	}
@@ -350,10 +350,10 @@
 		gap: 14px;
 		padding: 0 12px 10px;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.observation-stamps b {
-		font-size: 9px;
+		font-size: 12px;
 		color: var(--ink, #dae2eb);
 		font-weight: 400;
 		margin-left: 4px;
@@ -364,7 +364,7 @@
 		border-top: 1px solid var(--line, #26303b);
 		color: var(--muted, #8c9aaa);
 		background: var(--surface-raised, #161f29);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.notice.error {
@@ -422,14 +422,14 @@
 		background: var(--unit-color, #a7b8d4);
 	}
 	.token-text {
-		font-size: 9px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 	}
 	.current .token-text {
 		color: var(--unit-color, #a7b8d4);
 	}
 	.token-index {
-		font-size: 7px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 		opacity: 0.6;
 	}
@@ -439,7 +439,7 @@
 		flex-wrap: wrap;
 		margin-top: 8px;
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.trace-footer b {
 		font-weight: 400;
@@ -448,12 +448,12 @@
 	.trace-context,
 	.unavailable {
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 		margin: 7px 0 0;
 	}
 	.tensor-address {
-		font-size: 9px;
+		font-size: 12px;
 		display: flex;
 		justify-content: space-between;
 		gap: 5px;
@@ -490,7 +490,7 @@
 		display: flex;
 		justify-content: space-between;
 		color: var(--muted, #8c9aaa);
-		font-size: 7px;
+		font-size: 12px;
 	}
 	.weight-axis span:nth-child(2) {
 		opacity: 0.8;
@@ -506,16 +506,16 @@
 	}
 	.weight-statistics span {
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.weight-statistics b {
-		font-size: 9px;
+		font-size: 12px;
 		font-weight: 400;
 		white-space: nowrap;
 	}
 	.weight-caption {
 		margin: 7px 0 0;
-		font-size: 8px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 	}
 	.weight-empty {
@@ -529,14 +529,14 @@
 		cursor: pointer;
 		padding: 9px 12px;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.computation > div {
 		padding: 0 12px 10px;
 	}
 	.computation code {
 		display: block;
-		font-size: 8px;
+		font-size: 12px;
 		margin-bottom: 5px;
 		color: var(--ink, #dae2eb);
 		white-space: normal;
@@ -544,7 +544,7 @@
 	.computation p {
 		margin: 7px 0 0;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.compact {
@@ -579,7 +579,7 @@
 		height: 46px;
 	}
 	.compact .trace-context {
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.compact .computation summary {
 		padding: 8px 9px;

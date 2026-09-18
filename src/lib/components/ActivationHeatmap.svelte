@@ -364,13 +364,13 @@
 		min-width: 0;
 	}
 	.matrix-heading strong {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 500;
 		white-space: nowrap;
 	}
 	.matrix-heading > div > span {
 		font:
-			8px ui-monospace,
+			12px ui-monospace,
 			SFMono-Regular,
 			Menlo,
 			monospace;
@@ -432,7 +432,7 @@
 		background: var(--surface, #13171a);
 		color: var(--muted, #7f8994);
 		text-align: center;
-		font-size: 11px;
+		font-size: 13px;
 		pointer-events: none;
 	}
 	.matrix-footer {
@@ -444,7 +444,7 @@
 		padding: 0 13px;
 		color: var(--muted, #7f8994);
 		font:
-			9px ui-monospace,
+			12px ui-monospace,
 			SFMono-Regular,
 			Menlo,
 			monospace;
@@ -466,11 +466,11 @@
 	}
 	.cell-kind {
 		color: var(--accent, #b6d88e);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.scale-note {
 		white-space: nowrap;
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.sr-only {
 		position: absolute;

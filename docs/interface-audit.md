@@ -1,0 +1,33 @@
+# Interface audit · September 2026
+
+The lab had accumulated four competing control bands above the TinyStories canvas, two fixed narrow sidebars, and labels as small as 7–9 px. Initialization, live generation, batch sampling, projection diagnostics, and experiment history all appeared at once. Researchers had to read the instrument's implementation before finding the model.
+
+## Working hierarchy
+
+- **Navigation:** one lab-wide navigation row. Subword/character selection sits beside the TinyStories title; it no longer occupies a separate navigation band.
+- **Model context:** parameter count, layer count, and the measured checkpoint remain visible above the workspace. The canvas toolbar controls only the visualization.
+- **Workspace:** one large canvas and one adjustable tools panel. Model & runs contains saved specimens, initialization, compute options, and training. Inspect contains prompt probing, exact channel addresses, measured values, and interventions. Selecting a point opens its inspector.
+- **Progressive disclosure:** initialization, training configuration, corpus provenance, projection audit, map history, batch sampling, and detailed learning evidence have named disclosures. Live output stays beside the network. A concise projection interpretation remains visible even when the numerical audit is closed.
+- **Reading:** controls and metadata have a 12 px minimum, with larger prose and headings. Color remains desaturated, surfaces use thin rounded borders, and panels have no side shadows.
+- **History:** the field journal has a reading column with expandable entries and a separate archive column. Query studies disclose their protocol while keeping results prominent. Methods use readable two-column articles and identify the study they describe.
+
+## Panel interaction
+
+Drag the divider beside the tools panel to resize it. Keyboard users can focus the resize slider and use Left/Right in 24 px increments, or Home/End for its bounds. Double-click restores the default 360 px width. Width is bounded by the available canvas space; collapsed state and preferred width are stored locally per workspace. Storage failures do not block the lab.
+
+Collapsing tools gives the canvas the available width. Switching Model/Inspect preserves the resident model and measurements. Below 1,000 px, tools become a collapsible section above the canvas; the pointer-only divider disappears. Optional content remains accessible through the same buttons and disclosures.
+
+## Verification scope
+
+The UI regression suite exercises panel resizing with both pointer and keyboard, collapse/expand, persisted width, measured replay values across view changes, light mode, and a narrow viewport with evidence expanded. Existing end-to-end tests follow the new disclosure paths for training, prompt probes, intervention, export/import, and resume. The Pages smoke test also exercises those paths against the actual static deployment.
+
+Validation for this revision:
+
+- 170 numerical and archive tests passed across 20 files.
+- All 14 browser workflows passed, including continuous training beyond 125 updates and checkpoint export at the actual paused step.
+- Type checking reported no errors or warnings; formatting, lint, and the Svelte component audit passed.
+- The production Pages build passed its strict static-server smoke test: BPE replay, BPE and character checkpoint restoration with new WASM prompt probes, and binding/paired-query reference loading. There were no page errors or failed requests.
+- The workspace test retained unit 1403, replay frame 11, and the measured activation 1.8640 through panel changes. Desktop dark/light views and a 390 px viewport were reviewed; expanded evidence produced no horizontal page overflow.
+- The refreshed 3,200 × 2,240 README banner is an actual browser capture of the published step-4096 model. Its measurement source and image hash are recorded in `docs/assets/tissue-banner.json`.
+
+This is an instrument design change, not a new scientific result. Training code, recorded activations, projection algorithms, checkpoint weights, and historical provenance are unchanged. The 3D map remains PCA; similarity edges do not represent model connections. Paced layer playback still presents measured values rather than GPU execution timing.

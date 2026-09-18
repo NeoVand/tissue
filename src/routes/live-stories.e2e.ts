@@ -1,3 +1,4 @@
+import { tools, disclose } from './workspace-test-helpers';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -22,6 +23,8 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 		.filter({ hasText: 'TinyStories BPE small · seed 42' })
 		.click();
 	const resume = lab.getByRole('button', { name: 'Resume step 4096', exact: true });
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(resume).toBeEnabled({ timeout: 60_000 });
 	await resume.click();
 	const live = lab.getByRole('region', { name: 'Live token generation', exact: true });
@@ -36,7 +39,9 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 			.getByRole('group', { name: 'Activation encoding' })
 			.getByRole('button', { name: 'Brightness', exact: true })
 	).toHaveAttribute('aria-pressed', 'true');
+	await tools(lab, 'inspector');
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('1024');
+	await disclose(live, 'Playback controls');
 	await live.getByRole('button', { name: 'Slow · 400 ms', exact: true }).click();
 	await generate.click();
 	await expect(live).toHaveAttribute('data-frame', '0', { timeout: 60_000 });
@@ -112,6 +117,8 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await expect(generate).toBeEnabled({ timeout: 30_000 });
 	await page.reload();
 	await lab.locator('.archive-item:not(.reference)').first().click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(lab.getByRole('button', { name: 'Resume step 4096', exact: true })).toBeEnabled({
 		timeout: 60_000
 	});
@@ -119,6 +126,8 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await live.getByRole('button', { name: 'Replay trace', exact: true }).click();
 	await expect(live).toHaveAttribute('data-frame', '0');
 	await expect(live).toContainText('4096');
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(lab.getByRole('button', { name: 'Resume step 4096', exact: true })).toBeVisible();
 	await page.setViewportSize({ width: 390, height: 844 });
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -153,6 +162,7 @@ test('recorded playback preserves visual controls and uses its primary pause act
 	await expect(size).toHaveAttribute('aria-pressed', 'true');
 	await brightness.click();
 	const functional = lab.getByRole('button', { name: 'Functional', exact: true });
+	await disclose(live, 'Playback controls');
 	await live.getByRole('button', { name: 'Slow · 400 ms', exact: true }).click();
 	await replay.click();
 	await expect(live).toHaveAttribute('data-frame', '0');
@@ -224,19 +234,30 @@ test('continuous training crosses the old default burst and saves its actual pau
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto('/?view=tinystories');
 	const lab = page.locator('.token-story-lab');
+	await tools(lab, 'model');
+	await disclose(lab, 'New model');
 	await lab.getByRole('button', { name: 'Initialize model', exact: true }).click();
 	const train = lab.getByRole('button', { name: 'Train', exact: true });
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 90_000 });
 	await expect(
 		lab.locator('.transport').getByRole('button', { name: 'Continuous', exact: true })
 	).toHaveAttribute('aria-pressed', 'true');
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await train.click();
+	await disclose(lab, 'Measurement details');
 	const updates = async () => {
 		const text = await lab.locator('.metric-strip').first().innerText();
 		return Number(text.match(/Updates\s+([\d,]+)/)?.[1].replaceAll(',', '') ?? 0);
 	};
 	await expect.poll(updates, { timeout: 150_000 }).toBeGreaterThanOrEqual(125);
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await lab.locator('.transport').getByRole('button', { name: 'Pause', exact: true }).click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 60_000 });
 	const actualStep = await updates();
 	expect(actualStep).toBeGreaterThanOrEqual(125);

@@ -114,7 +114,7 @@
 		border-radius: 8px;
 		overflow: hidden;
 		font:
-			11px/1.4 'DM Sans',
+			13px/1.4 'DM Sans',
 			sans-serif;
 	}
 	header {
@@ -132,7 +132,7 @@
 		align-items: baseline;
 	}
 	.label {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 650;
 		letter-spacing: 0.02em;
 	}
@@ -149,7 +149,7 @@
 	}
 	.count {
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	button {
 		font: inherit;
@@ -164,7 +164,7 @@
 		background: transparent;
 		border-radius: 4px;
 		padding: 4px 7px;
-		font-size: 10px;
+		font-size: 12px;
 		white-space: nowrap;
 	}
 	header button.active {
@@ -193,32 +193,32 @@
 	}
 	.endpoint strong {
 		font-weight: 550;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.step-index {
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 		width: 22px;
 	}
 	.formula {
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.dimension {
 		margin-left: auto;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.connector {
 		display: flex;
 		gap: 7px;
 		align-items: center;
 		padding: 3px 11px;
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 	}
 	.connector span {
-		font-size: 8px;
+		font-size: 12px;
 		opacity: 0.8;
 	}
 	.block {
@@ -246,36 +246,36 @@
 	}
 	.layer-badge {
 		color: var(--layer-color, #859cae);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.block-heading strong {
 		font-weight: 550;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.filter-label {
 		margin-left: auto;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.block-path {
 		display: flex;
 		gap: 7px;
 		align-items: baseline;
 		padding: 5px 8px;
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.block-path > span:nth-child(2) {
 		flex: 1;
 	}
 	.path-kind {
 		width: 29px;
-		font-size: 8px;
+		font-size: 12px;
 		color: var(--muted, #8c9aaa);
 		flex-shrink: 0;
 	}
 	.block-path small {
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 		white-space: nowrap;
 	}
 	.represented {
@@ -288,7 +288,7 @@
 	}
 	.residual {
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 		white-space: nowrap;
 	}
 	.node-range {
@@ -297,7 +297,7 @@
 		align-items: center;
 		padding: 4px 8px 6px 44px;
 		color: var(--muted, #8c9aaa);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.node-range i,
 	.caption i {
@@ -318,7 +318,7 @@
 		margin: 0;
 		padding: 0 12px 10px;
 		color: var(--muted, #8c9aaa);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.55;
 	}
 	.compact {
@@ -332,11 +332,11 @@
 		gap: 4px;
 	}
 	.compact header button {
-		font-size: 9px;
+		font-size: 12px;
 		padding: 3px 4px;
 	}
 	.compact .count {
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.compact .flow {
 		padding: 0 8px 6px;
@@ -346,10 +346,10 @@
 		gap: 0;
 	}
 	.compact .endpoint strong {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.compact .formula {
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.compact .connector {
 		padding: 1px 7px;
@@ -364,43 +364,43 @@
 	}
 	.compact .block-heading strong {
 		font:
-			9px 'IBM Plex Mono',
+			12px 'IBM Plex Mono',
 			monospace;
 	}
 	.compact .block-path {
 		gap: 4px;
 		padding: 5px 5px 2px;
-		font-size: 9px;
+		font-size: 12px;
 		align-items: start;
 	}
 	.compact .block-path small {
 		display: block;
 		margin-top: 2px;
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.compact .block-path > span:nth-child(2) {
 		min-width: 0;
 	}
 	.compact .path-kind {
 		width: 24px;
-		font-size: 8px;
+		font-size: 12px;
 		padding-top: 1px;
 	}
 	.compact .residual {
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.compact .represented {
-		font-size: 8px;
+		font-size: 12px;
 		padding: 1px 2px;
 	}
 	.compact .node-range {
 		padding: 4px 6px 6px 32px;
 		gap: 4px;
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.compact .caption {
 		padding: 0 8px 7px;
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.5;
 	}
 	@media (prefers-reduced-motion: reduce) {

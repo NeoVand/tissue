@@ -28,32 +28,33 @@
 	}
 </script>
 
-<div class="token-mode-bar">
-	<div class="mode-label"><Icon name="book" size={13} /><span>Language representation</span></div>
-	<div class="mode-options" aria-label="TinyStories language representation">
-		<button
-			class:chosen={view === 'subword'}
-			aria-label="Subword"
-			aria-pressed={view === 'subword'}
-			onclick={() => selectView('subword')}
-			><Icon name="layers" size={12} />Subword<span>4,096 tokens</span>{#if subwordBusy}<i
-					aria-label="Subword worker active"
-				></i>{/if}</button
-		>
-		<button
-			class:chosen={view === 'characters'}
-			aria-label="Characters"
-			aria-pressed={view === 'characters'}
-			onclick={() => selectView('characters')}
-			><Icon name="grid" size={12} />Characters<span>96 tokens</span>{#if charactersBusy}<i
-					aria-label="Character worker active"
-				></i>{/if}</button
-		>
+{#snippet representation()}
+	<div class="token-mode-bar">
+		<div class="mode-options" aria-label="TinyStories language representation">
+			<button
+				class:chosen={view === 'subword'}
+				aria-label="Subword"
+				aria-pressed={view === 'subword'}
+				onclick={() => selectView('subword')}
+				><Icon name="layers" size={12} />Subword<span>4,096 tokens</span>{#if subwordBusy}<i
+						aria-label="Subword worker active"
+					></i>{/if}</button
+			>
+			<button
+				class:chosen={view === 'characters'}
+				aria-label="Characters"
+				aria-pressed={view === 'characters'}
+				onclick={() => selectView('characters')}
+				><Icon name="grid" size={12} />Characters<span>96 tokens</span>{#if charactersBusy}<i
+						aria-label="Character worker active"
+					></i>{/if}</button
+			>
+		</div>
 	</div>
-	<p>Separate models, measurements and checkpoints</p>
-</div>
+{/snippet}
 <div hidden={view !== 'subword'}>
 	<TokenStoryLab
+		{representation}
 		{theme}
 		active={active && view === 'subword'}
 		disabled={disabled || charactersBusy}
@@ -63,6 +64,7 @@
 {#if charactersVisited}
 	<div hidden={view !== 'characters'}>
 		<StoryLab
+			{representation}
 			{theme}
 			active={active && view === 'characters'}
 			disabled={disabled || subwordBusy}
@@ -81,13 +83,6 @@
 		border-bottom: 1px solid var(--line);
 		background: var(--surface);
 	}
-	.mode-label {
-		display: flex;
-		align-items: center;
-		gap: 7px;
-		color: var(--muted);
-		font: 9px var(--mono);
-	}
 	.mode-options {
 		display: flex;
 		gap: 3px;
@@ -104,7 +99,7 @@
 		border-radius: 3px;
 		background: transparent;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		cursor: pointer;
 	}
 	.mode-options button.chosen {
@@ -114,7 +109,7 @@
 	}
 	.mode-options button span {
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.mode-options i {
 		width: 4px;
@@ -122,20 +117,11 @@
 		border-radius: 50%;
 		background: var(--accent);
 	}
-	p {
-		margin: 0 0 0 auto;
-		color: var(--faint);
-		font: 8px var(--mono);
-	}
 	button:focus-visible {
 		outline: 1px solid var(--accent);
 		outline-offset: 3px;
 	}
 	@media (max-width: 800px) {
-		.mode-label,
-		p {
-			display: none;
-		}
 		.token-mode-bar {
 			padding: 8px 12px;
 		}
@@ -145,6 +131,30 @@
 		.mode-options button {
 			flex: 1;
 			justify-content: center;
+		}
+	}
+
+	.token-mode-bar {
+		min-height: 0;
+		padding: 0;
+		background: transparent;
+		border: 0;
+	}
+	.mode-options {
+		padding: 3px;
+		border-radius: 8px;
+	}
+	.mode-options button {
+		min-height: 36px;
+		border-radius: 5px;
+		font-size: 13px;
+	}
+	.mode-options button span {
+		display: none;
+	}
+	@media (max-width: 600px) {
+		.token-mode-bar {
+			padding: 0;
 		}
 	}
 </style>

@@ -32,6 +32,7 @@ try {
 	await live
 		.getByRole('button', { name: 'Replay trace', exact: true })
 		.waitFor({ state: 'visible', timeout: 60_000 });
+	await lab.getByRole('button', { name: 'Inspect', exact: true }).click();
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('1403');
 	await live.getByRole('button', { name: 'Replay trace', exact: true }).click();
 	await page.waitForFunction(
@@ -62,6 +63,7 @@ try {
 	await page.mouse.wheel(0, -90);
 	await page.waitForTimeout(500); // Let the existing camera damping settle.
 	await page.mouse.move(1500, 80);
+	await page.evaluate(() => window.scrollTo(0, 0));
 	await page.evaluate(
 		() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
 	);

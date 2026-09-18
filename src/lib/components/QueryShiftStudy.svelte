@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import { QUERY_METHODS, type QueryAnalysis, type QueryMethod } from '$lib/lab/query-analysis';
 	import type { QueryMeasurement } from '$lib/lab/query-protocol';
 	import type { Backend } from '$lib/lab/protocol';
@@ -7,6 +8,7 @@
 	import QueryProbePanel from './QueryProbePanel.svelte';
 
 	interface Props {
+		savedStudies?: Snippet;
 		measurement: QueryMeasurement | null;
 		analysis: QueryAnalysis | null;
 		busy: boolean;
@@ -26,6 +28,7 @@
 		checkpoint?: { seed: number; step: number; backend: Backend } | null;
 	}
 	let {
+		savedStudies,
 		measurement,
 		analysis,
 		busy,
@@ -142,7 +145,7 @@
 	<header class="study-heading">
 		<div class="heading-copy">
 			<span class="eyebrow">Study 002 · Paired-query transfer</span>
-			<h1>What changes when the question changes?</h1>
+			<h1>Paired-query transfer</h1>
 			<p>
 				Hold the assignment fixed. Change only the queried variable. Test whether a neighborhood’s
 				effect similarity carries to unseen assignments.
@@ -182,33 +185,40 @@
 		</div>
 	</header>
 
-	<div class="protocol-strip">
-		<div>
-			<span class="protocol-number">01</span>
-			<p>
-				<strong>Paired prompts</strong><span
-					>16 calibration + 16 held-out assignments × 3 queries</span
-				>
-			</p>
+	{#if savedStudies}<details class="lab-disclosure protocol-disclosure">
+			<summary>Saved query studies</summary>{@render savedStudies()}
+		</details>{/if}
+	<details class="lab-disclosure protocol-disclosure">
+		<summary
+			>Study protocol <small>Paired prompts, matched controls & held-out evaluation</small></summary
+		>
+		<div class="protocol-strip">
+			<div>
+				<span class="protocol-number">01</span>
+				<p>
+					<strong>Paired prompts</strong><span
+						>16 calibration + 16 held-out assignments × 3 queries</span
+					>
+				</p>
+			</div>
+			<div>
+				<span class="protocol-number">02</span>
+				<p>
+					<strong>Controlled neighbors</strong><span
+						>Up to 32 same-layer, strength-matched candidates → 6 neighbors</span
+					>
+				</p>
+			</div>
+			<div>
+				<span class="protocol-number">03</span>
+				<p>
+					<strong>Held-out comparison</strong><span
+						>Query-effect cosine versus the same pool’s random expectation</span
+					>
+				</p>
+			</div>
 		</div>
-		<div>
-			<span class="protocol-number">02</span>
-			<p>
-				<strong>Controlled neighbors</strong><span
-					>Up to 32 same-layer, strength-matched candidates → 6 neighbors</span
-				>
-			</p>
-		</div>
-		<div>
-			<span class="protocol-number">03</span>
-			<p>
-				<strong>Held-out comparison</strong><span
-					>Query-effect cosine versus the same pool’s random expectation</span
-				>
-			</p>
-		</div>
-	</div>
-
+	</details>
 	{#if busy}
 		<div class="measurement-progress" role="status">
 			<div>
@@ -622,7 +632,7 @@
 		max-width: 690px;
 	}
 	.eyebrow {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		text-transform: uppercase;
 		letter-spacing: 1.3px;
 		color: var(--muted);
@@ -646,7 +656,7 @@
 		gap: 8px;
 		min-height: 34px;
 		padding: 8px 12px;
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.secondary-actions {
 		display: flex;
@@ -658,7 +668,7 @@
 		padding: 6px 10px;
 		background: var(--surface);
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.secondary-actions button:hover {
 		border-color: var(--faint);
@@ -673,7 +683,7 @@
 	}
 	.resident {
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.protocol-strip {
 		display: grid;
@@ -692,7 +702,7 @@
 	}
 	.protocol-number {
 		color: var(--faint);
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		padding-top: 2px;
 	}
 	.protocol-strip p {
@@ -701,11 +711,11 @@
 		gap: 5px;
 	}
 	.protocol-strip strong {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 	}
 	.protocol-strip p span {
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.5;
 		color: var(--muted);
 	}
@@ -720,11 +730,11 @@
 		display: flex;
 		gap: 8px;
 		align-items: center;
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.progress-count {
 		margin-left: auto;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	progress {
@@ -735,7 +745,7 @@
 	}
 	.measurement-progress p {
 		margin-top: 8px;
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		line-height: 1.5;
 	}
@@ -745,7 +755,7 @@
 		gap: 10px 17px;
 		padding: 6px 1px 14px;
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		align-items: center;
 	}
 	.source {
@@ -787,7 +797,7 @@
 	}
 	.small-label {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.map-view {
 		height: 320px;
@@ -799,7 +809,7 @@
 		padding: 10px 14px;
 		border-top: 1px solid var(--line);
 		flex-wrap: wrap;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.map-diagnostics span {
@@ -822,7 +832,7 @@
 	.map-note,
 	.map-warning {
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.55;
 		padding: 0 14px 12px;
 	}
@@ -830,14 +840,14 @@
 		margin: 0 14px 12px;
 	}
 	.contrast-definition p {
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.6;
 		color: var(--muted);
 		padding: 6px 0;
 	}
 	.contrast-definition code {
 		display: block;
-		font: 10px/1.8 var(--mono);
+		font: 12px/1.8 var(--mono);
 		padding: 5px 0;
 	}
 	.map-warning {
@@ -855,7 +865,7 @@
 		border-radius: 3px;
 		background: transparent;
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		padding: 4px 7px;
 	}
 	.segmented button.active {
@@ -866,7 +876,7 @@
 		padding: 15px 16px;
 	}
 	.score-intro {
-		font-size: 11px;
+		font-size: 13px;
 		color: var(--muted);
 		line-height: 1.55;
 	}
@@ -886,7 +896,7 @@
 	}
 	.cohort > span {
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.cohort > span:last-child {
 		margin-left: auto;
@@ -905,7 +915,7 @@
 	.score-table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 10px;
+		font-size: 12px;
 		white-space: nowrap;
 	}
 	.score-table th {
@@ -916,11 +926,11 @@
 		padding: 8px 6px;
 		border-bottom: 1px solid var(--line);
 		color: var(--muted);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.score-table td {
 		text-align: right;
-		font: 11px var(--mono);
+		font: 13px var(--mono);
 		padding: 12px 6px;
 	}
 	.score-table thead th:not(:first-child) {
@@ -939,7 +949,7 @@
 		color: var(--muted);
 		width: 100%;
 		text-align: left;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.score-table th button i {
 		width: 5px;
@@ -956,7 +966,7 @@
 	}
 	.primary-label {
 		color: var(--muted);
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		border: 1px solid var(--line);
 		border-radius: 3px;
 		padding: 2px 3px;
@@ -966,37 +976,37 @@
 	}
 	.control-row th {
 		padding: 11px 4px;
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.selection-caption {
 		display: flex;
 		justify-content: space-between;
 		gap: 8px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 10px 0;
 	}
 	.score-note {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		line-height: 1.6;
 		margin: 3px 0 10px;
 	}
 	summary {
 		cursor: pointer;
-		font-size: 9px;
+		font-size: 12px;
 		color: var(--muted);
 		padding: 6px 0;
 	}
 	.audit p {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		line-height: 1.6;
 		margin-top: 10px;
 	}
 	dl {
 		margin: 7px 0;
-		font-size: 9px;
+		font-size: 12px;
 	}
 	dl > div {
 		display: flex;
@@ -1020,7 +1030,7 @@
 		gap: 7px;
 	}
 	.unit-stepper label {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.unit-stepper button {
@@ -1037,7 +1047,7 @@
 		width: 57px;
 		padding: 5px 6px;
 		text-align: center;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.unit-content {
 		display: grid;
@@ -1058,13 +1068,13 @@
 	}
 	.unit-address code {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.unit-address > span,
 	.unit-stat span,
 	.neighbor-section > span {
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.5;
 	}
 	.unit-stat strong {
@@ -1073,7 +1083,7 @@
 	}
 	.unit-stat small {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.neighbor-chips {
 		display: flex;
@@ -1088,11 +1098,11 @@
 		border-radius: 4px;
 		background: transparent;
 		padding: 6px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.neighbor-chips small {
 		color: var(--muted);
-		font-size: 7px;
+		font-size: 12px;
 	}
 	.neighbor-chips button:hover,
 	.pool-chips button:hover {
@@ -1100,7 +1110,7 @@
 		border-color: var(--accent);
 	}
 	.subtle {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 	}
 	.pool-details {
@@ -1114,7 +1124,7 @@
 	}
 	.pool-body p {
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.pool-chips {
@@ -1128,14 +1138,14 @@
 		border-radius: 4px;
 		background: transparent;
 		padding: 4px 6px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.unit-empty {
 		padding: 24px 17px;
 		display: flex;
 		gap: 10px;
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 		align-items: center;
 	}
 	.study-footer {
@@ -1144,7 +1154,7 @@
 		gap: 12px;
 		margin-top: 15px;
 		color: var(--faint);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.empty-study {
 		padding: 65px 24px;
@@ -1189,11 +1199,11 @@
 		display: flex;
 		align-items: center;
 		gap: 7px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.empty-study p.empty-note {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--faint);
 	}
 	.sr-only {
@@ -1268,7 +1278,7 @@
 			font-size: 22px;
 		}
 		.heading-copy p {
-			font-size: 11px;
+			font-size: 13px;
 		}
 		.protocol-strip p {
 			flex-direction: column;
@@ -1288,7 +1298,7 @@
 			flex-wrap: wrap;
 		}
 		.small-label {
-			font-size: 7px;
+			font-size: 12px;
 		}
 		.pool-body {
 			grid-template-columns: 1fr;
@@ -1296,7 +1306,7 @@
 		}
 		.map-diagnostics {
 			gap: 9px;
-			font-size: 7px;
+			font-size: 12px;
 		}
 		.map-diagnostics span:nth-child(4) {
 			margin-left: 0;
@@ -1308,15 +1318,15 @@
 			padding: 13px 10px;
 		}
 		.score-table td {
-			font-size: 10px;
+			font-size: 12px;
 			padding: 11px 4px;
 		}
 		.score-table thead th {
-			font-size: 7px;
+			font-size: 12px;
 			padding: 8px 4px;
 		}
 		.score-table tbody th button {
-			font-size: 9px;
+			font-size: 12px;
 		}
 		.primary-label {
 			display: none;
@@ -1329,6 +1339,74 @@
 		}
 		.provenance .different {
 			margin-left: 0;
+		}
+	}
+
+	.query-study {
+		max-width: 1600px;
+		margin: auto;
+		padding: 32px 24px;
+	}
+	.study-heading {
+		gap: 32px;
+		margin-bottom: 24px;
+	}
+	.heading-copy p {
+		font-size: 15px;
+		max-width: 640px;
+		line-height: 1.7;
+	}
+	.protocol-disclosure {
+		margin-bottom: 24px;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+	}
+	.protocol-strip {
+		padding: 16px;
+		margin: 0;
+	}
+	.research-grid {
+		gap: 20px;
+		margin-bottom: 24px;
+		grid-template-columns: minmax(0, 1fr) minmax(440px, 0.9fr);
+	}
+	.panel {
+		border-radius: 12px;
+	}
+	.panel-heading {
+		padding: 16px 18px;
+		flex-wrap: wrap;
+	}
+	.map-view {
+		height: 440px;
+	}
+	.score-content {
+		padding: 20px;
+	}
+	.score-intro,
+	.map-note,
+	.map-warning {
+		font-size: 14px;
+		line-height: 1.65;
+	}
+	.segmented button {
+		min-height: 32px;
+		padding: 6px 10px;
+	}
+	@media (max-width: 1100px) {
+		.research-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	@media (max-width: 600px) {
+		.query-study {
+			padding: 24px 12px;
+		}
+		.protocol-strip {
+			grid-template-columns: 1fr;
+		}
+		.heading-copy p {
+			font-size: 14px;
 		}
 	}
 </style>

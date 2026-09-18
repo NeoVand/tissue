@@ -105,6 +105,7 @@
 
 <section
 	class="live-panel"
+	class:playing
 	aria-label="Live token generation"
 	data-state={state}
 	data-frame={frame?.index ?? -1}
@@ -112,7 +113,7 @@
 	data-emitted={tokens.length}
 >
 	<div class="live-heading">
-		<h2><Icon name="activity" size={13} />Token by token</h2>
+		<h2><Icon name="activity" size={13} />Live generation</h2>
 		<span class:lit={playing}
 			>{playing
 				? replaying
@@ -120,11 +121,23 @@
 					: 'Live inference'
 				: frames.length
 					? 'Recorded trace available'
-					: 'Next-token microscope'}</span
+					: 'Measured MLP activity'}</span
 		><small
 			>Next generation · {limit} tokens · seed {samplingSeed} · T {temperature} · top-k {topK}</small
 		>
 	</div>
+	{#if playing || tokens.length || (complete && frames.length)}<div
+			class="live-output"
+			aria-label="Live generated text"
+		>
+			<span>{prefix}</span>{output}{#if playing}<i aria-hidden="true"></i>{/if}<small
+				>{tokens.length} output tokens{running
+					? ' · live'
+					: replaying
+						? ' · replay'
+						: ' · recorded'}</small
+			>
+		</div>{/if}
 	<div class="live-prefix">
 		<label for="live-generation-prefix">Next prefix</label><input
 			id="live-generation-prefix"
@@ -140,45 +153,48 @@
 			><Icon name={playing && !paused ? 'pause' : 'play'} size={12} />{primaryLabel}</button
 		>
 	</div>
-	<div class="playback-controls">
-		<div class="transport-controls">
-			<button onclick={onnextlayer} disabled={stopping || (!playing && !frame)}
-				><Icon name="right" size={12} />Next layer</button
-			>
-			<button onclick={onnexttoken} disabled={stopping || (!playing && !frames.length)}
-				><Icon name="right" size={12} />Next token</button
-			>
-			{#if playing}<button class="stop" onclick={onstop} disabled={stopping}
-					><Icon name="close" size={12} />{replaying ? 'Stop replay' : 'Stop generation'}</button
-				>{/if}
+	<details class="playback-settings" open={frames.length > 0 || playing}>
+		<summary>Playback controls <span>Layer stepping & speed</span></summary>
+		<div class="playback-controls">
+			<div class="transport-controls">
+				<button onclick={onnextlayer} disabled={stopping || (!playing && !frame)}
+					><Icon name="right" size={12} />Next layer</button
+				>
+				<button onclick={onnexttoken} disabled={stopping || (!playing && !frames.length)}
+					><Icon name="right" size={12} />Next token</button
+				>
+				{#if playing}<button class="stop" onclick={onstop} disabled={stopping}
+						><Icon name="close" size={12} />{replaying ? 'Stop replay' : 'Stop generation'}</button
+					>{/if}
+			</div>
+			<div class="pace-controls">
+				<span>Per layer</span
+				>{#each [{ label: 'Fast', ms: 40 }, { label: 'Read', ms: 160 }, { label: 'Slow', ms: 400 }] as option (option.ms)}<button
+						class:chosen={pace === option.ms}
+						aria-pressed={pace === option.ms}
+						onclick={() => onpace(option.ms)}>{option.label} · {option.ms} ms</button
+					>{/each}
+			</div>
 		</div>
-		<div class="pace-controls">
-			<span>Per layer</span
-			>{#each [{ label: 'Fast', ms: 40 }, { label: 'Read', ms: 160 }, { label: 'Slow', ms: 400 }] as option (option.ms)}<button
-					class:chosen={pace === option.ms}
-					aria-pressed={pace === option.ms}
-					onclick={() => onpace(option.ms)}>{option.label} · {option.ms} ms</button
-				>{/each}
+		<div class="layer-track">
+			<span>Input</span><Icon
+				name="right"
+				size={10}
+			/>{#each Array.from({ length: layers }, (_, index) => index) as index (index)}<button
+					class:focused={layer === index}
+					disabled={playing || !frame}
+					onclick={() => onlayer(index)}
+					aria-label={`Inspect recorded layer ${index + 1}`}
+					aria-pressed={layer === index}>L{index + 1}</button
+				><Icon name="right" size={10} />{/each}<span
+				class:focused={frame && tokens.length > frame.index}>Next token</span
+			><small
+				>{frame
+					? `Frame ${frame.index + 1} · step ${frame.step}`
+					: 'Awaiting a measured frame'}</small
+			>
 		</div>
-	</div>
-	<div class="layer-track">
-		<span>Input</span><Icon
-			name="right"
-			size={10}
-		/>{#each Array.from({ length: layers }, (_, index) => index) as index (index)}<button
-				class:focused={layer === index}
-				disabled={playing || !frame}
-				onclick={() => onlayer(index)}
-				aria-label={`Inspect recorded layer ${index + 1}`}
-				aria-pressed={layer === index}>L{index + 1}</button
-			><Icon name="right" size={10} />{/each}<span
-			class:focused={frame && tokens.length > frame.index}>Next token</span
-		><small
-			>{frame
-				? `Frame ${frame.index + 1} · step ${frame.step}`
-				: 'Awaiting a measured frame'}</small
-		>
-	</div>
+	</details>
 	{#if frame}<div class="live-readout">
 			<span>Input ends <code>{JSON.stringify(frame.context.pieces.at(-1))}</code></span><span
 				>{selected === null
@@ -186,18 +202,6 @@
 					: `U${selected} · L${Math.floor(selected / frame.config.hidden) + 1} C${selected % frame.config.hidden}`}</span
 			><output aria-label="Selected channel activation"
 				>{selectedValue === null ? '—' : selectedValue.toPrecision(5)}</output
-			>
-		</div>{/if}
-	{#if playing || tokens.length || (complete && frames.length)}<div
-			class="live-output"
-			aria-label="Live generated text"
-		>
-			<span>{prefix}</span>{output}{#if playing}<i aria-hidden="true"></i>{/if}<small
-				>{tokens.length} output tokens{running
-					? ' · live'
-					: replaying
-						? ' · replay'
-						: ' · recorded'}</small
 			>
 		</div>{/if}
 	<details class="frame-evidence">
@@ -298,11 +302,11 @@
 		align-items: center;
 		gap: 6px;
 		margin: 0;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 	}
 	.live-heading > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		border: 1px solid var(--line);
 		border-radius: 3px;
@@ -313,7 +317,7 @@
 		border-color: color-mix(in srgb, var(--accent) 50%, var(--line));
 	}
 	.live-heading small {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 		margin-left: auto;
 	}
@@ -324,16 +328,16 @@
 		align-items: center;
 	}
 	.live-prefix label {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.live-prefix input {
 		min-width: 0;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		padding: 6px 8px;
 	}
 	.live-prefix > button {
-		font-size: 10px;
+		font-size: 12px;
 		white-space: nowrap;
 	}
 	.playback-controls {
@@ -354,7 +358,7 @@
 		margin-left: auto;
 	}
 	.pace-controls > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 		margin-right: 4px;
 	}
@@ -372,7 +376,7 @@
 		border-radius: 4px;
 		padding: 5px 6px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.playback-controls button.chosen {
 		color: var(--accent);
@@ -388,10 +392,10 @@
 		margin-top: 8px;
 		flex-wrap: wrap;
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.layer-track button {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		padding: 5px 8px;
 		background: var(--surface-raised);
 		border: 1px solid var(--line);
@@ -410,7 +414,7 @@
 	.layer-track small {
 		margin-left: auto;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.measured-context {
 		margin-top: 12px;
@@ -422,7 +426,7 @@
 		justify-content: space-between;
 		gap: 10px;
 		flex-wrap: wrap;
-		font: 8px/1.6 var(--mono);
+		font: 12px/1.6 var(--mono);
 		color: var(--muted);
 	}
 	.measured-context strong {
@@ -437,7 +441,7 @@
 		margin-top: 7px;
 	}
 	.context-tail code {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		padding: 4px 5px;
 		border: 1px solid var(--line);
 		border-radius: 3px;
@@ -453,22 +457,22 @@
 		gap: 8px;
 		margin-top: 7px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.live-readout > span:first-child {
 		margin-right: auto;
 	}
 	.live-readout code {
 		color: var(--accent);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.live-readout output {
-		font: 11px var(--mono);
+		font: 13px var(--mono);
 		color: var(--ink);
 	}
 	details {
 		margin-top: 7px;
-		font: 8px/1.7 var(--mono);
+		font: 12px/1.7 var(--mono);
 		color: var(--muted);
 	}
 	summary {
@@ -493,7 +497,7 @@
 		border-radius: 5px;
 		background: var(--bg);
 		padding: 7px 9px;
-		font: 11px/1.65 var(--mono);
+		font: 13px/1.65 var(--mono);
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
 		max-height: 64px;
@@ -514,7 +518,7 @@
 	.live-output small {
 		display: inline;
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		margin-left: 8px;
 	}
 	.next-distribution {
@@ -523,14 +527,14 @@
 		align-items: center;
 		flex-wrap: wrap;
 		margin-top: 10px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.next-distribution code {
 		border: 1px solid var(--line);
 		padding: 3px 5px;
 		border-radius: 3px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.next-distribution b {
 		color: var(--ink);
@@ -538,7 +542,7 @@
 	}
 	.playback-note {
 		color: var(--muted);
-		font: 8px/1.7 var(--mono);
+		font: 12px/1.7 var(--mono);
 		margin-top: 10px;
 	}
 	.trace-history {
@@ -557,7 +561,7 @@
 		white-space: nowrap;
 	}
 	.trace-history span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-right: auto;
 	}
@@ -608,6 +612,146 @@
 		.layer-track small {
 			width: 100%;
 			margin-left: 0;
+		}
+	}
+
+	.live-panel {
+		padding: 16px 18px;
+		border-top: 1px solid var(--line);
+		background: var(--surface);
+	}
+	.live-heading {
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-bottom: 12px;
+	}
+	.live-heading h2 {
+		font-size: 14px;
+	}
+	.live-heading > small {
+		font:
+			12px 'DM Sans',
+			sans-serif;
+	}
+	.live-prefix {
+		gap: 10px;
+	}
+	.live-prefix input {
+		font-size: 13px;
+		min-height: 38px;
+	}
+	.playback-controls {
+		gap: 12px;
+		flex-wrap: wrap;
+		margin: 12px 0;
+	}
+	.transport-controls,
+	.pace-controls {
+		flex-wrap: wrap;
+	}
+	.transport-controls button,
+	.pace-controls button {
+		min-height: 32px;
+		padding: 6px 9px;
+		font:
+			12px 'DM Sans',
+			sans-serif;
+	}
+	.layer-track {
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+	.layer-track button {
+		min-width: 34px;
+		min-height: 30px;
+	}
+	.live-output {
+		font:
+			15px/1.7 'DM Sans',
+			sans-serif;
+		max-height: 140px;
+	}
+	.trace-tokens {
+		max-height: 84px;
+	}
+	.trace-tokens button {
+		padding: 6px 8px;
+	}
+	.frame-evidence {
+		margin-top: 12px;
+	}
+	@media (max-width: 600px) {
+		.live-panel {
+			padding: 14px 12px;
+		}
+		.live-heading > small {
+			display: none;
+		}
+	}
+
+	.playback-settings {
+		margin-top: 12px;
+	}
+	.playback-settings > summary {
+		font-size: 12px;
+		color: var(--muted);
+	}
+	.playback-settings > summary span {
+		margin-left: 8px;
+	}
+	.live-output {
+		margin: 0 0 14px;
+		padding: 10px 0;
+		background: transparent;
+		border: 0;
+		border-radius: 0;
+	}
+	.live-panel[data-state='playing'] .live-prefix input,
+	.live-panel[data-state='playing'] .live-prefix label,
+	.live-panel[data-state='replaying'] .live-prefix input,
+	.live-panel[data-state='replaying'] .live-prefix label,
+	.live-panel[data-state='paused'] .live-prefix input,
+	.live-panel[data-state='paused'] .live-prefix label {
+		display: none;
+	}
+	.live-panel[data-state='playing'] .live-prefix,
+	.live-panel[data-state='replaying'] .live-prefix,
+	.live-panel[data-state='paused'] .live-prefix {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.live-panel.playing {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 0 12px;
+	}
+	.playing .live-heading {
+		grid-column: 1;
+		grid-row: 1;
+		margin-bottom: 0;
+	}
+	.playing .live-heading > small {
+		display: none;
+	}
+	.playing .live-prefix {
+		grid-column: 2;
+		grid-row: 1;
+	}
+	.playing .live-output {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		margin: 4px 0;
+	}
+	.playing .playback-settings,
+	.playing .live-readout,
+	.playing .frame-evidence,
+	.playing .trace-history {
+		grid-column: 1 / -1;
+	}
+	@media (max-width: 600px) {
+		.playing .live-heading > span {
+			display: none;
 		}
 	}
 </style>

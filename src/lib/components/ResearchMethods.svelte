@@ -4,10 +4,33 @@
 
 <div class="methods">
 	<header>
-		<span class="eyebrow">Instrument specification / v0.2</span>
+		<span class="eyebrow">Measurement guide</span>
 		<h1>Methods & limitations</h1>
 		<p>What each view measures, what it leaves out, and what would count as progress.</p>
 	</header>
+	<div class="method-links" aria-label="Study documentation">
+		<a
+			href="https://github.com/NeoVand/tissue/blob/main/docs/token-stories-design.md"
+			target="_blank"
+			rel="noreferrer"><Icon name="book" />Subword language models<Icon name="right" /></a
+		>
+		<a
+			href="https://github.com/NeoVand/tissue/blob/main/docs/live-activations.md"
+			target="_blank"
+			rel="noreferrer"><Icon name="activity" />Live activation measurements<Icon name="right" /></a
+		>
+		<a
+			href="https://github.com/NeoVand/tissue/blob/main/docs/query-shifts-design.md"
+			target="_blank"
+			rel="noreferrer"><Icon name="target" />Paired-query study protocol<Icon name="right" /></a
+		>
+		<a
+			href="https://github.com/NeoVand/tissue/blob/main/docs/stories-design.md"
+			target="_blank"
+			rel="noreferrer"><Icon name="layers" />Character model reference<Icon name="right" /></a
+		>
+	</div>
+	<h2 class="scope-heading">Binding transformer · Study 001</h2>
 	<div class="grid">
 		<article>
 			<Icon name="network" />
@@ -26,7 +49,7 @@
 		</article>
 		<article>
 			<Icon name="cube" />
-			<h2>Every coordinate has a source.</h2>
+			<h2>Coordinates and model mapping</h2>
 			<p>
 				In functional space, a point is one post-ReLU MLP channel. Activation fingerprints
 				concatenate responses across 16 calibration prompts and all 14 positions. We center and
@@ -179,6 +202,72 @@
 		}
 		.grid {
 			grid-template-columns: 1fr;
+		}
+	}
+
+	.methods {
+		max-width: 1280px;
+		padding: 40px 24px 64px;
+	}
+	h1 {
+		font-size: 30px;
+	}
+	header > p {
+		font-size: 16px;
+		line-height: 1.7;
+	}
+	.grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 24px;
+	}
+	article {
+		padding: 24px;
+		border-radius: 12px;
+	}
+	article h2 {
+		font-size: 18px;
+	}
+	p {
+		font-size: 15px;
+		line-height: 1.8;
+	}
+	@media (max-width: 700px) {
+		.grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.methods {
+			padding: 28px 16px;
+		}
+	}
+
+	.method-links {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 12px;
+		margin: 24px 0 36px;
+	}
+	.method-links a {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		text-decoration: none;
+		padding: 16px;
+		border: 1px solid var(--line);
+		border-radius: 8px;
+		font-size: 14px;
+	}
+	.method-links a:hover {
+		border-color: var(--accent);
+	}
+	.scope-heading {
+		margin: 0 0 18px;
+		font-size: 16px;
+		font-weight: 550;
+		color: var(--muted);
+	}
+	@media (max-width: 700px) {
+		.method-links {
+			grid-template-columns: minmax(0, 1fr);
 		}
 	}
 </style>

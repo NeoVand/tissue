@@ -1,4 +1,7 @@
 <script lang="ts">
+	import ResearchWorkspace from '$lib/components/ResearchWorkspace.svelte';
+	let toolsCollapsed = $state(false);
+	let toolPanel = $state<'model' | 'inspector'>('model');
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { publicAsset } from '$lib/deployment/public-assets';
@@ -51,7 +54,7 @@
 	let phase = $state<
 		'booting' | 'ready' | 'training' | 'measuring' | 'probing' | 'repairing' | 'querying' | 'error'
 	>('booting');
-	let status = $state('Preparing a small mind…');
+	let status = $state('Initializing the binding model…');
 	let error = $state('');
 	let storageError = $state('');
 	let seed = $state(42);
@@ -851,7 +854,7 @@
 		<a class="brand" href={resolve('/')} aria-label="Tissue home"
 			><Icon name="atom" size={24} /><span>tissue<span class="brand-dot">.</span></span></a
 		>
-		<span class="workspace-label">RESEARCH WORKSPACE <span class="version">0.5</span></span>
+
 		<nav aria-label="Lab views">
 			<button class:active={tab === 'observatory'} onclick={() => (tab = 'observatory')}
 				><Icon name="cube" size={14} />Workbench</button
@@ -876,11 +879,7 @@
 			>
 		</nav>
 		<div class="header-actions">
-			<span class="backend"
-				><i class:working={busy}></i>{tab === 'stories'
-					? 'LANGUAGE LAB'
-					: (metrics?.backend?.toUpperCase() ?? 'INITIALIZING')}</span
-			><button
+			<button
 				class="icon-button"
 				onclick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
 				aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
@@ -926,23 +925,6 @@
 					>
 				</div>
 			</div>
-			<div class="training-controls">
-				<span class="control-label">Updates</span>
-				<div class="segmented compact" aria-label="Growth interval">
-					{#each [100, 600, 2000] as steps (steps)}<button
-							class:chosen={budget === steps}
-							disabled={busy}
-							onclick={() => (budget = steps)}>{steps.toLocaleString()}</button
-						>{/each}
-				</div>
-				{#if phase === 'training'}<button class="primary train" onclick={pause}
-						><Icon name="pause" size={13} />Pause training</button
-					>{:else}<button class="primary train" onclick={train} disabled={!ready || !run}
-						><Icon name="play" size={13} />{metrics?.step
-							? 'Continue training'
-							: 'Start training'}</button
-					>{/if}
-			</div>
 			<div class="file-actions">
 				<button
 					class="icon-button"
@@ -959,65 +941,87 @@
 				>
 			</div>
 		</div>
-		<main class="workbench">
-			<aside class="model-sidebar">
-				<div class="panel-title">
-					<Icon name="layers" size={14} />
-					<h2>Model anatomy</h2>
-					<span class="small-tag">25.9K</span>
-				</div>
-				<div class="architecture">
-					<ModelAnatomy
-						compact
-						{selected}
-						{layerFilter}
-						onlayer={(value) => (layerFilter = value)}
-					/>
-				</div>
-				<div class="model-meta">
-					<span><b>2</b> blocks</span><span><b>4</b> heads</span><span><b>32</b> width</span>
-				</div>
-				<section class="reference-list">
-					<div class="sidebar-label">Recorded experiments</div>
-					{#each references as reference (reference.seed)}<button
-							class="reference-button"
-							onclick={() => openReference(reference.path)}
+		<ResearchWorkspace name="binding" bind:panel={toolPanel} bind:collapsed={toolsCollapsed}>
+			{#snippet model()}
+				<aside class="model-sidebar">
+					<div class="panel-title">
+						<Icon name="layers" size={14} />
+						<h2>Model anatomy</h2>
+						<span class="small-tag">25.9K</span>
+					</div>
+					<div class="architecture">
+						<ModelAnatomy
+							compact
+							{selected}
+							{layerFilter}
+							onlayer={(value) => (layerFilter = value)}
+						/>
+					</div>
+					<div class="model-meta">
+						<span><b>2</b> blocks</span><span><b>4</b> heads</span><span><b>32</b> width</span>
+					</div>
+					<section class="reference-list">
+						<div class="sidebar-label">Recorded experiments</div>
+						{#each references as reference (reference.seed)}<button
+								class="reference-button"
+								onclick={() => openReference(reference.path)}
+								disabled={busy}
+								aria-label={reference.seed === 42
+									? 'Explore that specimen'
+									: `Explore seed ${reference.seed}`}
+								><span class="reference-symbol"><Icon name="flask" size={14} /></span><span
+									><b>Binding · seed {reference.seed}</b><small
+										>{(reference.accuracy * 100).toFixed(1)}% held-out · {reference.step.toLocaleString()}
+										steps</small
+									></span
+								><Icon name="right" size={12} /></button
+							>{/each}
+					</section>
+					<div class="new-run">
+						<label for="new-seed">New seed</label><input
+							id="new-seed"
+							aria-label="New run seed"
+							type="number"
+							min="0"
+							max="999999"
+							step="1"
+							bind:value={seed}
 							disabled={busy}
-							aria-label={reference.seed === 42
-								? 'Explore that specimen'
-								: `Explore seed ${reference.seed}`}
-							><span class="reference-symbol"><Icon name="flask" size={14} /></span><span
-								><b>Binding · seed {reference.seed}</b><small
-									>{(reference.accuracy * 100).toFixed(1)}% held-out · {reference.step.toLocaleString()}
-									steps</small
-								></span
-							><Icon name="right" size={12} /></button
-						>{/each}
-				</section>
-				<div class="new-run">
-					<label for="new-seed">New seed</label><input
-						id="new-seed"
-						aria-label="New run seed"
-						type="number"
-						min="0"
-						max="999999"
-						step="1"
-						bind:value={seed}
-						disabled={busy}
-					/><button
-						class="icon-button"
-						onclick={() => startNew()}
-						disabled={busy}
-						aria-label="New run"
-						title="Initialize new run"><Icon name="reset" size={15} /></button
-					>
-				</div>
-				<div class="sidebar-note">
-					<Icon name="info" size={13} /><span
-						>The atlas represents MLP channels. Select a block to isolate its units.</span
-					>
-				</div>
-			</aside>
+						/><button
+							class="icon-button"
+							onclick={() => startNew()}
+							disabled={busy}
+							aria-label="New run"
+							title="Initialize new run"><Icon name="reset" size={15} /></button
+						>
+					</div>
+					<div class="sidebar-note">
+						<Icon name="info" size={13} /><span
+							>The atlas represents MLP channels. Select a block to isolate its units.</span
+						>
+					</div>
+					<details class="lab-disclosure">
+						<summary>Training settings</summary>
+						<div class="training-controls">
+							<span class="control-label">Updates</span>
+							<div class="segmented compact" aria-label="Growth interval">
+								{#each [100, 600, 2000] as steps (steps)}<button
+										class:chosen={budget === steps}
+										disabled={busy}
+										onclick={() => (budget = steps)}>{steps.toLocaleString()}</button
+									>{/each}
+							</div>
+							{#if phase === 'training'}<button class="primary train" onclick={pause}
+									><Icon name="pause" size={13} />Pause training</button
+								>{:else}<button class="primary train" onclick={train} disabled={!ready || !run}
+									><Icon name="play" size={13} />{metrics?.step
+										? 'Continue training'
+										: 'Start training'}</button
+								>{/if}
+						</div>
+					</details>
+				</aside>
+			{/snippet}
 			<section class="spatial-panel">
 				<div class="map-toolbar">
 					<div class="segmented" aria-label="Coordinate system">
@@ -1075,7 +1079,11 @@
 						{points}
 						edges={layout === 'functional' && showEdges ? (map?.edges ?? []) : []}
 						{selected}
-						onselect={selectUnit}
+						onselect={(id) => {
+							selectUnit(id);
+							toolPanel = 'inspector';
+							toolsCollapsed = false;
+						}}
 						{mode}
 						{theme}
 						{layerFilter}
@@ -1141,110 +1149,122 @@
 						>{:else}<span class="live-tag">LIVE</span>{/if}
 				</div>
 			</section>
-			<aside class="inspector-sidebar">
-				<div class="panel-title">
-					<Icon name="target" size={14} />
-					<h2>Unit inspector</h2>
-					<span class="small-tag">MLP</span>
-				</div>
-				<div class="unit-picker">
-					<label for="neuron-id">Neuron ID</label><button
-						class="icon-button"
-						onclick={() => selectUnit((selected ?? 1) - 1)}
-						aria-label="Previous neuron"><Icon name="left" size={13} /></button
-					><input
-						id="neuron-id"
-						aria-label="Neuron ID"
-						type="number"
-						min="0"
-						max="255"
-						placeholder="0–255"
-						value={selected ?? ''}
-						oninput={(event) => {
-							const value = event.currentTarget.valueAsNumber;
-							if (Number.isFinite(value)) selectUnit(value);
-						}}
-					/><button
-						class="icon-button"
-						onclick={() => selectUnit((selected ?? -1) + 1)}
-						aria-label="Next neuron"><Icon name="right" size={13} /></button
-					>
-				</div>
-				<div class="inspector-scroll">
-					<ModelInspector
-						compact
-						{selected}
-						checkpoint={inspectedCheckpoint}
-						{probe}
-						{token}
-						{theme}
-						onselect={selectUnit}
-					/>
-					{#if selected !== null}<div class="neighbors">
-							<div class="sidebar-label">Nearest in fingerprint space</div>
-							{#if neighborRows.length}<div class="neighbor-head">
-									<span>CHANNEL</span><span>DISTANCE</span>
-								</div>
-								{#each neighborRows as neighbor (neighbor.id)}<button
-										onclick={() => selectUnit(neighbor.id)}
-										><span
-											><i class:second={neighbor.id >= 128}></i>L{Math.floor(neighbor.id / 128) + 1} /
-											{String(neighbor.id % 128).padStart(3, '0')}</span
-										><span
-											>{neighbor.distance === null ? '—' : neighbor.distance.toFixed(3)}<Icon
-												name="right"
-												size={11}
-											/></span
-										></button
-									>{/each}{:else}<p>No defined neighborhood for this fingerprint.</p>{/if}
-						</div>{/if}
-					<div class="prediction">
-						<div class="sidebar-label">
-							Next-token probabilities <span
-								>{lesionProbe && !historical ? 'LESION' : 'INTACT'}</span
-							>
-						</div>
-						<div class="probability-bars" aria-label="Answer probabilities">
-							{#each probe?.probabilities ?? Array(8).fill(0) as probability, index (index)}<div
-									class:correct={String(index) === probe?.example.answer}
-								>
-									<span>{(probability * 100).toFixed(0)}<small>%</small></span>
-									<div class="prob-track">
-										<i style:height={`${Math.max(1, probability * 100)}%`}></i>
-									</div>
-									<b
-										>{index}{#if String(index) === probe?.example.answer}<i class="answer-dot"
-											></i>{/if}</b
-									>
-								</div>{/each}
-						</div>
-						<p>Other tokens {percent(probe?.otherProbability)} · dot = target</p>
-						{#if lesionProbe && !historical}<button
-								class="text-button"
-								onclick={() => (lesionProbe = null)}
-								><Icon name="reset" size={12} />Restore intact view</button
-							>{/if}
+			{#snippet inspector()}
+				<aside class="inspector-sidebar">
+					<div class="panel-title">
+						<Icon name="target" size={14} />
+						<h2>Unit inspector</h2>
+						<span class="small-tag">MLP</span>
 					</div>
-				</div>
-				<div class="intervention-actions">
-					<button
-						class="secondary"
-						onclick={silence}
-						disabled={selected === null || !ready || historical}
-						><Icon name="target" size={13} />Silence selected unit</button
-					><button class="secondary" onclick={measureEffects} disabled={!ready || !run}
-						><Icon name="grid" size={13} />Measure all effects</button
-					><button
-						class="text-button repair-action"
-						onclick={compareRepair}
-						disabled={!ready || selected === null || historical || !run?.atlas?.effectFingerprints}
-						><Icon name="flask" size={13} />Compare repair neighborhoods<Icon
-							name="right"
-							size={12}
-						/></button
-					>
-				</div>
-			</aside>
+					<div class="unit-picker">
+						<label for="neuron-id">Neuron ID</label><button
+							class="icon-button"
+							onclick={() => selectUnit((selected ?? 1) - 1)}
+							aria-label="Previous neuron"><Icon name="left" size={13} /></button
+						><input
+							id="neuron-id"
+							aria-label="Neuron ID"
+							type="number"
+							min="0"
+							max="255"
+							placeholder="0–255"
+							value={selected ?? ''}
+							oninput={(event) => {
+								const value = event.currentTarget.valueAsNumber;
+								if (Number.isFinite(value)) selectUnit(value);
+							}}
+						/><button
+							class="icon-button"
+							onclick={() => selectUnit((selected ?? -1) + 1)}
+							aria-label="Next neuron"><Icon name="right" size={13} /></button
+						>
+					</div>
+					<div class="inspector-scroll">
+						<ModelInspector
+							compact
+							{selected}
+							checkpoint={inspectedCheckpoint}
+							{probe}
+							{token}
+							{theme}
+							onselect={selectUnit}
+						/>
+						{#if selected !== null}<div class="neighbors">
+								<div class="sidebar-label">Nearest in fingerprint space</div>
+								{#if neighborRows.length}<div class="neighbor-head">
+										<span>CHANNEL</span><span>DISTANCE</span>
+									</div>
+									{#each neighborRows as neighbor (neighbor.id)}<button
+											onclick={() => selectUnit(neighbor.id)}
+											><span
+												><i class:second={neighbor.id >= 128}></i>L{Math.floor(neighbor.id / 128) +
+													1} /
+												{String(neighbor.id % 128).padStart(3, '0')}</span
+											><span
+												>{neighbor.distance === null ? '—' : neighbor.distance.toFixed(3)}<Icon
+													name="right"
+													size={11}
+												/></span
+											></button
+										>{/each}{:else}<p>No defined neighborhood for this fingerprint.</p>{/if}
+							</div>{/if}
+						<div class="prediction">
+							<div class="sidebar-label">
+								Next-token probabilities <span
+									>{lesionProbe && !historical ? 'LESION' : 'INTACT'}</span
+								>
+							</div>
+							<div class="probability-bars" aria-label="Answer probabilities">
+								{#each probe?.probabilities ?? Array(8).fill(0) as probability, index (index)}<div
+										class:correct={String(index) === probe?.example.answer}
+									>
+										<span>{(probability * 100).toFixed(0)}<small>%</small></span>
+										<div class="prob-track">
+											<i style:height={`${Math.max(1, probability * 100)}%`}></i>
+										</div>
+										<b
+											>{index}{#if String(index) === probe?.example.answer}<i class="answer-dot"
+												></i>{/if}</b
+										>
+									</div>{/each}
+							</div>
+							<p>Other tokens {percent(probe?.otherProbability)} · dot = target</p>
+							{#if lesionProbe && !historical}<button
+									class="text-button"
+									onclick={() => (lesionProbe = null)}
+									><Icon name="reset" size={12} />Restore intact view</button
+								>{/if}
+						</div>
+					</div>
+					<div class="intervention-actions">
+						<button
+							class="secondary"
+							onclick={silence}
+							disabled={selected === null || !ready || historical}
+							><Icon name="target" size={13} />Silence selected unit</button
+						><button class="secondary" onclick={measureEffects} disabled={!ready || !run}
+							><Icon name="grid" size={13} />Measure all effects</button
+						><button
+							class="text-button repair-action"
+							onclick={compareRepair}
+							disabled={!ready ||
+								selected === null ||
+								historical ||
+								!run?.atlas?.effectFingerprints}
+							><Icon name="flask" size={13} />Compare repair neighborhoods<Icon
+								name="right"
+								size={12}
+							/></button
+						>
+					</div>
+				</aside>
+			{/snippet}
+		</ResearchWorkspace>
+		<details class="lab-disclosure evidence-drawer" open>
+			<summary
+				>Analysis & evidence <small>Activations, learning curves and repair experiments</small
+				></summary
+			>
 			<section class="bottom-panel">
 				<div class="bottom-tabs">
 					<button
@@ -1332,7 +1352,7 @@
 							</div>{:else}<div class="empty-repair">
 								<Icon name="flask" size={23} />
 								<div>
-									<h3>Ask the map to predict recovery.</h3>
+									<h3>Compare recovery across neighborhoods.</h3>
 									<p>
 										Select a neuron, measure its intervention fingerprint, then compare four
 										neighborhoods of eight same-layer units over 50 updates. Every arm starts from
@@ -1342,7 +1362,7 @@
 							</div>{/if}
 					</div>{/if}
 			</section>
-		</main>
+		</details>
 		<footer class="status-bar">
 			<span class="operation-status" aria-live="polite"><i class:working={busy}></i>{status}</span
 			>{#if phase === 'measuring'}<span class="measurement-progress"
@@ -1367,7 +1387,8 @@
 					onclick={() => (queryError = '')}><Icon name="close" /></button
 				>
 			</div>{/if}
-		{#if queryRecords.length}<div class="query-history" aria-label="Saved query studies">
+		{#snippet savedStudies()}
+			<div class="query-history" aria-label="Saved query studies">
 				<span><Icon name="book" size={12} />Saved studies</span
 				>{#each queryRecords as record (record.id)}<button
 						class:current={queryRecord?.id === record.id}
@@ -1384,8 +1405,10 @@
 									})}</small
 						></button
 					>{/each}
-			</div>{/if}
+			</div>
+		{/snippet}
 		<QueryShiftStudy
+			savedStudies={queryRecords.length ? savedStudies : undefined}
 			measurement={queryRecord?.measurement ?? null}
 			analysis={queryAnalysis}
 			busy={queryBusy}
@@ -1448,7 +1471,7 @@
 <style>
 	.query-operation-status {
 		margin: 8px 18px 14px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.query-history {
@@ -1465,13 +1488,13 @@
 		align-items: center;
 		gap: 6px;
 		flex-shrink: 0;
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		margin-right: 5px;
 	}
 	.query-history button {
 		white-space: nowrap;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		min-height: 27px;
 		padding: 4px 9px;
 	}
@@ -1524,21 +1547,6 @@
 	.brand-dot {
 		color: var(--accent);
 	}
-	.workspace-label {
-		font: 8px var(--mono);
-		letter-spacing: 0.12em;
-		color: var(--muted);
-		white-space: nowrap;
-		border-left: 1px solid var(--line);
-		padding-left: 18px;
-	}
-	.version {
-		border: 1px solid var(--line);
-		padding: 2px 4px;
-		border-radius: 3px;
-		margin-left: 5px;
-		font-size: 8px;
-	}
 	nav {
 		display: flex;
 		align-self: stretch;
@@ -1554,7 +1562,7 @@
 		padding: 0 12px;
 		position: relative;
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 	}
 	nav button.active {
 		color: var(--ink);
@@ -1569,7 +1577,7 @@
 		background: var(--accent);
 	}
 	.count {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 2px 4px;
 		border: 1px solid var(--line);
 		border-radius: 3px;
@@ -1580,16 +1588,6 @@
 		align-items: center;
 		gap: 7px;
 	}
-	.backend {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		font: 8px var(--mono);
-		letter-spacing: 0.07em;
-		color: var(--muted);
-		margin-right: 9px;
-	}
-	.backend i,
 	.operation-status i {
 		width: 5px;
 		height: 5px;
@@ -1628,7 +1626,7 @@
 		margin: 0 0 4px;
 	}
 	.study-title > div > span {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.study-icon {
@@ -1652,7 +1650,7 @@
 		margin-left: auto;
 	}
 	.control-label {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		margin-right: 2px;
 	}
@@ -1675,7 +1673,7 @@
 		border: 1px solid transparent;
 		background: transparent;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		border-radius: 3px;
 		white-space: nowrap;
 	}
@@ -1688,7 +1686,7 @@
 		color: var(--ink);
 	}
 	.segmented.compact button {
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		min-height: 22px;
 		padding: 3px 9px;
 	}
@@ -1700,15 +1698,6 @@
 		border-left: 1px solid var(--line);
 		padding-left: 12px;
 		gap: 5px;
-	}
-	.workbench {
-		display: grid;
-		grid-template-columns: 200px minmax(340px, 1fr) 292px;
-		grid-template-rows: minmax(340px, 1fr) 278px;
-		height: calc(100dvh - 124px);
-		min-height: 650px;
-		gap: 1px;
-		background: var(--line);
 	}
 	.model-sidebar,
 	.inspector-sidebar,
@@ -1735,14 +1724,14 @@
 		color: var(--muted);
 	}
 	.panel-title h2 {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 		color: var(--ink);
 		margin: 0;
 	}
 	.small-tag {
 		margin-left: auto;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		border: 1px solid var(--line);
 		border-radius: 3px;
@@ -1759,7 +1748,7 @@
 		padding: 10px 7px;
 		margin-top: 8px;
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.model-meta b {
 		color: var(--ink);
@@ -1770,7 +1759,7 @@
 		margin-top: auto;
 	}
 	.sidebar-label {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		display: flex;
 		align-items: center;
@@ -1800,12 +1789,12 @@
 	.reference-button b {
 		display: block;
 		font-weight: 500;
-		font-size: 10px;
+		font-size: 12px;
 		margin-bottom: 4px;
 	}
 	.reference-button small {
 		display: block;
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		white-space: nowrap;
 	}
@@ -1819,19 +1808,19 @@
 		padding: 8px 12px;
 	}
 	.new-run label {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		flex: 1;
 	}
 	.new-run input {
 		width: 61px;
 		padding: 5px 6px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.sidebar-note {
 		padding: 9px 12px 15px;
 		color: var(--faint);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 		display: flex;
 		gap: 7px;
@@ -1873,7 +1862,7 @@
 	.metric-strip > div > span {
 		display: block;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		margin-bottom: 4px;
 	}
 	.metric-strip strong {
@@ -1882,12 +1871,12 @@
 		color: var(--ink);
 	}
 	.metric-strip strong small {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--faint);
 		letter-spacing: 0;
 	}
 	.metric-strip > div > span > small {
-		font-size: 7px;
+		font-size: 12px;
 		color: var(--faint);
 	}
 	.field-wrap {
@@ -1902,7 +1891,7 @@
 		align-items: center;
 		gap: 14px;
 		padding: 5px 12px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		border-top: 1px solid var(--line);
 		background: var(--surface);
@@ -1957,12 +1946,12 @@
 		flex-shrink: 0;
 	}
 	.prompt-stepper > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		white-space: nowrap;
 		color: var(--muted);
 	}
 	.prompt-stepper small {
-		font-size: 8px;
+		font-size: 12px;
 		color: var(--faint);
 		margin-left: 3px;
 	}
@@ -1977,7 +1966,7 @@
 		flex: 1;
 	}
 	.token-stream button {
-		font: 11px var(--mono);
+		font: 13px var(--mono);
 		padding: 4px 5px;
 		min-width: 19px;
 		height: 25px;
@@ -1999,7 +1988,7 @@
 		margin-left: 3px;
 	}
 	.token-position {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 		white-space: nowrap;
 	}
@@ -2015,7 +2004,7 @@
 		flex-shrink: 0;
 	}
 	.timeline-label {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		letter-spacing: 0.04em;
 	}
 	.checkpoints {
@@ -2032,7 +2021,7 @@
 		border: 0;
 		background: transparent;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 6px;
 		white-space: nowrap;
 	}
@@ -2050,12 +2039,12 @@
 		box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
 	}
 	.live-tag {
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		letter-spacing: 0.08em;
 		color: var(--accent);
 	}
 	.timeline > .text-button {
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.inspector-sidebar {
 		grid-column: 3;
@@ -2071,13 +2060,13 @@
 		border-bottom: 1px solid var(--line);
 	}
 	.unit-picker label {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		margin-right: auto;
 	}
 	.unit-picker input {
 		width: 62px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		padding: 5px 7px;
 		text-align: center;
 	}
@@ -2098,7 +2087,7 @@
 	.neighbor-head {
 		display: flex;
 		justify-content: space-between;
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 		margin-bottom: 6px;
 	}
@@ -2111,7 +2100,7 @@
 		background: none;
 		border: 0;
 		border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.neighbors button:hover {
 		background: var(--surface-hover);
@@ -2134,7 +2123,7 @@
 		background: var(--layer-2);
 	}
 	.neighbors p {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 	}
 	.prediction {
@@ -2143,10 +2132,10 @@
 	}
 	.prediction .sidebar-label {
 		justify-content: space-between;
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.prediction .sidebar-label span {
-		font-size: 7px;
+		font-size: 12px;
 		color: var(--faint);
 	}
 	.probability-bars {
@@ -2161,12 +2150,12 @@
 		flex: 1;
 	}
 	.probability-bars > div > span {
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		height: 14px;
 	}
 	.probability-bars small {
-		font-size: 6px;
+		font-size: 12px;
 	}
 	.prob-track {
 		height: 38px;
@@ -2189,7 +2178,7 @@
 		display: flex;
 		align-items: center;
 		gap: 3px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		height: 16px;
 	}
 	.answer-dot {
@@ -2199,7 +2188,7 @@
 		background: var(--accent);
 	}
 	.prediction p {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 		margin: 7px 0;
 	}
@@ -2214,7 +2203,7 @@
 	.intervention-actions .secondary {
 		flex: 1;
 		white-space: nowrap;
-		font-size: 9px;
+		font-size: 12px;
 		padding: 5px 7px;
 		min-height: 28px;
 	}
@@ -2222,7 +2211,7 @@
 		padding: 6px 0 0;
 		width: 100%;
 		justify-content: space-between;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.bottom-panel {
 		grid-column: 2/4;
@@ -2247,7 +2236,7 @@
 		border: 0;
 		border-bottom: 2px solid transparent;
 		background: none;
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		padding: 0 2px;
 	}
@@ -2258,7 +2247,7 @@
 	.bottom-tabs > span {
 		margin-left: auto;
 		align-self: center;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 	}
 	.activation-layout {
@@ -2282,7 +2271,7 @@
 		min-width: 0;
 	}
 	.learning-panel .sidebar-label {
-		font-size: 9px;
+		font-size: 12px;
 		margin-bottom: 12px;
 	}
 	.learning-panel :global(.curve) {
@@ -2292,7 +2281,7 @@
 		display: flex;
 		gap: 10px;
 		color: var(--muted);
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		margin-top: 7px;
 	}
 	.curve-key > span {
@@ -2308,7 +2297,7 @@
 		border-top: 1px dashed var(--warning);
 	}
 	.learning-panel > p {
-		font: 8px/1.7 var(--mono);
+		font: 12px/1.7 var(--mono);
 		color: var(--faint);
 		margin-top: 14px;
 	}
@@ -2321,7 +2310,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-bottom: 8px;
 	}
@@ -2342,12 +2331,12 @@
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	th {
 		text-align: left;
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 4px 5px 8px;
 		border-bottom: 1px solid var(--line);
 	}
@@ -2356,20 +2345,20 @@
 		border-bottom: 1px solid var(--line);
 	}
 	td:not(:first-child) {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.repair-note .eyebrow {
 		color: var(--warning);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.repair-note p {
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.65;
 		color: var(--muted);
 		margin: 7px 0;
 	}
 	.repair-note details {
-		font-size: 9px;
+		font-size: 12px;
 		color: var(--muted);
 	}
 	summary {
@@ -2390,7 +2379,7 @@
 		margin: 0 0 8px;
 	}
 	.empty-repair p {
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.7;
 		margin: 0;
 	}
@@ -2402,7 +2391,7 @@
 		padding: 0 13px;
 		border-top: 1px solid var(--line);
 		background: var(--surface);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.operation-status {
@@ -2431,7 +2420,7 @@
 		accent-color: var(--accent);
 	}
 	.status-bar .text-button {
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.file-input {
 		display: none;
@@ -2445,7 +2434,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.error-banner > span {
 		flex: 1;
@@ -2453,419 +2442,223 @@
 	.storage-banner {
 		color: var(--warning);
 	}
-	@media (min-width: 1800px) {
-		.workbench {
-			grid-template-columns: 230px minmax(450px, 1fr) 340px;
-			grid-template-rows: minmax(400px, 1fr) 278px;
-		}
-		.activation-layout {
-			grid-template-columns: 1fr 330px;
-		}
-		.metric-strip strong {
-			font-size: 22px;
-		}
-		.app-header {
-			gap: 28px;
-		}
-		.inspector-scroll {
-			padding: 0 17px;
-		}
+	.app-header {
+		min-height: 68px;
+		height: auto;
+		padding: 12px 24px;
+		gap: 28px;
 	}
-	@media (max-width: 1190px) {
-		.workspace-label {
-			display: none;
-		}
-		.workbench {
-			grid-template-columns: 176px minmax(320px, 1fr) 250px;
-		}
-		.activation-layout {
-			grid-template-columns: 1fr 220px;
-		}
-		.map-toolbar {
-			padding: 6px;
-		}
-		.segmented button {
-			padding: 4px 6px;
-			font-size: 9px;
-		}
-		.map-tools > .icon-button {
-			display: none;
-		}
-		.metric-strip {
-			gap: 10px;
-			padding: 10px;
-		}
-		.metric-strip strong {
-			font-size: 16px;
-		}
-		.projection-strip {
-			gap: 8px;
-			font-size: 7px;
-		}
-		.token-stream {
-			gap: 1px;
-		}
-		.token-stream button {
-			font-size: 10px;
-			min-width: 16px;
-			padding: 3px;
-		}
-		.prompt-strip {
-			gap: 5px;
-			padding: 5px;
-		}
-		.token-position {
-			display: none;
-		}
-		.reference-button small {
-			font-size: 6px;
-		}
-		.intervention-actions .secondary {
-			font-size: 8px;
-			padding: 5px;
-		}
-		.sidebar-note {
-			font-size: 8px;
-		}
+	nav {
+		gap: 4px;
+		margin: 0 auto 0 20px;
+		align-self: center;
+		flex-wrap: wrap;
 	}
-	@media (max-width: 980px) {
-		.workbench {
-			grid-template-columns: 174px minmax(330px, 1fr);
-			grid-template-rows: minmax(440px, 1fr) 278px auto;
-			height: auto;
-			min-height: 0;
-		}
-		.model-sidebar {
-			grid-row: 1/3;
-		}
-		.inspector-sidebar {
-			grid-column: 1/3;
-			grid-row: 3;
-			display: grid;
-			grid-template-columns: 220px 1fr;
-			max-height: 430px;
-		}
-		.inspector-sidebar .panel-title,
-		.unit-picker {
-			grid-column: 1;
-		}
-		.inspector-scroll {
-			grid-column: 2;
-			grid-row: 1/4;
-			max-height: 430px;
-			border-left: 1px solid var(--line);
-		}
-		.intervention-actions {
-			grid-column: 1;
-			align-content: start;
-		}
-		.bottom-panel {
-			grid-column: 2;
-			grid-row: 2;
-		}
-		.activation-layout {
-			grid-template-columns: 1fr;
-		}
-		.learning-panel {
-			display: none;
-		}
-		.bottom-tabs > span {
-			display: none;
-		}
-		.status-bar {
-			position: sticky;
-			bottom: 0;
-			z-index: 5;
-		}
-		.header-actions .backend {
-			display: none;
-		}
-		.app-header {
-			gap: 10px;
-		}
-		.app-header nav {
-			gap: 2px;
-		}
-		.app-header nav button {
-			padding: 0 8px;
-		}
-		.repair-body {
-			grid-template-columns: 1fr;
-		}
-		.repair-note {
-			display: none;
-		}
-		.reference-list {
-			margin-top: 10px;
-		}
+	nav button {
+		min-height: 38px;
+		padding: 8px 13px;
+		border: 1px solid transparent;
+		border-radius: 8px;
+		font-size: 14px;
 	}
-	@media (max-width: 640px) {
+	nav button.active {
+		border-color: var(--line);
+		background: var(--surface-raised);
+	}
+	nav button.active::after {
+		display: none;
+	}
+	.command-bar {
+		min-height: 92px;
+		height: auto;
+		background: var(--bg);
+		border: 0;
+		padding: 20px 24px;
+		gap: 16px;
+	}
+	.study-title h1 {
+		font-size: 22px;
+	}
+	.study-title > div > span {
+		font:
+			13px/1.5 'DM Sans',
+			sans-serif;
+	}
+	.file-actions {
+		margin-left: auto;
+	}
+	.training-controls {
+		padding: 16px;
+		flex-wrap: wrap;
+	}
+	.training-controls .control-label {
+		width: 100%;
+	}
+	.model-sidebar,
+	.inspector-sidebar {
+		display: block;
+		max-height: none;
+		overflow: visible;
+	}
+	.inspector-scroll {
+		max-height: none;
+		overflow: visible;
+	}
+	.panel-title {
+		height: auto;
+		padding: 18px;
+	}
+	.architecture {
+		padding: 16px;
+	}
+	.reference-list,
+	.model-meta,
+	.sidebar-note {
+		padding: 16px;
+	}
+	.spatial-panel {
+		display: flex;
+		min-height: 0;
+	}
+	.field-wrap {
+		flex: none;
+		height: clamp(420px, 52vh, 680px);
+	}
+	.map-toolbar {
+		height: auto;
+		min-height: 60px;
+		padding: 12px 16px;
+		flex-wrap: wrap;
+	}
+	.segmented button {
+		padding: 6px 10px;
+		min-height: 32px;
+	}
+	.metric-strip {
+		padding: 16px 18px;
+		background: var(--surface);
+	}
+	.metric-strip > div > span {
+		font:
+			12px/1.5 'DM Sans',
+			sans-serif;
+	}
+	.projection-strip {
+		padding: 12px 16px;
+		font:
+			12px/1.5 'DM Sans',
+			sans-serif;
+	}
+	.prompt-strip {
+		flex-wrap: wrap;
+		padding: 12px 16px;
+		gap: 12px;
+	}
+	.token-stream {
+		flex-wrap: wrap;
+	}
+	.token-stream button {
+		min-width: 28px;
+		min-height: 30px;
+	}
+	.timeline {
+		padding: 12px 16px;
+	}
+	.bottom-panel {
+		height: auto;
+		overflow: visible;
+	}
+	.bottom-tabs {
+		height: auto;
+		min-height: 52px;
+		flex-wrap: wrap;
+		gap: 8px;
+		padding: 8px 16px;
+	}
+	.bottom-tabs button {
+		min-height: 34px;
+	}
+	.activation-layout {
+		min-height: 270px;
+		grid-template-columns: minmax(0, 1fr) 340px;
+	}
+	.status-bar {
+		height: auto;
+		padding: 12px 24px 20px;
+		flex-wrap: wrap;
+		gap: 10px;
+		border: 0;
+	}
+	@media (max-width: 1100px) {
 		.app-header {
-			height: 48px;
-			padding: 0 10px;
-			gap: 10px;
 			flex-wrap: wrap;
-		}
-		.brand > span {
-			font-size: 20px;
-		}
-		.brand {
-			gap: 5px;
-		}
-		.brand :global(.icon) {
-			display: none;
+			gap: 12px;
 		}
 		nav {
-			gap: 0 !important;
-			margin-left: auto;
-			margin-right: 0;
-		}
-		nav button {
-			font-size: 9px !important;
-			padding: 0 6px !important;
-			gap: 4px !important;
-		}
-		nav button :global(.icon) {
-			display: none;
-		}
-		.count {
-			display: none;
+			order: 3;
+			width: 100%;
+			margin: 0;
 		}
 		.header-actions {
-			gap: 0;
+			margin-left: auto;
 		}
-		.header-actions > a {
-			display: none;
+	}
+	@media (max-width: 700px) {
+		.app-header {
+			padding: 14px 12px;
 		}
-		.header-actions .icon-button {
-			width: 25px;
+		nav {
+			overflow: visible;
+			gap: 4px;
+		}
+		nav button {
+			padding: 8px 9px;
+			font-size: 13px;
 		}
 		.command-bar {
-			height: auto;
-			min-height: 92px;
-			flex-wrap: wrap;
-			padding: 10px;
-			gap: 10px;
-		}
-		.study-title {
-			min-width: 200px;
-			flex: 1;
-		}
-		.file-actions {
-			order: 1;
-			padding-left: 8px;
-		}
-		.training-controls {
-			order: 2;
-			width: 100%;
-			margin: 0;
-			gap: 7px;
-		}
-		.control-label {
-			font-size: 9px;
-		}
-		.segmented.compact button {
-			padding: 3px 9px;
-		}
-		.train {
-			margin-left: auto;
-			font-size: 10px;
-			min-width: 126px;
-		}
-		.workbench {
-			display: flex;
-			flex-direction: column;
-			gap: 1px;
-		}
-		.model-sidebar {
-			order: 2;
-			max-height: none;
-			display: block;
-		}
-		.architecture {
-			max-height: none;
-			padding: 10px;
-		}
-		.model-meta {
-			margin: 0;
-		}
-		.reference-list {
-			padding: 12px;
-			display: flex;
-			flex-wrap: wrap;
-			gap: 7px;
-			margin: 0;
-		}
-		.reference-list > .sidebar-label {
-			width: 100%;
-			margin: 0;
-		}
-		.reference-button {
-			flex: 1;
-			margin: 0;
-		}
-		.new-run {
-			max-width: 240px;
-		}
-		.sidebar-note {
-			font-size: 10px;
-			max-width: 380px;
-		}
-		.spatial-panel {
-			order: 0;
-			min-height: 510px;
-		}
-		.field-wrap {
-			min-height: 290px;
-			flex: 1;
-		}
-		.map-toolbar {
-			height: 42px;
-		}
-		.segmented button {
-			padding: 4px 6px;
-			font-size: 8px;
-			gap: 3px;
-		}
-		.map-toolbar .segmented :global(.icon) {
-			display: none;
-		}
-		.metric-strip {
-			padding: 9px 12px;
-			gap: 8px;
-		}
-		.metric-strip > div > span {
-			font-size: 7px;
-		}
-		.metric-strip strong {
-			font-size: 17px;
-		}
-		.metric-strip strong small {
-			font-size: 8px;
-		}
-		.projection-strip {
-			font-size: 7px;
-			padding: 6px 9px;
-			gap: 6px;
-		}
-		.quality {
-			width: 100%;
-			margin: 0;
-		}
-		.projection-strip > span:nth-child(2) {
-			margin-left: auto;
-		}
-		.prompt-strip {
-			padding: 5px;
-			gap: 3px;
-			flex-wrap: wrap;
-		}
-		.prompt-stepper {
-			padding-right: 5px;
-		}
-		.prompt-stepper > span {
-			font-size: 7px;
-		}
-		.prompt-stepper small {
-			font-size: 6px;
-		}
-		.prompt-stepper .icon-button {
-			width: 17px;
-		}
-		.token-stream {
-			gap: 1px;
-		}
-		.token-stream button {
-			font-size: 9px;
-			min-width: 14px;
-			padding: 2px;
-			height: 23px;
-		}
-		.answer-token {
-			font-size: 10px;
-			margin: 0;
-		}
-		.timeline {
-			padding: 0 9px;
-			gap: 7px;
-		}
-		.timeline-label {
-			font-size: 7px;
-		}
-		.bottom-panel {
-			order: 1;
-			min-height: 250px;
-		}
-		.bottom-tabs {
-			gap: 16px;
-			padding: 0 12px;
+			padding: 18px 12px;
+			min-height: 80px;
 		}
 		.activation-layout {
-			min-height: 214px;
+			grid-template-columns: minmax(0, 1fr);
 		}
-		.heatmap-wrap {
-			padding: 8px;
+		.metric-strip {
+			grid-template-columns: 1fr 1fr;
+			gap: 12px;
 		}
-		.inspector-sidebar {
-			order: 3;
-			display: flex;
-			max-height: none;
+		.study-title h1 {
+			font-size: 20px;
 		}
-		.inspector-scroll {
-			max-height: none;
-			overflow: visible;
-			border-left: 0;
-			padding: 0 15px;
-		}
-		.intervention-actions {
-			padding: 13px;
-		}
-		.intervention-actions .secondary {
-			font-size: 10px;
-		}
-		.repair-action {
-			font-size: 11px;
-		}
-		.status-bar {
-			height: auto;
-			min-height: 28px;
-			font-size: 7px;
-			gap: 7px;
-			padding: 7px 9px;
-			flex-wrap: wrap;
-		}
-		.status-right {
-			gap: 7px;
-		}
-		.status-right > span:first-child {
-			display: none;
-		}
-		.operation-status {
-			white-space: normal;
-			max-width: 77%;
-		}
-		.repair-baseline {
-			font-size: 7px;
-			gap: 8px;
-			align-items: start;
-		}
-		.repair-baseline > span:last-child {
-			flex-wrap: wrap;
-		}
-		.repair-note {
-			display: block;
-		}
+	}
+
+	@media (max-width: 700px) {
 		.repair-body {
-			gap: 15px;
+			grid-template-columns: minmax(0, 1fr);
 		}
 		.repair-results {
-			max-height: 400px;
+			overflow-x: auto;
 		}
-		.error-banner {
+		.prompt-stepper {
+			flex-shrink: 0;
+		}
+		.inspector-scroll {
+			border: 0;
+		}
+		.status-right {
 			flex-wrap: wrap;
 		}
-		.error-banner > span {
-			min-width: 250px;
+		.metric-strip strong {
+			font-size: 18px;
+		}
+		.bottom-tabs > span {
+			width: 100%;
+			margin-left: 0;
+		}
+		.activation-layout {
+			display: block;
+		}
+		.learning-panel {
+			padding: 16px;
 		}
 	}
 </style>

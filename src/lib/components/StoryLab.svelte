@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+	import ResearchWorkspace from './ResearchWorkspace.svelte';
 	import { onMount } from 'svelte';
 	import { publicAsset } from '$lib/deployment/public-assets';
 	import { StoryEngine } from '$lib/stories/engine';
@@ -37,13 +39,18 @@
 		theme,
 		active = true,
 		disabled = false,
-		onbusy
+		onbusy,
+		representation
 	}: {
+		representation?: Snippet;
 		theme: 'dark' | 'light';
 		active?: boolean;
 		disabled?: boolean;
 		onbusy?: (busy: boolean) => void;
 	} = $props();
+	let toolsCollapsed = $state(false);
+	let setupOpen = $state(false);
+	let toolPanel = $state<'model' | 'inspector'>('model');
 	type Phase =
 		| 'idle'
 		| 'initializing'
@@ -816,30 +823,21 @@
 			<Icon name="book" size={21} />
 			<div>
 				<h1>TinyStories</h1>
-				<span>Character language models · every MLP channel observed</span>
+				<span
+					>{record
+						? `${(storyParameterCount(config) / 1e6).toFixed(2)}M parameters · ${config.layers} layers · measured step ${snapshot?.atlas.step ?? '—'}`
+						: 'Character transformer · measured MLP activations'}</span
+				>
 			</div>
 			<span class="study-label">Study 003</span>
 		</div>
-		<div class="transport">
-			<span>Updates</span>
-			<div class="segmented">
-				{#each [25, 100, 500] as steps (steps)}<button
-						class:chosen={budget === steps}
-						onclick={() => (budget = steps)}
-						disabled={blocked}>{steps}</button
-					>{/each}
-			</div>
-			{#if phase === 'training'}<button class="primary" onclick={pause} disabled={stopRequested}
-					><Icon name="pause" size={13} />{stopRequested ? 'Pausing…' : 'Pause'}</button
-				>{:else if phase === 'generating'}<button
-					class="secondary"
-					onclick={pause}
-					disabled={stopRequested}
-					><Icon name="pause" size={13} />{stopRequested ? 'Stopping…' : 'Stop sampling'}</button
-				>{:else}<button class="primary" onclick={train} disabled={!ready}
-					><Icon name="play" size={13} />Train</button
-				>{/if}
-		</div>
+		{#if phase === 'training'}<button
+				class="secondary training-progress"
+				onclick={pause}
+				disabled={stopRequested}
+				><Icon name="pause" size={14} />Pause training · step {latestMetric?.step ?? 0}</button
+			>{/if}
+		{@render representation?.()}
 		<div class="file-controls">
 			<button
 				class="icon-button"
@@ -877,118 +875,157 @@
 	{#if disabled}<div class="external-busy">
 			Another lab worker is active. Model operations here are paused until it finishes.
 		</div>{/if}
-	<div class="story-layout">
-		<aside class="setup-panel">
-			<div class="section-label">
-				<Icon name="layers" size={13} />
-				<h2>Model scale</h2>
-				<span>Next initialization</span>
-			</div>
-			<div class="preset-list">
-				{#each presetIds as id (id)}{@const option = STORY_PRESETS[id]}<button
-						class:chosen={preset === id}
-						onclick={() => {
-							preset = id;
-							if (id !== 'small' && backend === 'wasm') backend = 'auto';
-						}}
-						disabled={blocked}
-						aria-pressed={preset === id}
-						><span
-							><strong>{(storyParameterCount(option) / 1e6).toFixed(3)}M</strong><small
-								>{id === 'small' ? 'Compact' : id === 'medium' ? 'Expanded' : 'Large'}</small
-							></span
-						><span>{option.layers} layers · {option.width} width · {option.heads} heads</span><span
-							>{storyUnitCount(option).toLocaleString()} MLP channels · {option.context} context</span
-						></button
-					>{/each}
-			</div>
-			<div class="initialize-options">
-				<label for="story-seed">Initialization seed</label><input
-					id="story-seed"
-					type="number"
-					min="0"
-					max="4294967295"
-					bind:value={seed}
-					disabled={blocked}
-				/><span class="control-caption">Backend</span>
-				<div class="backend-options">
-					{#each ['auto', 'webgpu', 'wasm'] as device (device)}<button
-							class:chosen={backend === device}
-							onclick={() => (backend = device as StoryBackend | 'auto')}
-							disabled={blocked || (device === 'wasm' && preset !== 'small')}
-							>{device === 'auto' ? 'Auto' : device === 'webgpu' ? 'GPU' : 'WASM'}</button
-						>{/each}
+	<ResearchWorkspace name="story" bind:panel={toolPanel} bind:collapsed={toolsCollapsed}>
+		{#snippet model()}
+			<aside class="setup-panel">
+				<div class="resume-row">
+					{#if record?.checkpoint && !runtimeReady}<button
+							class="primary initialize"
+							onclick={resume}
+							disabled={blocked}
+							><Icon name="play" size={13} />Resume step {record.checkpoint.step}</button
+						>{/if}
 				</div>
-				<button
-					class="secondary initialize"
-					onclick={initialize}
-					disabled={blocked || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff}
-					><Icon name="network" size={13} />{record
-						? 'Initialize new run'
-						: 'Initialize model'}</button
-				>{#if record?.checkpoint && !runtimeReady}<button
-						class="primary initialize"
-						onclick={resume}
-						disabled={blocked}
-						><Icon name="play" size={13} />Resume step {record.checkpoint.step}</button
-					>{/if}
-				<p>
-					Models start only when initialized or resumed. WASM is available for the compact preset;
-					larger models need a supported GPU and sufficient memory.
-				</p>
-				{#if record && !record.checkpoint}<p>
-						This specimen contains measurements only. Initialize a new run to train; no resumable
-						weights are included.
-					</p>{/if}
-			</div>
-			<div class="corpus-card">
-				<div class="section-label">
-					<Icon name="book" size={13} />
-					<h2>Corpus</h2>
+				<details class="lab-disclosure" bind:open={setupOpen}>
+					<summary>New model <small>Architecture & initialization</small></summary>
+					<div class="section-label">
+						<Icon name="layers" size={13} />
+						<h2>Model scale</h2>
+						<span>Next initialization</span>
+					</div>
+					<div class="preset-list">
+						{#each presetIds as id (id)}{@const option = STORY_PRESETS[id]}<button
+								class:chosen={preset === id}
+								onclick={() => {
+									preset = id;
+									if (id !== 'small' && backend === 'wasm') backend = 'auto';
+								}}
+								disabled={blocked}
+								aria-pressed={preset === id}
+								><span
+									><strong>{(storyParameterCount(option) / 1e6).toFixed(3)}M</strong><small
+										>{id === 'small' ? 'Compact' : id === 'medium' ? 'Expanded' : 'Large'}</small
+									></span
+								><span>{option.layers} layers · {option.width} width · {option.heads} heads</span
+								><span
+									>{storyUnitCount(option).toLocaleString()} MLP channels · {option.context} context</span
+								></button
+							>{/each}
+					</div>
+					<div class="initialize-options">
+						<label for="story-seed">Initialization seed</label><input
+							id="story-seed"
+							type="number"
+							min="0"
+							max="4294967295"
+							bind:value={seed}
+							disabled={blocked}
+						/><span class="control-caption">Backend</span>
+						<div class="backend-options">
+							{#each ['auto', 'webgpu', 'wasm'] as device (device)}<button
+									class:chosen={backend === device}
+									onclick={() => (backend = device as StoryBackend | 'auto')}
+									disabled={blocked || (device === 'wasm' && preset !== 'small')}
+									>{device === 'auto' ? 'Auto' : device === 'webgpu' ? 'GPU' : 'WASM'}</button
+								>{/each}
+						</div>
+						<button
+							class="secondary initialize"
+							onclick={initialize}
+							disabled={blocked || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff}
+							><Icon name="network" size={13} />{record
+								? 'Initialize new run'
+								: 'Initialize model'}</button
+						>
+						<p>
+							Models start only when initialized or resumed. WASM is available for the compact
+							preset; larger models need a supported GPU and sufficient memory.
+						</p>
+						{#if record && !record.checkpoint}<p>
+								This specimen contains measurements only. Initialize a new run to train; no
+								resumable weights are included.
+							</p>{/if}
+					</div>
+				</details>
+				<details class="lab-disclosure" open={runtimeReady}>
+					<summary>Training <small>Updates & checkpoints</small></summary>
+					<div class="transport">
+						<span>Updates</span>
+						<div class="segmented">
+							{#each [25, 100, 500] as steps (steps)}<button
+									class:chosen={budget === steps}
+									onclick={() => (budget = steps)}
+									disabled={blocked}>{steps}</button
+								>{/each}
+						</div>
+						{#if phase === 'training'}<button
+								class="primary"
+								onclick={pause}
+								disabled={stopRequested}
+								><Icon name="pause" size={13} />{stopRequested ? 'Pausing…' : 'Pause'}</button
+							>{:else if phase === 'generating'}<button
+								class="secondary"
+								onclick={pause}
+								disabled={stopRequested}
+								><Icon name="pause" size={13} />{stopRequested
+									? 'Stopping…'
+									: 'Stop sampling'}</button
+							>{:else}<button class="primary" onclick={train} disabled={!ready}
+								><Icon name="play" size={13} />Train</button
+							>{/if}
+					</div>
+				</details>
+				<div class="archive-panel">
+					<div class="section-label">
+						<Icon name="flask" size={13} />
+						<h2>Recorded specimens</h2>
+					</div>
+					{#each references as reference (reference.id)}<button
+							class="archive-item reference"
+							onclick={() => openReference(reference)}
+							disabled={blocked}
+							><span>{reference.title}</span><small
+								>Reference · step {reference.step} · {(reference.bytes / 1e6).toFixed(1)} MB</small
+							><small
+								>Held-out {reference.validationLoss.toFixed(3)} / unigram {reference.unigramLoss.toFixed(
+									3
+								)} nats</small
+							></button
+						>{/each}{#each runs as saved (saved.id)}<button
+							class="archive-item"
+							class:current={record?.id === saved.id}
+							onclick={() => openSaved(saved.id)}
+							disabled={blocked}
+							><span>{saved.title}</span><small
+								>Weights {saved.checkpointStep ?? '—'} · {saved.snapshotCount} measured maps</small
+							><small>{time(saved.updatedAt)}</small></button
+						>{:else}<p class="archive-empty">
+							Completed measurements and checkpoints will be saved here.
+						</p>{/each}
 				</div>
-				<strong>TinyStories · character level</strong>
-				<p>
-					{corpus
-						? `${corpus.trainStories.toLocaleString()} training stories; ${corpus.calibrationStories} calibration and ${corpus.evaluationStories} evaluation stories.`
-						: '2,097 training stories and 184 held-out stories. Calibration and evaluation are separated by story.'}
-				</p>
-				<span>96-character vocabulary · ASCII + newline</span><a
-					href="https://huggingface.co/datasets/roneneldan/TinyStories"
-					target="_blank"
-					rel="noreferrer">Dataset & provenance <Icon name="right" size={10} /></a
-				>
-			</div>
-			<div class="archive-panel">
-				<div class="section-label">
-					<Icon name="flask" size={13} />
-					<h2>Recorded specimens</h2>
-				</div>
-				{#each references as reference (reference.id)}<button
-						class="archive-item reference"
-						onclick={() => openReference(reference)}
-						disabled={blocked}
-						><span>{reference.title}</span><small
-							>Reference · step {reference.step} · {(reference.bytes / 1e6).toFixed(1)} MB</small
-						><small
-							>Held-out {reference.validationLoss.toFixed(3)} / unigram {reference.unigramLoss.toFixed(
-								3
-							)} nats</small
-						></button
-					>{/each}{#each runs as saved (saved.id)}<button
-						class="archive-item"
-						class:current={record?.id === saved.id}
-						onclick={() => openSaved(saved.id)}
-						disabled={blocked}
-						><span>{saved.title}</span><small
-							>Weights {saved.checkpointStep ?? '—'} · {saved.snapshotCount} measured maps</small
-						><small>{time(saved.updatedAt)}</small></button
-					>{:else}<p class="archive-empty">
-						Completed measurements and checkpoints will be saved here.
-					</p>{/each}
-			</div>
-		</aside>
+				<details class="lab-disclosure">
+					<summary>Dataset & provenance</summary>
+					<div class="corpus-card">
+						<div class="section-label">
+							<Icon name="book" size={13} />
+							<h2>Corpus</h2>
+						</div>
+						<strong>TinyStories · character level</strong>
+						<p>
+							{corpus
+								? `${corpus.trainStories.toLocaleString()} training stories; ${corpus.calibrationStories} calibration and ${corpus.evaluationStories} evaluation stories.`
+								: '2,097 training stories and 184 held-out stories. Calibration and evaluation are separated by story.'}
+						</p>
+						<span>96-character vocabulary · ASCII + newline</span><a
+							href="https://huggingface.co/datasets/roneneldan/TinyStories"
+							target="_blank"
+							rel="noreferrer">Dataset & provenance <Icon name="right" size={10} /></a
+						>
+					</div>
+				</details>
+			</aside>
+		{/snippet}
 		<main class="story-main">
-			<StoryMetricsPanel metrics={record?.metrics ?? []} compact />
 			<div class="view-toolbar">
 				<div class="segmented">
 					<button class:chosen={viewMode === 'functional'} onclick={() => selectView('functional')}
@@ -1017,7 +1054,11 @@
 						{points}
 						{edges}
 						{selected}
-						onselect={selectUnit}
+						onselect={(id) => {
+							selectUnit(id);
+							toolPanel = 'inspector';
+							toolsCollapsed = false;
+						}}
 						{theme}
 						{layerFilter}
 						mode="activation"
@@ -1030,247 +1071,297 @@
 					/>{:else}<div class="field-empty">
 						<Icon name="cube" size={38} />
 						<h2>
-							{busy ? 'Preparing the first measurement' : 'A larger model, a measurable shape'}
+							{busy ? 'Preparing the first measurement' : 'Explore a character model'}
 						</h2>
 						<p>
 							{busy
 								? status
 								: 'Initialize a model or open a recorded specimen. Coordinates will come from real activation measurements across fixed calibration text.'}
 						</p>
+						{#if !busy}<div class="welcome-actions">
+								<button
+									class="primary"
+									disabled={!references.length || blocked}
+									onclick={() => {
+										const reference = references[0];
+										if (reference) void openReference(reference);
+									}}>Open recorded model</button
+								>
+								<button
+									class="secondary"
+									onclick={() => {
+										toolPanel = 'model';
+										toolsCollapsed = false;
+										setupOpen = true;
+									}}>Set up a model</button
+								>
+							</div>{/if}
 						<div>
 							{unitCount.toLocaleString()} MLP channels <span>×</span> 128 calibration coordinates
 						</div>
 					</div>{/if}
 			</div>
-			<div class="geometry-footer">
-				<span
-					>{snapshot
-						? `${snapshot.atlas.unitCount.toLocaleString()} / ${snapshot.atlas.unitCount.toLocaleString()} channels captured`
-						: 'All channels will be captured'}</span
-				><span
-					>{snapshot
-						? `${snapshot.atlas.dimensions} fixed calibration coordinates`
-						: '8 windows × 16 positions'}</span
-				>{#if snapshot && viewMode === 'functional'}<span
-						>{snapshot.atlas.unitCount - snapshot.geometry.audit.validPopulation} unresolved directions
-						omitted</span
+			{#if snapshot}<div class="map-context">
+					<span
+						>{viewMode === 'functional'
+							? `3D PCA · ${(snapshot.geometry.explainedVariance * 100).toFixed(1)}% variance retained`
+							: 'Layer / channel coordinates'}</span
 					><span
-						>Variance <strong>{(snapshot.geometry.explainedVariance * 100).toFixed(1)}%</strong
-						></span
+						>{viewMode === 'functional'
+							? 'Similarity is not connectivity'
+							: 'Spacing chosen for display'}</span
+					>
+				</div>{/if}
+
+			<details class="lab-disclosure">
+				<summary
+					>Measurement details <small>Evaluation, projection quality & map history</small></summary
+				>
+				<StoryMetricsPanel metrics={record?.metrics ?? []} compact />
+				<div class="geometry-footer">
+					<span
+						>{snapshot
+							? `${snapshot.atlas.unitCount.toLocaleString()} / ${snapshot.atlas.unitCount.toLocaleString()} channels captured`
+							: 'All channels will be captured'}</span
 					><span
-						>Audited retention <strong
-							>{snapshot.geometry.audit.neighborRetention === null
-								? '—'
-								: `${(snapshot.geometry.audit.neighborRetention * 100).toFixed(1)}%`}</strong
-						></span
-					>{/if}
-			</div>
-			<div class="view-note">
-				{#if snapshot}{#if viewMode === 'architecture'}Positions label the true layer and channel;
-						spacing is chosen for display.{:else}All resolved unit fingerprints enter PCA. Neighbor
-						retention is scored on {snapshot.geometry.audit.scoredFocals} / {snapshot.geometry.audit
-							.planned} preselected focal units ({snapshot.geometry.audit.resolvedFocals} resolved; {snapshot
-							.geometry.audit.requested} requested). This sample does not establish all-unit retention.
-						Links are selected exact nearest neighbors, not model connections.{/if}<span
-						>{matchingProbe
-							? `Activity: prompt character ${token + 1}, measured step ${matchingProbe.step}.`
-							: `Activity: calibration window 1, position ${(snapshot.atlas.positions[0] ?? 0) + 1}.`}</span
-					>{:else}Coordinates will be fitted from every channel’s fixed calibration responses.
-					Measured captures form the timeline.{/if}
-			</div>
-			{#if snapshot && viewMode === 'functional' && (!snapshot.geometry.pca.converged || snapshot.geometry.pca.boundaryUncertain)}<div
-					class="geometry-warning"
-				>
-					{#if !snapshot.geometry.pca.converged}Approximate PCA did not reach its requested
-						tolerance after {snapshot.geometry.pca.iterations} iterations (relative residual {snapshot.geometry.pca.relativeResidual.toExponential(
-							2
-						)}).
-					{/if}{#if snapshot.geometry.pca.boundaryUncertain}The third/fourth component boundary is
-						numerically uncertain; treat the selected 3D subspace cautiously.{/if}
-				</div>{/if}
-			<div class="timeline">
-				<span><Icon name="activity" size={11} />Measured maps</span
-				>{#each record?.snapshots ?? [] as frame, i (frame.atlas.step)}<button
-						class:chosen={(snapshotIndex ?? (record?.snapshots.length ?? 1) - 1) === i}
-						onclick={() => selectSnapshot(i)}
-						disabled={blocked}>{frame.atlas.step}</button
-					>{/each}<button
-					class="latest"
-					onclick={() => selectSnapshot(null)}
-					disabled={blocked || !record?.snapshots.length}>Latest</button
-				><span class="checkpoint-label">Durable weights {savedCheckpointStep ?? '—'}</span>
-			</div>
-			{#if historical}<div class="historical-note">
-					Viewing step {snapshot?.atlas.step}. Historical maps retain activations and coordinates;
-					only the latest saved checkpoint retains weights. Return to Latest to use the resident
-					model.
-				</div>{/if}
-			<div class="probe-input">
-				<label for="story-probe-text">Probe context</label><textarea
-					id="story-probe-text"
-					bind:value={probePrompt}
-					rows="2"
-					spellcheck="false"
-					disabled={blocked}
-					placeholder="Enter a prompt using the 96-character vocabulary"></textarea><button
-					class="secondary"
-					onclick={inspectPrompt}
-					disabled={!ready || !probePrompt.length}
-					><Icon name="activity" size={13} />Run prompt</button
-				><span
-					>{probe
-						? `Measured ${probe.prompt.tokenIds.length} characters at step ${probe.step}`
-						: 'Activations are measured after a real forward pass'}</span
-				>
-			</div>
-			{#if selected !== null && nearest.length && viewMode === 'functional'}<div
-					class="neighbor-row"
-				>
-					<span>Nearest units in fingerprint space</span
-					>{#each nearest as neighbor (neighbor.index)}<button
-							onclick={() => selectUnit(neighbor.index)}
-							title={`Cosine ${neighbor.similarity.toFixed(4)}; distance ${neighbor.distance.toFixed(4)}`}
-							>L{Math.floor(neighbor.index / config.hidden) + 1}/{neighbor.index %
-								config.hidden}</button
-						>{/each}
-				</div>{/if}
-		</main>
-		<div class="story-inspector">
-			<StoryProbePanel
-				probe={liveProbe}
-				{lesioned}
-				{selected}
-				{token}
-				{config}
-				busy={blocked || !runtimeReady || historical}
-				onselect={selectUnit}
-				ontoken={(position) => (token = position)}
-				onlesion={silenceUnit}
-			/>
-		</div>
-	</div>
-	<div class="story-lower">
-		<section class="sample-panel">
-			<div class="lower-tabs">
-				<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
-					><Icon name="book" size={13} />Generate & compare</button
-				><button class:chosen={footerTab === 'history'} onclick={() => (footerTab = 'history')}
-					><Icon name="activity" size={13} />Experiment history
-					<span>{record?.observations.length ?? 0}</span></button
-				>
-			</div>
-			{#if footerTab === 'samples'}<div class="sample-controls">
-					<label for="story-sample-prompt">Sampling prompt</label><input
-						id="story-sample-prompt"
-						bind:value={samplePrompt}
-						disabled={blocked}
-					/><label for="story-sampling-seed">Seed</label><input
-						id="story-sampling-seed"
-						type="number"
-						min="0"
-						max="4294967295"
-						bind:value={samplingSeed}
-						disabled={blocked}
-					/><label for="story-temperature">Temperature</label><input
-						id="story-temperature"
-						type="number"
-						min="0.1"
-						max="2"
-						step="0.1"
-						bind:value={temperature}
-						disabled={blocked}
-					/>
-					<div class="segmented">
-						{#each [32, 64, 128] as length (length)}<button
-								class:chosen={sampleLength === length}
-								onclick={() => (sampleLength = length)}
-								disabled={blocked}>{length}</button
+						>{snapshot
+							? `${snapshot.atlas.dimensions} fixed calibration coordinates`
+							: '8 windows × 16 positions'}</span
+					>{#if snapshot && viewMode === 'functional'}<span
+							>{snapshot.atlas.unitCount - snapshot.geometry.audit.validPopulation} unresolved directions
+							omitted</span
+						><span
+							>Variance <strong>{(snapshot.geometry.explainedVariance * 100).toFixed(1)}%</strong
+							></span
+						><span
+							>Audited retention <strong
+								>{snapshot.geometry.audit.neighborRetention === null
+									? '—'
+									: `${(snapshot.geometry.audit.neighborRetention * 100).toFixed(1)}%`}</strong
+							></span
+						>{/if}
+				</div>
+				<div class="view-note">
+					{#if snapshot}{#if viewMode === 'architecture'}Positions label the true layer and channel;
+							spacing is chosen for display.{:else}All resolved unit fingerprints enter PCA.
+							Neighbor retention is scored on {snapshot.geometry.audit.scoredFocals} / {snapshot
+								.geometry.audit.planned} preselected focal units ({snapshot.geometry.audit
+								.resolvedFocals} resolved; {snapshot.geometry.audit.requested} requested). This sample
+							does not establish all-unit retention. Links are selected exact nearest neighbors, not model
+							connections.{/if}<span
+							>{matchingProbe
+								? `Activity: prompt character ${token + 1}, measured step ${matchingProbe.step}.`
+								: `Activity: calibration window 1, position ${(snapshot.atlas.positions[0] ?? 0) + 1}.`}</span
+						>{:else}Coordinates will be fitted from every channel’s fixed calibration responses.
+						Measured captures form the timeline.{/if}
+				</div>
+				{#if snapshot && viewMode === 'functional' && (!snapshot.geometry.pca.converged || snapshot.geometry.pca.boundaryUncertain)}<div
+						class="geometry-warning"
+					>
+						{#if !snapshot.geometry.pca.converged}Approximate PCA did not reach its requested
+							tolerance after {snapshot.geometry.pca.iterations} iterations (relative residual {snapshot.geometry.pca.relativeResidual.toExponential(
+								2
+							)}).
+						{/if}{#if snapshot.geometry.pca.boundaryUncertain}The third/fourth component boundary is
+							numerically uncertain; treat the selected 3D subspace cautiously.{/if}
+					</div>{/if}
+				<div class="timeline">
+					<span><Icon name="activity" size={11} />Measured maps</span
+					>{#each record?.snapshots ?? [] as frame, i (frame.atlas.step)}<button
+							class:chosen={(snapshotIndex ?? (record?.snapshots.length ?? 1) - 1) === i}
+							onclick={() => selectSnapshot(i)}
+							disabled={blocked}>{frame.atlas.step}</button
+						>{/each}<button
+						class="latest"
+						onclick={() => selectSnapshot(null)}
+						disabled={blocked || !record?.snapshots.length}>Latest</button
+					><span class="checkpoint-label">Durable weights {savedCheckpointStep ?? '—'}</span>
+				</div>
+				{#if historical}<div class="historical-note">
+						Viewing step {snapshot?.atlas.step}. Historical maps retain activations and coordinates;
+						only the latest saved checkpoint retains weights. Return to Latest to use the resident
+						model.
+					</div>{/if}
+				{#if selected !== null && nearest.length && viewMode === 'functional'}<div
+						class="neighbor-row"
+					>
+						<span>Nearest units in fingerprint space</span
+						>{#each nearest as neighbor (neighbor.index)}<button
+								onclick={() => selectUnit(neighbor.index)}
+								title={`Cosine ${neighbor.similarity.toFixed(4)}; distance ${neighbor.distance.toFixed(4)}`}
+								>L{Math.floor(neighbor.index / config.hidden) + 1}/{neighbor.index %
+									config.hidden}</button
 							>{/each}
-					</div>
-					<button
+					</div>{/if}
+			</details>
+		</main>
+		{#snippet inspector()}
+			<details class="lab-disclosure prompt-probe">
+				<summary>Prompt probe <small>Inspect every input position</small></summary>
+				<div class="probe-input">
+					<label for="story-probe-text">Probe context</label><textarea
+						id="story-probe-text"
+						bind:value={probePrompt}
+						rows="2"
+						spellcheck="false"
+						disabled={blocked}
+						placeholder="Enter a prompt using the 96-character vocabulary"></textarea><button
 						class="secondary"
-						onclick={generate}
-						disabled={!ready ||
-							!samplePrompt.length ||
-							!Number.isInteger(samplingSeed) ||
-							samplingSeed < 0 ||
-							samplingSeed > 0xffffffff ||
-							!Number.isFinite(temperature) ||
-							temperature < 0.1 ||
-							temperature > 2}><Icon name="play" size={12} />Sample</button
+						onclick={inspectPrompt}
+						disabled={!ready || !probePrompt.length}
+						><Icon name="activity" size={13} />Run prompt</button
+					><span
+						>{probe
+							? `Measured ${probe.prompt.tokenIds.length} characters at step ${probe.step}`
+							: 'Activations are measured after a real forward pass'}</span
 					>
 				</div>
-				<div class="sample-output">
-					{#if sample}<div class="sample-meta">
-							<span
-								>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
-								· top-k {sample.topK}</span
-							><span
-								>{sample.tokenIds.length} / {sample.requestedTokens} characters{sample.cancelled
-									? ' · cancelled'
-									: ''}</span
-							>
-						</div>
-						<p>
-							<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
-						</p>{:else}<p class="empty-sample">
-							Sampled text will appear here. Samples are observations of the current checkpoint, not
-							evidence of story understanding.
-						</p>{/if}
+			</details>
+			<div class="story-inspector">
+				<StoryProbePanel
+					probe={liveProbe}
+					{lesioned}
+					{selected}
+					{token}
+					{config}
+					busy={blocked || !runtimeReady || historical}
+					onselect={selectUnit}
+					ontoken={(position) => (token = position)}
+					onlesion={silenceUnit}
+				/>
+			</div>
+		{/snippet}
+	</ResearchWorkspace>
+	<details class="lab-disclosure evidence-drawer">
+		<summary
+			>Samples & evidence <small>Batch generation, learning curves and experiment history</small
+			></summary
+		>
+		<div class="story-lower">
+			<section class="sample-panel">
+				<div class="lower-tabs">
+					<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
+						><Icon name="book" size={13} />Generate & compare</button
+					><button class:chosen={footerTab === 'history'} onclick={() => (footerTab = 'history')}
+						><Icon name="activity" size={13} />Experiment history
+						<span>{record?.observations.length ?? 0}</span></button
+					>
 				</div>
-				{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
-						<span>Recorded samples</span
-						>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
-								onclick={() => (sample = past)}
-								class:chosen={sample === past}>Step {past.step} · #{i + 1}</button
-							>{/each}
-					</div>{/if}{:else}<div class="observation-list">
-					{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
-							class="archived-intervention"
+				{#if footerTab === 'samples'}<div class="sample-controls">
+						<label for="story-sample-prompt">Sampling prompt</label><input
+							id="story-sample-prompt"
+							bind:value={samplePrompt}
+							disabled={blocked}
+						/><label for="story-sampling-seed">Seed</label><input
+							id="story-sampling-seed"
+							type="number"
+							min="0"
+							max="4294967295"
+							bind:value={samplingSeed}
+							disabled={blocked}
+						/><label for="story-temperature">Temperature</label><input
+							id="story-temperature"
+							type="number"
+							min="0.1"
+							max="2"
+							step="0.1"
+							bind:value={temperature}
+							disabled={blocked}
+						/>
+						<div class="segmented">
+							{#each [32, 64, 128] as length (length)}<button
+									class:chosen={sampleLength === length}
+									onclick={() => (sampleLength = length)}
+									disabled={blocked}>{length}</button
+								>{/each}
+						</div>
+						<button
+							class="secondary"
+							onclick={generate}
+							disabled={!ready ||
+								!samplePrompt.length ||
+								!Number.isInteger(samplingSeed) ||
+								samplingSeed < 0 ||
+								samplingSeed > 0xffffffff ||
+								!Number.isFinite(temperature) ||
+								temperature < 0.1 ||
+								temperature > 2}><Icon name="play" size={12} />Sample</button
 						>
-							<summary
-								>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
-							>
-							<p>
-								All prompt positions silenced. The table shows the eight largest absolute
-								probability changes; the archive retains all 96 values.
-							</p>
-							<code class="intervention-prompt">{intervention.prompt}</code>
-							<table>
-								<thead
-									><tr
-										><th>Character</th><th>Intact</th><th>Lesioned</th><th>Δ percentage points</th
-										></tr
-									></thead
-								><tbody
-									>{#each archivedEffects(intervention) as effect (effect.id)}<tr
-											><td
-												>{effect.id === 0
-													? '↵'
-													: effect.id === 1
-														? '␣'
-														: STORY_CHARACTERS[effect.id]}</td
-											><td>{(effect.probability * 100).toFixed(3)}%</td><td
-												>{(effect.lesioned * 100).toFixed(3)}%</td
-											><td>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td></tr
-										>{/each}</tbody
+					</div>
+					<div class="sample-output">
+						{#if sample}<div class="sample-meta">
+								<span
+									>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
+									· top-k {sample.topK}</span
+								><span
+									>{sample.tokenIds.length} / {sample.requestedTokens} characters{sample.cancelled
+										? ' · cancelled'
+										: ''}</span
 								>
-							</table>
-						</details>{/each}
-					{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
-						>
-							<time datetime={observation.time}
-								>{time(observation.time)} · step {observation.step}</time
+							</div>
+							<p>
+								<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
+							</p>{:else}<p class="empty-sample">
+								Sampled text will appear here. Samples are observations of the current checkpoint,
+								not evidence of story understanding.
+							</p>{/if}
+					</div>
+					{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
+							<span>Recorded samples</span
+							>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
+									onclick={() => (sample = past)}
+									class:chosen={sample === past}>Step {past.step} · #{i + 1}</button
+								>{/each}
+						</div>{/if}{:else}<div class="observation-list">
+						{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
+								class="archived-intervention"
 							>
-							<h3>{observation.title}</h3>
-							<p>{observation.detail}</p>
-						</article>{:else}<p class="empty-sample">
-							Initialization, training, samples and interventions will be recorded here.
-						</p>{/each}
-				</div>{/if}
-		</section>
-		<section class="learning-panel"><StoryMetricsPanel metrics={record?.metrics ?? []} /></section>
-	</div>
+								<summary
+									>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
+								>
+								<p>
+									All prompt positions silenced. The table shows the eight largest absolute
+									probability changes; the archive retains all 96 values.
+								</p>
+								<code class="intervention-prompt">{intervention.prompt}</code>
+								<table>
+									<thead
+										><tr
+											><th>Character</th><th>Intact</th><th>Lesioned</th><th>Δ percentage points</th
+											></tr
+										></thead
+									><tbody
+										>{#each archivedEffects(intervention) as effect (effect.id)}<tr
+												><td
+													>{effect.id === 0
+														? '↵'
+														: effect.id === 1
+															? '␣'
+															: STORY_CHARACTERS[effect.id]}</td
+												><td>{(effect.probability * 100).toFixed(3)}%</td><td
+													>{(effect.lesioned * 100).toFixed(3)}%</td
+												><td>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td></tr
+											>{/each}</tbody
+									>
+								</table>
+							</details>{/each}
+						{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
+							>
+								<time datetime={observation.time}
+									>{time(observation.time)} · step {observation.step}</time
+								>
+								<h3>{observation.title}</h3>
+								<p>{observation.detail}</p>
+							</article>{:else}<p class="empty-sample">
+								Initialization, training, samples and interventions will be recorded here.
+							</p>{/each}
+					</div>{/if}
+			</section>
+			<section class="learning-panel">
+				<StoryMetricsPanel metrics={record?.metrics ?? []} />
+			</section>
+		</div>
+	</details>
 	<footer class="story-status" role="status">
 		<span class:working={busy}></span>
 		<p>{status}</p>
@@ -1320,14 +1411,14 @@
 		display: block;
 		margin-top: 5px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.study-label {
 		border: 1px solid var(--line);
 		border-radius: 4px;
 		color: var(--muted);
 		padding: 4px 6px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.transport,
 	.file-controls {
@@ -1337,7 +1428,7 @@
 	}
 	.transport > span {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.transport > button {
 		min-width: 83px;
@@ -1364,7 +1455,7 @@
 		background: transparent;
 		color: var(--muted);
 		padding: 5px 9px;
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.segmented button.chosen {
 		background: var(--surface-hover);
@@ -1379,7 +1470,7 @@
 		border: 1px solid color-mix(in srgb, var(--warning) 45%, var(--line));
 		border-radius: 5px;
 		color: var(--warning);
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.5;
 	}
 	.notice > span {
@@ -1388,13 +1479,8 @@
 	.external-busy {
 		padding: 9px 17px;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		background: var(--surface-raised);
-		border-bottom: 1px solid var(--line);
-	}
-	.story-layout {
-		display: grid;
-		grid-template-columns: 220px minmax(0, 1fr) 282px;
 		border-bottom: 1px solid var(--line);
 	}
 	.setup-panel {
@@ -1409,12 +1495,12 @@
 		padding: 13px 12px;
 	}
 	.section-label h2 {
-		font-size: 10px;
+		font-size: 12px;
 		font-weight: 550;
 	}
 	.section-label > span {
 		color: var(--faint);
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 		margin-left: auto;
 	}
 	.preset-list {
@@ -1448,10 +1534,10 @@
 	}
 	.preset-list small {
 		color: var(--muted);
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.preset-list button > span:not(:first-child) {
-		font: 8px/1.5 var(--mono);
+		font: 12px/1.5 var(--mono);
 		color: var(--muted);
 	}
 	.initialize-options {
@@ -1464,13 +1550,13 @@
 	}
 	.initialize-options > label,
 	.control-caption {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.initialize-options input {
 		width: 65px;
 		padding: 5px 7px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.backend-options {
 		display: flex;
@@ -1480,7 +1566,7 @@
 	.backend-options button {
 		flex: 1;
 		padding: 6px;
-		font-size: 9px;
+		font-size: 12px;
 		color: var(--muted);
 		border: 1px solid var(--line);
 		border-radius: 4px;
@@ -1493,12 +1579,12 @@
 	.initialize-options .initialize {
 		grid-column: 1/-1;
 		width: 100%;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.initialize-options p {
 		grid-column: 1/-1;
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.corpus-card {
@@ -1509,17 +1595,17 @@
 		padding: 13px 0 10px;
 	}
 	.corpus-card > strong {
-		font-size: 10px;
+		font-size: 12px;
 		font-weight: 500;
 	}
 	.corpus-card p {
 		margin: 7px 0;
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.65;
 		color: var(--muted);
 	}
 	.corpus-card > span {
-		font: 8px/1.6 var(--mono);
+		font: 12px/1.6 var(--mono);
 		color: var(--muted);
 	}
 	.corpus-card a {
@@ -1528,7 +1614,7 @@
 		gap: 4px;
 		margin-top: 10px;
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		text-decoration: none;
 	}
 	.archive-panel {
@@ -1553,14 +1639,14 @@
 		border-color: color-mix(in srgb, var(--accent) 38%, var(--line));
 	}
 	.archive-item > span {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.archive-item small {
 		color: var(--muted);
-		font: 7px/1.5 var(--mono);
+		font: 12px/1.5 var(--mono);
 	}
 	.archive-empty {
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.6;
 		color: var(--muted);
 		padding: 0 13px;
@@ -1582,12 +1668,12 @@
 		align-items: center;
 	}
 	.layer-options > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-right: 3px;
 	}
 	.layer-options button {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 5px;
 		border: 1px solid transparent;
 		border-radius: 3px;
@@ -1602,7 +1688,7 @@
 	.architecture-label {
 		margin-left: auto;
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.story-field {
 		height: 480px;
@@ -1632,12 +1718,12 @@
 	}
 	.field-empty p {
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.75;
 		max-width: 440px;
 	}
 	.field-empty > div {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 	}
 	.field-empty > div span {
@@ -1650,7 +1736,7 @@
 		gap: 12px;
 		padding: 10px 12px;
 		border-top: 1px solid var(--line);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.geometry-footer span:nth-child(3) {
@@ -1663,14 +1749,14 @@
 	.view-note {
 		padding: 0 12px 10px;
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.65;
 	}
 	.view-note > span {
 		display: block;
 		color: var(--faint);
 		margin-top: 4px;
-		font: 8px/1.5 var(--mono);
+		font: 12px/1.5 var(--mono);
 	}
 	.geometry-warning {
 		margin: 0 12px 11px;
@@ -1678,7 +1764,7 @@
 		border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--line));
 		border-radius: 5px;
 		color: var(--warning);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.timeline {
@@ -1695,7 +1781,7 @@
 		align-items: center;
 		gap: 5px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		margin-right: 4px;
 	}
 	.timeline button {
@@ -1703,7 +1789,7 @@
 		border-radius: 3px;
 		padding: 4px 6px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		background: transparent;
 	}
 	.timeline button.chosen {
@@ -1716,14 +1802,14 @@
 	}
 	.checkpoint-label {
 		margin-left: auto;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 	}
 	.historical-note {
 		padding: 10px 13px;
 		border-bottom: 1px solid var(--line);
 		color: var(--warning);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.probe-input {
@@ -1736,22 +1822,22 @@
 	.probe-input label {
 		grid-column: 1/-1;
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.probe-input textarea {
 		resize: vertical;
 		min-height: 54px;
-		font: 11px/1.6 var(--mono);
+		font: 13px/1.6 var(--mono);
 	}
 	.probe-input button {
 		align-self: start;
 		margin-top: 2px;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.probe-input > span {
 		grid-column: 1/-1;
 		color: var(--faint);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.neighbor-row {
 		display: flex;
@@ -1762,7 +1848,7 @@
 		background: var(--surface);
 	}
 	.neighbor-row > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-right: 6px;
 	}
@@ -1771,7 +1857,7 @@
 		background: transparent;
 		border-radius: 3px;
 		padding: 4px 5px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.story-inspector {
 		min-width: 0;
@@ -1802,14 +1888,14 @@
 		padding: 12px 0;
 		background: transparent;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.lower-tabs button.chosen {
 		border-bottom-color: var(--accent);
 		color: var(--ink);
 	}
 	.lower-tabs button > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--faint);
 	}
 	.sample-controls {
@@ -1821,11 +1907,11 @@
 	}
 	.sample-controls label {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.sample-controls input {
 		padding: 6px 8px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.sample-controls input[type='number'] {
 		width: 60px;
@@ -1835,10 +1921,10 @@
 		min-width: 160px;
 	}
 	.sample-controls > button {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.sample-controls .segmented button {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 5px 6px;
 	}
 	.sample-output {
@@ -1849,7 +1935,7 @@
 		justify-content: space-between;
 		gap: 10px;
 		flex-wrap: wrap;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		padding-bottom: 11px;
 	}
@@ -1871,7 +1957,7 @@
 		align-items: center;
 		justify-content: center;
 		text-align: center;
-		font: 11px/1.7 var(--mono);
+		font: 13px/1.7 var(--mono);
 		color: var(--faint);
 	}
 	.sample-history {
@@ -1882,7 +1968,7 @@
 		padding: 0 15px 14px;
 	}
 	.sample-history > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-right: 5px;
 	}
@@ -1890,7 +1976,7 @@
 		border: 1px solid var(--line);
 		border-radius: 4px;
 		background: transparent;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		padding: 5px 7px;
 	}
 	.sample-history > button.chosen {
@@ -1918,15 +2004,15 @@
 	}
 	.observation-list time {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.observation-list h3 {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 500;
 		margin: 7px 0;
 	}
 	.observation-list p {
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.7;
 		color: var(--muted);
 		overflow-wrap: anywhere;
@@ -1942,7 +2028,7 @@
 		padding: 10px;
 	}
 	.archived-intervention summary {
-		font-size: 10px;
+		font-size: 12px;
 		cursor: pointer;
 	}
 	.archived-intervention p {
@@ -1950,7 +2036,7 @@
 	}
 	.intervention-prompt {
 		display: block;
-		font: 10px/1.6 var(--mono);
+		font: 12px/1.6 var(--mono);
 		white-space: pre-wrap;
 		overflow-wrap: anywhere;
 	}
@@ -1958,7 +2044,7 @@
 		width: 100%;
 		border-collapse: collapse;
 		margin-top: 10px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.archived-intervention th,
 	.archived-intervention td {
@@ -1979,7 +2065,7 @@
 		align-items: center;
 		gap: 15px;
 		padding: 9px 17px;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		background: var(--surface);
 		flex-wrap: wrap;
@@ -1996,209 +2082,230 @@
 	.story-status p {
 		flex: 1;
 	}
-	@media (min-width: 1750px) {
-		.story-layout {
-			grid-template-columns: 245px minmax(0, 1fr) 320px;
-		}
-		.story-field {
-			height: 540px;
-		}
+	.story-toolbar {
+		padding: 22px 24px;
+		background: var(--bg);
+		border-bottom: 0;
+		flex-wrap: wrap;
+		gap: 16px;
 	}
-	@media (max-width: 1250px) {
-		.story-layout {
-			grid-template-columns: 195px minmax(0, 1fr) 245px;
-		}
-		.architecture-label {
-			display: none;
-		}
-		.view-toolbar {
-			flex-wrap: wrap;
-			gap: 8px;
-		}
-		.study-label {
-			display: none;
-		}
-		.story-toolbar {
-			gap: 12px;
-		}
-		.layer-options button {
-			padding: 4px;
-		}
-		.preset-list strong {
-			font-size: 18px;
-		}
-		.preset-list button > span:not(:first-child) {
-			font-size: 7px;
-		}
+	h1 {
+		font-size: 22px;
+		letter-spacing: -0.5px;
+	}
+	.lab-title > div > span {
+		font:
+			13px/1.5 'DM Sans',
+			sans-serif;
+	}
+	.study-label {
+		display: none;
+	}
+	.setup-panel {
+		border: 0;
+	}
+	.archive-panel {
+		max-height: none;
+		padding: 4px 16px 16px;
+	}
+	.section-label {
+		padding: 16px 0 12px;
+		gap: 8px;
+	}
+	.section-label h2 {
+		font-size: 14px;
+	}
+	.section-label > span {
+		display: none;
+	}
+	.archive-item {
+		padding: 12px;
+		margin-bottom: 8px;
+		border-radius: 8px;
+	}
+	.archive-item small {
+		font:
+			12px/1.6 'DM Sans',
+			sans-serif;
+	}
+	.preset-list {
+		padding: 16px;
+		gap: 10px;
+	}
+	.preset-list button {
+		padding: 14px;
+		border-radius: 8px;
+	}
+	.initialize-options {
+		padding: 0 16px 18px;
+		grid-template-columns: 1fr 100px;
+		gap: 12px;
+	}
+	.initialize-options p {
+		font:
+			13px/1.65 'DM Sans',
+			sans-serif;
+	}
+	.resume-row:not(:empty) {
+		padding: 16px;
+		border-bottom: 1px solid var(--line);
+	}
+	.resume-row .initialize {
+		width: 100%;
+	}
+	.transport {
+		padding: 18px 16px;
+		flex-wrap: wrap;
+		gap: 12px;
+	}
+	.transport > span {
+		width: 100%;
+		font:
+			13px 'DM Sans',
+			sans-serif;
+	}
+	.transport .segmented {
+		flex-wrap: wrap;
+	}
+	.corpus-card {
+		padding: 0 16px 18px;
+		border: 0;
+	}
+	.story-inspector {
+		border: 0;
+	}
+	.view-toolbar {
+		padding: 12px 16px;
+		gap: 12px;
+		flex-wrap: wrap;
+		min-height: 60px;
+	}
+	.segmented button {
+		min-height: 32px;
+		padding: 6px 10px;
+	}
+	.layer-options {
+		flex-wrap: wrap;
+		gap: 5px;
+	}
+	.layer-options button {
+		min-width: 30px;
+		min-height: 30px;
+	}
+	.architecture-label {
+		display: none;
+	}
+	.story-field {
+		height: clamp(390px, 48vh, 640px);
+	}
+	.story-lower {
+		grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
+		border: 0;
+	}
+	.view-note,
+	.geometry-footer,
+	.timeline {
+		padding: 14px 18px;
+	}
+	.field-empty p {
+		font-size: 15px;
+		max-width: 480px;
+	}
+	.story-status {
+		padding: 12px 24px 20px;
+		flex-wrap: wrap;
+		gap: 10px;
 	}
 	@media (max-width: 1000px) {
-		.story-layout {
-			grid-template-columns: 190px minmax(0, 1fr);
-		}
 		.story-inspector {
-			grid-column: 1/-1;
-			border-left: 0;
-			border-top: 1px solid var(--line);
-		}
-		.story-inspector :global(.story-probe) {
-			display: grid;
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-		.story-inspector :global(.panel-heading),
-		.story-inspector :global(.unit-control) {
-			grid-column: 1/-1;
-		}
-		.story-inspector :global(.address) {
-			grid-column: 1;
-		}
-		.story-inspector :global(.activation-summary) {
-			grid-column: 1;
-		}
-		.story-inspector :global(.activation-strip) {
-			grid-column: 1;
-		}
-		.story-inspector :global(.token-panel) {
-			grid-column: 2;
-			grid-row: 3 / span 4;
-		}
-		.story-inspector :global(.intervention) {
-			grid-column: 2;
+			grid-column: auto;
 		}
 		.story-lower {
-			grid-template-columns: 1fr;
-		}
-		.learning-panel {
-			border-left: 0;
-			border-top: 1px solid var(--line);
-		}
-		.story-toolbar {
-			flex-wrap: wrap;
-		}
-		.lab-title {
-			flex: 1;
-		}
-		.lab-title > div > span {
-			font-size: 7px;
+			grid-template-columns: minmax(0, 1fr);
 		}
 	}
-	@media (max-width: 700px) {
-		.story-layout {
-			grid-template-columns: 1fr;
-		}
-		.setup-panel {
-			border-right: 0;
-			border-bottom: 1px solid var(--line);
-		}
-		.preset-list {
-			flex-direction: row;
-			gap: 6px;
-		}
-		.preset-list button {
-			flex: 1;
-			min-width: 0;
-			padding: 10px 7px;
-		}
-		.preset-list strong {
-			font-size: 16px;
-		}
-		.preset-list small {
-			display: none;
-		}
-		.preset-list button > span:not(:first-child) {
-			font: 7px/1.5 var(--mono);
-		}
-		.initialize-options {
-			grid-template-columns: 1fr 75px 1fr;
-		}
-		.initialize-options .control-caption {
-			display: none;
-		}
-		.backend-options {
-			grid-column: 3;
-			grid-row: 1;
-		}
-		.initialize-options .initialize {
-			grid-column: auto;
-			min-height: 32px;
-		}
-		.initialize-options p {
-			grid-column: 1/-1;
-		}
-		.corpus-card {
-			display: none;
-		}
-		.archive-panel {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 7px;
-			padding: 10px;
-			max-height: 190px;
-			overflow: auto;
-		}
-		.archive-panel .section-label {
-			width: 100%;
-			padding: 0 2px 3px;
-		}
-		.archive-panel .archive-item {
-			width: calc(50% - 4px);
-			margin: 0;
-		}
-		.archive-empty {
-			padding: 0 2px;
+	@media (max-width: 600px) {
+		.story-toolbar {
+			padding: 18px 12px;
 		}
 		.story-field {
-			height: 420px;
+			height: 400px;
 		}
-		.file-controls {
-			margin-left: auto;
+		.view-toolbar {
+			padding: 10px;
+			gap: 8px;
 		}
-		.transport {
-			order: 3;
-			width: 100%;
-			justify-content: flex-end;
+		.lab-title > :global(.icon) {
+			display: none;
 		}
-		.story-toolbar {
-			padding: 12px;
-		}
-		.lab-title > div > span {
-			font-size: 7px;
-		}
-		.story-lower {
-			min-width: 0;
-		}
-		.story-inspector :global(.story-probe) {
+	}
+
+	.map-context {
+		padding: 10px 18px;
+		display: flex;
+		gap: 12px;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		color: var(--muted);
+		font-size: 12px;
+		border-top: 1px solid var(--line);
+	}
+	.setup-panel > .lab-disclosure > .section-label {
+		padding-left: 16px;
+	}
+	@media (max-width: 700px) {
+		.setup-panel {
 			display: block;
 		}
-		.geometry-footer {
-			gap: 8px;
-			font-size: 7px;
+		.initialize-options {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 100px;
 		}
-		.geometry-footer span:nth-child(3) {
-			margin-left: 0;
+		.initialize-options p,
+		.backend-options,
+		.control-caption,
+		.initialize {
+			grid-column: 1 / -1;
+		}
+		.initialize-options > label {
+			grid-column: 1;
+		}
+	}
+
+	.welcome-actions {
+		display: flex;
+		justify-content: center;
+		gap: 10px;
+		flex-wrap: wrap;
+		margin: 20px 0;
+	}
+	.training-progress {
+		margin-left: auto;
+	}
+
+	@media (max-width: 700px) {
+		.preset-list {
+			flex-direction: column;
+		}
+		.archive-panel {
+			display: block;
+		}
+		.archive-item {
+			width: 100%;
+		}
+		.backend-options {
+			grid-row: auto;
 		}
 		.sample-controls {
-			padding: 12px;
-			gap: 7px;
-		}
-		.sample-controls > label:first-child {
-			width: 100%;
+			padding: 14px;
+			flex-wrap: wrap;
 		}
 		.sample-controls > input:first-of-type {
-			width: 100%;
-			flex: auto;
-		}
-		.sample-controls .segmented {
-			margin-left: auto;
-		}
-		.sample-controls > button {
+			flex: 1 1 100%;
 			width: 100%;
 		}
-		.story-status {
-			padding: 9px 12px;
-			gap: 9px;
-		}
-		.story-status p {
-			min-width: 70%;
+		.corpus-card {
+			display: block;
 		}
 	}
 </style>

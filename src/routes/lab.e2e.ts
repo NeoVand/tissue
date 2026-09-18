@@ -1,3 +1,4 @@
+import { tools, disclose } from './workspace-test-helpers';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -44,6 +45,8 @@ test('query finalization stays locked after progress completes and preserves the
 		};
 	});
 	await page.goto('/');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled({
 		timeout: 90000
 	});
@@ -65,8 +68,11 @@ test('query finalization stays locked after progress completes and preserves the
 	await expect(page.getByRole('button', { name: 'Cancel measurement', exact: true })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Reference 42', exact: true })).toBeDisabled();
 	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeDisabled();
 	await expect(page.getByRole('button', { name: 'New run', exact: true })).toBeDisabled();
+	await tools(page, 'inspector');
 	await expect(
 		page.getByRole('button', { name: 'Measure all effects', exact: true })
 	).toBeDisabled();
@@ -122,6 +128,8 @@ test('query finalization stays locked after progress completes and preserves the
 	).toBe(record.measurement.checkpointHash);
 	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
 	await expect(page.getByTestId('step')).toHaveText('0');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled();
 });
 
@@ -135,6 +143,8 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	});
 	await page.getByRole('button', { name: 'Explore that specimen' }).click();
 	await expect(page.getByTestId('step')).toHaveText('2000', { timeout: 90000 });
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
 		timeout: 30000
 	});
@@ -147,12 +157,14 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	);
 	await page.getByRole('button', { name: 'Activation matrix', exact: true }).click();
 	await page.getByRole('button', { name: 'Intervention', exact: true }).click();
+	await tools(page, 'inspector');
 	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
 	await expect(page.getByText('layers[1].mlpFc1', { exact: true })).toBeVisible();
 	await expect(page.getByText('[:, 44]', { exact: true })).toBeVisible();
 	await page.getByLabel('Inspect neuron activations.', { exact: false }).focus();
 	await page.keyboard.press('ArrowRight');
 	await expect(page.getByLabel('Neuron ID', { exact: true })).toHaveValue('173');
+	await tools(page, 'inspector');
 	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
 	await page.getByRole('button', { name: 'Model layout', exact: true }).click();
 	await expect(page.locator('canvas').first()).toHaveAttribute('aria-label', /MODEL LAYOUT/);
@@ -197,16 +209,22 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	await page.reload();
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 	await expect(page.getByTestId('step')).toHaveText('2000', { timeout: 90000 });
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
 		timeout: 30000
 	});
 	await page.getByRole('button', { name: /Field journal/ }).click();
 	await expect(page.getByText('E2E: an observation retained with this specimen.')).toBeVisible();
 	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await page.getByRole('button', { name: '100', exact: true }).click();
 	await page.getByRole('button', { name: 'Continue training' }).click();
 	await page.getByRole('button', { name: 'Intervention', exact: true }).click();
 	await expect(page.getByTestId('step')).toHaveText('2100', { timeout: 90000 });
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
 		timeout: 30000
 	});
@@ -218,22 +236,28 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 test('training, pause, checkpoint capture and mobile layout stay usable', async ({ page }) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto('/');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled({
 		timeout: 90000
 	});
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await page.getByRole('button', { name: 'Start training' }).click();
 	await expect(page.getByRole('button', { name: 'Pause training' })).toBeVisible();
 	await expect
 		.poll(async () => Number(await page.getByTestId('step').innerText()), { timeout: 90000 })
 		.toBeGreaterThan(0);
 	await page.getByRole('button', { name: 'Pause training' }).click();
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeEnabled({
 		timeout: 90000
 	});
 	expect(await page.getByRole('button', { name: /View checkpoint/ }).count()).toBeGreaterThan(1);
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 	await page.getByRole('button', { name: 'Methods', exact: true }).click();
-	await expect(page.getByRole('heading', { name: 'Every coordinate has a source.' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Coordinates and model mapping' })).toBeVisible();
 });
 
 test('a failed capture preserves evidence and requires checkpoint recovery', async ({
@@ -260,16 +284,24 @@ test('a failed capture preserves evidence and requires checkpoint recovery', asy
 		};
 	});
 	await page.goto('/');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled({
 		timeout: 90000
 	});
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await page.getByRole('button', { name: 'Start training' }).click();
 	await expect(page.getByRole('alert')).toContainText('Injected capture failure', {
 		timeout: 90000
 	});
 	await expect(page.getByTestId('step')).toHaveText('50');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Continue training' })).toBeDisabled();
+	await tools(page, 'inspector');
 	await expect(page.getByRole('button', { name: 'Measure all effects' })).toBeDisabled();
+	await tools(page, 'inspector');
 	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
 	await expect(page.getByRole('button', { name: 'Silence selected unit' })).toBeDisabled();
 	const receipt = page.waitForEvent('download');
@@ -280,6 +312,8 @@ test('a failed capture preserves evidence and requires checkpoint recovery', asy
 	expect(interrupted.checkpoint.step).toBe(0);
 	expect(interrupted.metrics.at(-1).step).toBe(50);
 	await page.getByRole('button', { name: 'Restore saved checkpoint' }).click();
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled({
 		timeout: 90000
 	});
@@ -304,6 +338,8 @@ test('paired-query studies link raw probes, survive export and reload, and prese
 	const errors: string[] = [];
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto('/');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training' })).toBeEnabled({
 		timeout: 90000
 	});

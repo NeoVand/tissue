@@ -52,13 +52,15 @@
 				<span>{notebook.length} entries</span>
 			</div>
 			{#each [...notebook].sort((a, b) => b.id.localeCompare(a.id)) as entry (entry.id)}
-				<article class="entry">
-					<div class="meta">
-						<span class="entry-id">{entry.id}</span><span>{entry.kind}</span><time
-							>{entry.date}</time
-						>
-					</div>
-					<h3>{entry.title}</h3>
+				<details class="entry" open={entry.id === notebook[0]?.id}>
+					<summary>
+						<div class="meta">
+							<span class="entry-id">{entry.id}</span><span>{entry.kind}</span><time
+								>{entry.date}</time
+							>
+						</div>
+						<h3>{entry.title}</h3>
+					</summary>
 					<p>{entry.text}</p>
 					<div class="lesson">{entry.lesson}</div>
 					{#if entry.links}<div class="links">
@@ -68,7 +70,7 @@
 									rel="noreferrer">{link.title}<Icon name="right" size={12} /></a
 								>{/each}
 						</div>{/if}
-				</article>
+				</details>
 			{/each}
 		</section>
 		<section>
@@ -223,7 +225,7 @@
 	}
 	.section-label > span {
 		margin-left: auto;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.entry,
 	.observation {
@@ -234,13 +236,13 @@
 		display: flex;
 		align-items: center;
 		gap: 9px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		text-transform: uppercase;
 		color: var(--muted);
 	}
 	.meta time {
 		margin-left: auto;
-		font-size: 8px;
+		font-size: 12px;
 	}
 	.entry-id {
 		color: var(--accent);
@@ -252,7 +254,7 @@
 		margin: 11px 0 7px;
 	}
 	p {
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.75;
 		color: var(--muted);
 		margin: 0;
@@ -263,7 +265,7 @@
 		border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
 		border-radius: 5px;
 		background: var(--surface);
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.7;
 		color: var(--ink);
 	}
@@ -279,7 +281,7 @@
 		gap: 5px;
 		align-items: center;
 		color: var(--accent);
-		font-size: 10px;
+		font-size: 12px;
 		text-decoration: none;
 	}
 	.reference-card,
@@ -303,7 +305,7 @@
 		display: flex;
 		gap: 18px;
 		color: var(--muted);
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		margin: 12px 0 8px;
 	}
 	.run-stats b {
@@ -322,7 +324,7 @@
 	}
 	.field-note label {
 		display: block;
-		font-size: 11px;
+		font-size: 13px;
 		margin-bottom: 9px;
 	}
 	.field-note textarea {
@@ -353,6 +355,82 @@
 		}
 		.page-heading h1 {
 			font-size: 21px;
+		}
+	}
+
+	.journal {
+		max-width: 1440px;
+		padding: 36px 24px 64px;
+	}
+	.page-heading {
+		margin-bottom: 32px;
+	}
+	.page-heading h1 {
+		font-size: 30px;
+	}
+	.page-heading p {
+		font-size: 15px;
+	}
+	.journal-grid {
+		grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+		gap: 32px;
+	}
+	.journal-grid > section:first-child {
+		grid-row: span 2;
+	}
+	.entry {
+		padding: 20px;
+		margin-bottom: 12px;
+		border: 1px solid var(--line);
+		border-radius: 10px;
+	}
+	.entry summary {
+		list-style: none;
+	}
+	.entry summary::-webkit-details-marker {
+		display: none;
+	}
+	.entry summary h3 {
+		display: flex;
+		justify-content: space-between;
+		gap: 16px;
+		font-size: 17px;
+		margin: 12px 0 0;
+	}
+	.entry summary h3::after {
+		content: '+';
+		color: var(--muted);
+		font-weight: 400;
+	}
+	.entry[open] summary h3::after {
+		content: '−';
+	}
+	.entry p,
+	.entry .lesson {
+		font-size: 14px;
+		line-height: 1.8;
+		margin-top: 16px;
+	}
+	.reference-card,
+	.run-card,
+	.observation {
+		border-radius: 10px;
+		padding: 20px;
+	}
+	@media (max-width: 900px) {
+		.journal-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.journal-grid > section:first-child {
+			grid-row: auto;
+		}
+	}
+	@media (max-width: 600px) {
+		.journal {
+			padding: 24px 12px;
+		}
+		.entry {
+			padding: 16px;
 		}
 	}
 </style>

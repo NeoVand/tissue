@@ -223,12 +223,12 @@
 		align-items: center;
 		gap: 7px;
 		margin: 0;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 	}
 	.panel-heading > span {
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.unit-control {
 		display: flex;
@@ -239,14 +239,14 @@
 	}
 	.unit-control label {
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		margin-right: auto;
 	}
 	.unit-control input {
 		width: 73px;
 		padding: 6px;
 		text-align: center;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.unit-control button {
 		width: 23px;
@@ -264,7 +264,7 @@
 	}
 	.address span,
 	.address small {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.activation-summary {
@@ -274,7 +274,7 @@
 		padding: 8px 14px;
 	}
 	.activation-summary span {
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 	}
 	.activation-summary strong {
@@ -300,11 +300,11 @@
 	}
 	.activation-strip text {
 		fill: var(--muted);
-		font: 7px var(--mono);
+		font: 12px var(--mono);
 	}
 	.scale {
 		color: var(--muted);
-		font: 8px/1.6 var(--mono);
+		font: 12px/1.6 var(--mono);
 		margin: 7px 14px 12px;
 	}
 	.inspector-empty {
@@ -317,7 +317,7 @@
 		gap: 12px;
 		padding: 20px;
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.inspector-empty p {
 		margin: 0;
@@ -331,7 +331,7 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 8px;
-		font: 8px/1.4 var(--mono);
+		font: 12px/1.4 var(--mono);
 		color: var(--muted);
 		margin-bottom: 10px;
 	}
@@ -347,7 +347,7 @@
 		border: 1px solid transparent;
 		border-radius: 3px;
 		background: var(--surface-raised);
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		width: 18px;
 		height: 23px;
 		padding: 0;
@@ -368,13 +368,13 @@
 		margin: 7px 0;
 	}
 	.probabilities code {
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 		width: 15px;
 	}
 	.probabilities > div > span:last-child {
 		width: 38px;
 		text-align: right;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.probability-track {
@@ -396,11 +396,11 @@
 	}
 	.intervention > button {
 		width: 100%;
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.intervention > p {
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		line-height: 1.6;
 		margin: 9px 0 0;
 	}
@@ -414,15 +414,15 @@
 		display: flex;
 		justify-content: space-between;
 		padding: 4px 0;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 	}
 	.lesion-result code {
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.lesion-result > small {
 		display: block;
 		margin-top: 8px;
 		color: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 </style>

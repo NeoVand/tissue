@@ -1,7 +1,7 @@
 {
-	"capturedAt": "2026-09-17T18:20:17.731Z",
+	"capturedAt": "2026-09-18T04:34:23.431Z",
 	"image": "tissue-banner.png",
-	"imageSha256": "b41f5bca278aeb91c5ff76d5f780e02e04889663af40599a7c0619acb8e49151",
+	"imageSha256": "47a5cf22d8a521cf5f1a9455e084483d7c30485e22d9205d544857bdc062c25d",
 	"viewport": {
 		"width": 1600,
 		"height": 1120
@@ -28,5 +28,5 @@
 		"layerIndex": 2,
 		"selectedUnit": 1403
 	},
-	"url": "http://127.0.0.1:4180/tissue/?view=tinystories"
+	"url": "http://localhost:4173/?view=tinystories"
 }

@@ -150,13 +150,13 @@
 	}
 	.metric-strip span {
 		color: var(--muted);
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px;
 	}
 	.metric-strip span small {
-		font-size: 8px;
+		font-size: 12px;
 		opacity: 0.75;
 	}
 	.metric-strip strong {
@@ -165,7 +165,7 @@
 		font-weight: 450;
 	}
 	.metric-strip > div > small {
-		font: 8px/1.5 var(--mono);
+		font: 12px/1.5 var(--mono);
 		color: var(--muted);
 	}
 	.learning-curve {
@@ -183,12 +183,12 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 500;
 		margin: 0;
 	}
 	.chart-heading > span {
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	svg {
@@ -202,7 +202,7 @@
 	}
 	text {
 		fill: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	polyline {
 		fill: none;
@@ -229,7 +229,7 @@
 		display: flex;
 		gap: 14px;
 		flex-wrap: wrap;
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.legend span {
@@ -258,7 +258,7 @@
 		align-items: center;
 		justify-content: center;
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 	}
 	.compact .metric-strip {
 		border-bottom: 1px solid var(--line);

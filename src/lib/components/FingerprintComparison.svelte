@@ -86,7 +86,7 @@
 	.comparison {
 		padding: 12px 16px 10px;
 		color: var(--ink);
-		font-size: 11px;
+		font-size: 13px;
 		font-variant-numeric: tabular-nums;
 	}
 	header {
@@ -104,7 +104,7 @@
 	header > span {
 		flex-shrink: 0;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.table-scroll {
 		overflow-x: auto;
@@ -132,7 +132,7 @@
 		padding-top: 0;
 		padding-bottom: 6px;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	tbody {
 		border-top: 1px solid var(--line);
@@ -149,7 +149,7 @@
 	.map-name span {
 		margin-left: 8px;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.seed {
 		width: 32px;
@@ -162,12 +162,12 @@
 		display: block;
 		margin-top: 3px;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 	}
 	footer {
 		margin-top: 8px;
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.45;
 	}
 	footer p {

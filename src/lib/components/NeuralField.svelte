@@ -236,7 +236,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		font: 10px/1.2 var(--mono, 'IBM Plex Mono', monospace);
+		font: 12px/1.2 var(--mono, 'IBM Plex Mono', monospace);
 		pointer-events: none;
 	}
 	.field-heading {
@@ -252,14 +252,14 @@
 	.dimension {
 		color: var(--field-muted);
 		opacity: 0.6;
-		font-size: 9px;
+		font-size: 12px;
 		border-left: 1px solid var(--field-line);
 		padding-left: 8px;
 	}
 	.field-count {
 		right: 17px;
 		color: var(--field-muted);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.status-dot {
 		height: 4px;
@@ -289,7 +289,7 @@
 	}
 	.empty-field small {
 		max-width: 260px;
-		font-size: 11px;
+		font-size: 13px;
 		line-height: 1.6;
 	}
 	.view-caption {
@@ -303,10 +303,10 @@
 		color: var(--field-muted);
 	}
 	.view-caption > span {
-		font-size: 10px;
+		font-size: 12px;
 	}
 	.view-caption small {
-		font: 9px/1.2 var(--mono, monospace);
+		font: 12px/1.2 var(--mono, monospace);
 		opacity: 0.75;
 	}
 	.view-actions {
@@ -328,7 +328,7 @@
 		padding: 0 8px;
 		border-radius: 5px;
 		font-family: inherit;
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.2;
 		cursor: pointer;
 		transition:
@@ -359,7 +359,7 @@
 		padding: 9px 10px;
 		border-radius: 5px;
 		color: var(--field-ink);
-		font: 10px/1.4 var(--mono, monospace);
+		font: 12px/1.4 var(--mono, monospace);
 	}
 	.node-label > div {
 		display: flex;
@@ -372,7 +372,7 @@
 	.node-label small {
 		display: block;
 		margin-top: 4px;
-		font-size: 8px;
+		font-size: 12px;
 		color: var(--field-muted);
 	}
 	.selected-label {
@@ -382,7 +382,7 @@
 		pointer-events: none;
 		transform: translate(12px, -50%);
 		white-space: nowrap;
-		font: 9px/1 var(--mono, monospace);
+		font: 12px/1 var(--mono, monospace);
 		color: var(--field-muted);
 	}
 	.selected-label b {
@@ -413,7 +413,7 @@
 		.field-heading {
 			left: 12px;
 			gap: 5px;
-			font-size: 9px;
+			font-size: 12px;
 		}
 		.field-count {
 			right: 12px;

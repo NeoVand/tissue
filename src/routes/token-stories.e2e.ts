@@ -1,3 +1,4 @@
+import { tools, disclose } from './workspace-test-helpers';
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
@@ -9,6 +10,8 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	page.on('pageerror', (error) => errors.push(error.message));
 	page.on('worker', (worker) => workers.push(worker.url()));
 	await page.goto('/');
+	await tools(page, 'model');
+	await disclose(page, 'Training settings');
 	await expect(page.getByRole('button', { name: 'Start training', exact: true })).toBeEnabled({
 		timeout: 90_000
 	});
@@ -19,6 +22,7 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 		'aria-pressed',
 		'true'
 	);
+	await tools(lab, 'inspector');
 	await lab.locator('.prompt-probe > summary').click();
 	await expect(lab.getByText('All text fits.', { exact: false }).first()).toBeVisible({
 		timeout: 30_000
@@ -26,18 +30,31 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	// Production worker URLs are hashed. Count allocations rather than matching source paths.
 	expect(workers).toHaveLength(existingWorkerCount);
 	await expect(lab.locator('.tokenization .pieces span')).not.toHaveCount(0);
+	await tools(lab, 'model');
+	await disclose(lab, 'New model');
 	await lab.getByRole('button', { name: 'Initialize model', exact: true }).click();
 	const train = lab.getByRole('button', { name: 'Train', exact: true });
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 90_000 });
 	expect(workers.length).toBeGreaterThan(existingWorkerCount);
+	await disclose(lab, 'Measurement details');
 	await expect(lab.locator('.metric-strip').first()).toContainText('nats / token');
+	await tools(lab, 'inspector');
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('2047');
+	await tools(lab, 'inspector');
 	await expect(lab.getByText('layers.3.mlpFc1[:, 511]', { exact: true })).toBeVisible();
+	await tools(lab, 'inspector');
 	await expect(lab.getByText('layers.3.mlpFc2[511, :]', { exact: true })).toBeVisible();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await lab.locator('.transport').getByRole('button', { name: '25', exact: true }).click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await train.click();
 	await page.getByRole('button', { name: 'Characters', exact: true }).click();
 	const characters = page.locator('.story-lab');
+	await disclose(characters, 'New model');
 	await expect(
 		characters.getByRole('button', { name: 'Initialize model', exact: true })
 	).toBeDisabled();
@@ -45,21 +62,32 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 		characters.getByText('Another lab worker is active.', { exact: false })
 	).toBeVisible();
 	await page.getByRole('button', { name: 'Subword', exact: true }).click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 90_000 });
 	await expect(lab.locator('.timeline')).toContainText('Durable weights 25');
 
 	const prompt = 'Lily put the red ball in the box. Then she opened the box and saw';
+	await tools(lab, 'inspector');
+	await disclose(lab, 'Prompt probe');
 	await lab.getByLabel('Probe context', { exact: true }).fill(prompt);
 	await lab.getByRole('button', { name: 'Run prompt', exact: true }).click();
 	const silence = lab.getByRole('button', { name: 'Silence selected unit', exact: true });
+	await tools(lab, 'inspector');
 	await expect(silence).toBeEnabled({ timeout: 30_000 });
+	await tools(lab, 'inspector');
 	await expect(lab.getByText('Activity measured at step 25', { exact: true })).toBeVisible();
 	const originalPrompt = Array.from({ length: 12 }, () => prompt).join(' ');
+	await tools(lab, 'inspector');
+	await disclose(lab, 'Prompt probe');
 	await lab.getByLabel('Probe context', { exact: true }).fill(originalPrompt);
+	await tools(lab, 'inspector');
 	await expect(silence).toBeDisabled();
+	await tools(lab, 'inspector');
 	await expect(lab.getByText('Activity measured at step 25', { exact: true })).toHaveCount(0);
 	await expect(lab.getByText('This input is unmeasured.', { exact: false })).toBeVisible();
 	await lab.getByRole('button', { name: 'Run prompt', exact: true }).click();
+	await tools(lab, 'inspector');
 	await expect(silence).toBeEnabled({ timeout: 30_000 });
 	const positions = lab.locator('.token-grid button');
 	await expect(positions).toHaveCount(128);
@@ -70,12 +98,17 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	await expect(lab.getByText('Largest probability changes', { exact: true })).toBeVisible({
 		timeout: 30_000
 	});
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled();
+	await disclose(lab, 'Samples & evidence');
 	await lab
 		.locator('.sample-controls .segmented')
 		.getByRole('button', { name: '32', exact: true })
 		.click();
 	await lab.getByRole('button', { name: 'Sample', exact: true }).click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 60_000 });
 	await expect(lab.locator('.generated-tokens summary')).toContainText(
 		'Inspect generated token boundaries'
@@ -102,23 +135,37 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	expect(record.samples.at(-1).tokenIds.length).toBeLessThanOrEqual(32);
 	expect(record.samples.at(-1).pieces).toHaveLength(record.samples.at(-1).tokenIds.length);
 	await page.getByLabel('Import subword specimen', { exact: true }).setInputFiles(path);
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(lab.getByRole('button', { name: 'Resume step 25', exact: true })).toBeEnabled({
 		timeout: 60_000
 	});
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeDisabled();
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2);
+	await tools(lab, 'model');
 	await lab.getByRole('button', { name: 'Resume step 25', exact: true }).click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 90_000 });
+	await tools(lab, 'inspector');
+	await disclose(lab, 'Prompt probe');
 	await expect(lab.getByRole('button', { name: 'Run prompt', exact: true })).toBeEnabled();
+	await tools(lab, 'inspector');
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('2047');
+	await tools(lab, 'inspector');
 	await expect(lab.getByText('Activity measured at step 25', { exact: true })).toBeVisible();
 	await page.reload();
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2, { timeout: 30_000 });
 	await lab.locator('.archive-item:not(.reference)').first().click();
+	await tools(lab, 'model');
+	await disclose(lab, 'Training');
 	await expect(lab.getByRole('button', { name: 'Resume step 25', exact: true })).toBeEnabled({
 		timeout: 30_000
 	});
+	await tools(lab, 'inspector');
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('2047');
 	await expect(
 		lab.getByRole('img', {

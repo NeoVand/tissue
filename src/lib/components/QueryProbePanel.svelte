@@ -235,7 +235,7 @@
 		font-weight: 550;
 	}
 	h3 {
-		font-size: 11px;
+		font-size: 13px;
 		font-weight: 550;
 	}
 	.probe-controls {
@@ -252,7 +252,7 @@
 		border: 0;
 		border-radius: 3px;
 		padding: 5px 8px;
-		font-size: 10px;
+		font-size: 12px;
 		color: var(--muted);
 		background: transparent;
 	}
@@ -262,7 +262,7 @@
 	}
 	.stepper {
 		gap: 5px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	.stepper button {
@@ -291,7 +291,7 @@
 	.prompt-note,
 	.plot-note {
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.6;
 	}
 	.subtle {
@@ -307,12 +307,12 @@
 		white-space: nowrap;
 	}
 	.query-label {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--query-color);
 	}
 	code {
 		margin-right: auto;
-		font: 11px var(--mono);
+		font: 13px var(--mono);
 		letter-spacing: 0.04em;
 	}
 	code strong {
@@ -335,12 +335,12 @@
 		grid-template-columns: 35px 1fr 1fr;
 		gap: 8px;
 		margin-top: 17px;
-		font: 10px var(--mono);
+		font: 12px var(--mono);
 	}
 	.raw-stats > span:nth-child(2),
 	.raw-stats > span:nth-child(3) {
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 	}
 	.raw-stats strong {
 		font-weight: 500;
@@ -350,7 +350,7 @@
 		gap: 8px;
 	}
 	.plot-heading > span {
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 	}
 	svg {
@@ -375,11 +375,11 @@
 	}
 	svg text {
 		fill: var(--muted);
-		font: 8px var(--mono);
+		font: 12px var(--mono);
 	}
 	.plot-legend {
 		gap: 14px;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		color: var(--muted);
 		margin-bottom: 10px;
 		flex-wrap: wrap;
@@ -397,13 +397,13 @@
 	}
 	.zero-effects {
 		color: var(--muted);
-		font-size: 10px;
+		font-size: 12px;
 		line-height: 1.5;
 		margin-bottom: 8px;
 	}
 	.raw-values {
 		color: var(--muted);
-		font-size: 9px;
+		font-size: 12px;
 		margin-bottom: 10px;
 	}
 	summary {
@@ -413,7 +413,7 @@
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		font: 9px var(--mono);
+		font: 12px var(--mono);
 		margin: 7px 0;
 	}
 	caption {
@@ -437,7 +437,7 @@
 		justify-content: center;
 		gap: 12px;
 		color: var(--muted);
-		font-size: 11px;
+		font-size: 13px;
 	}
 	@media (max-width: 1050px) {
 		.section-heading {
@@ -449,7 +449,7 @@
 			padding: 8px;
 		}
 		code {
-			font-size: 10px;
+			font-size: 12px;
 		}
 	}
 	@media (max-width: 720px) {
