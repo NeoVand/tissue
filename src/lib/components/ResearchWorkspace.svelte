@@ -7,6 +7,9 @@
 		model,
 		inspector,
 		evidence,
+		externalControls = false,
+		topOffset = 104,
+		toolTitle = 'Model & runs',
 		panel = $bindable('model'),
 		collapsed = $bindable(false)
 	}: {
@@ -15,6 +18,9 @@
 		model: Snippet;
 		inspector: Snippet;
 		evidence?: Snippet;
+		externalControls?: boolean;
+		topOffset?: number;
+		toolTitle?: string;
 		panel?: 'model' | 'inspector';
 		collapsed?: boolean;
 	} = $props();
@@ -64,9 +70,11 @@
 <div
 	class="workspace"
 	class:collapsed
+	class:external-controls={externalControls}
 	class:dragging
 	bind:clientWidth={containerWidth}
 	style:--panel-width={`${displayedWidth}px`}
+	style:--tools-offset={`${topOffset}px`}
 >
 	<div class="workspace-main">
 		<div class="workspace-content">{@render children()}</div>
@@ -74,24 +82,26 @@
 	</div>
 	<div class="tools">
 		<div class="tool-switcher" role="group" aria-label={`${name} tools`}>
-			<button
-				class:chosen={panel === 'model' && !collapsed}
-				aria-pressed={panel === 'model' && !collapsed}
-				onclick={() => {
-					panel = 'model';
-					collapsed = false;
-					save();
-				}}><Icon name="layers" size={16} />Model & runs</button
-			>
-			<button
-				class:chosen={panel === 'inspector' && !collapsed}
-				aria-pressed={panel === 'inspector' && !collapsed}
-				onclick={() => {
-					panel = 'inspector';
-					collapsed = false;
-					save();
-				}}><Icon name="target" size={16} />Inspect</button
-			>
+			{#if externalControls}<strong>{toolTitle}</strong>{:else}
+				<button
+					class:chosen={panel === 'model' && !collapsed}
+					aria-pressed={panel === 'model' && !collapsed}
+					onclick={() => {
+						panel = 'model';
+						collapsed = false;
+						save();
+					}}><Icon name="layers" size={16} />Model & runs</button
+				>
+				<button
+					class:chosen={panel === 'inspector' && !collapsed}
+					aria-pressed={panel === 'inspector' && !collapsed}
+					onclick={() => {
+						panel = 'inspector';
+						collapsed = false;
+						save();
+					}}><Icon name="target" size={16} />Inspect</button
+				>
+			{/if}
 			<button
 				class="collapse-button"
 				aria-label={collapsed ? 'Expand tools' : 'Collapse tools'}
@@ -259,6 +269,24 @@
 	.collapsed .tool-switcher {
 		border-bottom: 0;
 	}
+	.tool-switcher > strong {
+		flex: 1;
+		font-size: 14px;
+		font-weight: 550;
+		padding-left: 8px;
+	}
+	.external-controls .tools {
+		top: var(--tools-offset);
+	}
+	.external-controls .tool-content {
+		max-height: calc(100dvh - var(--tools-offset) - 72px);
+	}
+	.external-controls.collapsed .tools {
+		display: none;
+	}
+	.external-controls.collapsed .workspace-main {
+		grid-row: 1;
+	}
 	@media (max-width: 1000px) {
 		.workspace {
 			grid-template-columns: minmax(0, 1fr);
@@ -269,7 +297,8 @@
 			position: static;
 			grid-row: 1;
 		}
-		.tool-content {
+		.tool-content,
+		.external-controls .tool-content {
 			max-height: 420px;
 		}
 		.resize-handle {

@@ -58,7 +58,10 @@
 		disabled?: boolean;
 		onbusy?: (busy: boolean) => void;
 	} = $props();
-	let toolsCollapsed = $state(false);
+	let toolsCollapsed = $state(true);
+	let interventionOpen = $state(false);
+	let trainingOpen = $state(false);
+	let commandHeight = $state(88);
 	let setupOpen = $state(false);
 	let toolPanel = $state<'model' | 'inspector'>('model');
 	type Phase =
@@ -647,6 +650,7 @@
 	function returnToProbe(): void {
 		clearPlaybackView();
 		probeOpen = true;
+		interventionOpen = false;
 		toolPanel = 'inspector';
 		toolsCollapsed = false;
 	}
@@ -1073,6 +1077,58 @@
 		}
 		if (record?.checkpoint && (phase === 'archived' || phase === 'error')) await resume();
 	}
+	function openTools(kind: 'model' | 'probe' | 'intervention' | 'train') {
+		toolPanel = kind === 'model' || kind === 'train' ? 'model' : 'inspector';
+		interventionOpen = kind === 'intervention';
+		probeOpen = kind === 'probe';
+		if (kind === 'train') {
+			trainingOpen = true;
+			setupOpen = !runtimeReady && !record?.checkpoint;
+		}
+		toolsCollapsed = false;
+	}
+	async function trainFromBar() {
+		if (phase === 'training') {
+			pause();
+			return;
+		}
+		if (ready) {
+			await train();
+			return;
+		}
+		openTools('train');
+	}
+	async function startReplay() {
+		if (blocked) return;
+		if (!playbackFrames.length) {
+			if (record) return;
+			const reference = references.find((item) => item.title.startsWith('Live replay'));
+			if (!reference) return;
+			await openReference(reference);
+		}
+		if (!blocked && playbackFrames.length) await replayTrace();
+	}
+	let canGenerate = $derived(
+		(ready || (canLoadModel && !blocked)) &&
+			Number.isInteger(samplingSeed) &&
+			samplingSeed >= 0 &&
+			samplingSeed <= 0xffffffff &&
+			Number.isFinite(temperature) &&
+			temperature >= 0.1 &&
+			temperature <= 2 &&
+			Number.isInteger(topK) &&
+			topK >= 1 &&
+			topK <= 256
+	);
+	let generationLabel = $derived(
+		playing
+			? `${playbackPaused ? 'Resume' : 'Pause'} ${phase === 'replaying' ? 'replay' : 'generation'}`
+			: runtimeReady
+				? 'Generate live'
+				: blocked
+					? 'Loading model…'
+					: 'Load & generate live'
+	);
 	async function startLive(): Promise<void> {
 		if (blocked) return;
 		if (!runtimeReady) await loadForInference();
@@ -1085,7 +1141,10 @@
 			return;
 		}
 		if (historical) await selectSnapshot(null);
+		const keepIntervention = interventionOpen;
 		returnToProbe();
+		interventionOpen = keepIntervention;
+		if (keepIntervention) probeOpen = false;
 		await inspectPrompt();
 	}
 	async function selectSnapshot(index: number | null): Promise<void> {
@@ -1229,7 +1288,7 @@
 	aria-label="Import subword specimen"
 />
 <div class="token-story-lab" data-active={active}>
-	<header class="token-story-toolbar">
+	<header class="token-story-toolbar" bind:clientHeight={commandHeight}>
 		<div class="lab-title">
 			<Icon name="book" size={21} />
 			<div>
@@ -1242,34 +1301,49 @@
 			</div>
 			<span class="study-label">Study 004</span>
 		</div>
-		{#if phase === 'training'}<button
-				class="secondary training-progress"
-				onclick={pause}
-				disabled={stopRequested}
-				><Icon name="pause" size={14} />Pause training · step {latestMetric?.step ?? 0}</button
-			>{/if}
-		{@render representation?.()}
-		<div class="file-controls">
+
+		<nav class="lab-actions" aria-label="TinyStories actions">
 			<button
-				class="icon-button"
-				onclick={saveNow}
-				disabled={!record || blocked}
-				aria-label="Save subword checkpoint"
-				title="Save latest evidence and checkpoint"><Icon name="check" size={15} /></button
-			><button
-				class="icon-button"
-				onclick={exportNow}
-				disabled={!record || busy}
-				aria-label="Export subword run"
-				title="Export binary .tissue specimen"><Icon name="download" size={15} /></button
-			><button
-				class="icon-button"
-				onclick={() => importInput?.click()}
-				disabled={blocked}
-				aria-label="Import subword run"
-				title="Import binary .tissue specimen"><Icon name="upload" size={15} /></button
+				class="primary generate-action"
+				onclick={playing ? togglePlaybackPause : startLive}
+				disabled={playing ? stopRequested : !canGenerate}
+				title={generationAvailability}
 			>
-		</div>
+				<Icon name={playing && !playbackPaused ? 'pause' : 'play'} size={17} />{generationLabel}
+			</button>
+			<button
+				onclick={startReplay}
+				disabled={blocked ||
+					(!playbackFrames.length &&
+						(!!record || !references.some((item) => item.title.startsWith('Live replay'))))}
+				title={record && !playbackFrames.length
+					? 'This specimen has no recorded trace. Generate live to record one.'
+					: 'Play measured activations without loading model weights'}
+				><Icon name="reset" size={17} />{record ? 'Replay trace' : 'Replay example'}</button
+			>
+			<button
+				onclick={trainFromBar}
+				disabled={phase === 'training' ? stopRequested : blocked}
+				title={ready
+					? 'Start training with the configured update budget'
+					: 'Set up or restore a model to train'}
+				><Icon name={phase === 'training' ? 'pause' : 'activity'} size={17} />{phase === 'training'
+					? 'Pause training'
+					: 'Train'}</button
+			>
+			<button
+				aria-pressed={!toolsCollapsed && toolPanel === 'inspector' && !interventionOpen}
+				onclick={() => openTools('probe')}><Icon name="search" size={17} />Probe</button
+			>
+			<button
+				aria-pressed={!toolsCollapsed && toolPanel === 'inspector' && interventionOpen}
+				onclick={() => openTools('intervention')}><Icon name="target" size={17} />Intervene</button
+			>
+			<button
+				aria-pressed={!toolsCollapsed && toolPanel === 'model'}
+				onclick={() => openTools('model')}><Icon name="settings" size={17} />Model</button
+			>
+		</nav>
 	</header>
 	{#if error || storageWarning}<div class="notice" role="alert">
 			<Icon name="info" size={14} /><span
@@ -1286,9 +1360,44 @@
 	{#if disabled}<div class="external-busy">
 			Another lab worker is active. Model operations here are paused until it finishes.
 		</div>{/if}
-	<ResearchWorkspace name="token-story" bind:panel={toolPanel} bind:collapsed={toolsCollapsed}>
+	<ResearchWorkspace
+		name="token-story"
+		topOffset={commandHeight + 16}
+		externalControls
+		toolTitle={toolPanel === 'model'
+			? 'Model & runs'
+			: interventionOpen
+				? 'Intervention'
+				: 'Prompt & unit inspection'}
+		bind:panel={toolPanel}
+		bind:collapsed={toolsCollapsed}
+	>
 		{#snippet model()}
 			<aside class="setup-panel">
+				<div class="model-utilities">
+					{@render representation?.()}
+					<div class="file-controls">
+						<button
+							class="icon-button"
+							onclick={saveNow}
+							disabled={!record || blocked}
+							aria-label="Save subword checkpoint"
+							title="Save latest evidence and checkpoint"><Icon name="check" size={15} /></button
+						><button
+							class="icon-button"
+							onclick={exportNow}
+							disabled={!record || busy}
+							aria-label="Export subword run"
+							title="Export binary .tissue specimen"><Icon name="download" size={15} /></button
+						><button
+							class="icon-button"
+							onclick={() => importInput?.click()}
+							disabled={blocked}
+							aria-label="Import subword run"
+							title="Import binary .tissue specimen"><Icon name="upload" size={15} /></button
+						>
+					</div>
+				</div>
 				<div class="resume-row">
 					{#if record?.checkpoint && !runtimeReady}<button
 							class="primary initialize"
@@ -1358,7 +1467,7 @@
 							</p>{/if}
 					</div>
 				</details>
-				<details class="lab-disclosure" open={runtimeReady}>
+				<details class="lab-disclosure" bind:open={trainingOpen}>
 					<summary>Training <small>Updates & checkpoints</small></summary>
 					<div class="transport">
 						<span>Training</span>
@@ -1373,21 +1482,76 @@
 						<small class="training-cadence"
 							>Map + checkpoint every {mapCadence} updates · pause saves current state</small
 						>
-						{#if phase === 'training'}<button
-								class="primary"
-								onclick={pause}
-								disabled={stopRequested}
-								><Icon name="pause" size={13} />{stopRequested ? 'Pausing…' : 'Pause'}</button
-							>{:else if phase === 'generating'}<button
+						{#if historical}<button
 								class="secondary"
-								onclick={pause}
-								disabled={stopRequested}
-								><Icon name="pause" size={13} />{stopRequested
-									? 'Stopping…'
-									: 'Stop sampling'}</button
-							>{:else}<button class="primary" onclick={train} disabled={!ready}
-								><Icon name="play" size={13} />Train</button
+								onclick={() => selectSnapshot(null)}
+								disabled={blocked}>Return to latest checkpoint</button
 							>{/if}
+						<p class="training-help">
+							{historical
+								? 'Training continues from the latest checkpoint. Return to it before starting.'
+								: runtimeReady
+									? 'Use Train in the action bar. Pause saves the current weights and measurements.'
+									: 'Initialize a model or restore a saved checkpoint, then use Train in the action bar.'}
+						</p>
+					</div>
+				</details>
+				<details class="lab-disclosure">
+					<summary>Generation settings <small>Sampling & batch comparison</small></summary>
+					<div class="sample-controls">
+						<span class="batch-caption"
+							>Settings apply to the next generation. Sample runs a batch without a live trace.</span
+						>
+						<label for="token-story-sample-prompt">Sampling prompt</label><input
+							id="token-story-sample-prompt"
+							bind:value={samplePrompt}
+							maxlength="100000"
+							disabled={blocked}
+						/><label for="token-story-sampling-seed">Seed</label><input
+							id="token-story-sampling-seed"
+							type="number"
+							min="0"
+							max="4294967295"
+							bind:value={samplingSeed}
+							disabled={blocked}
+						/><label for="token-story-temperature">Temperature</label><input
+							id="token-story-temperature"
+							type="number"
+							min="0.1"
+							max="2"
+							step="0.1"
+							bind:value={temperature}
+							disabled={blocked}
+						/>
+						<label for="token-story-top-k">Top-k</label><input
+							id="token-story-top-k"
+							type="number"
+							min="1"
+							max="256"
+							bind:value={topK}
+							disabled={blocked}
+						/>
+						<div class="segmented">
+							{#each [32, 64, 128, 256] as length (length)}<button
+									class:chosen={sampleLength === length}
+									onclick={() => (sampleLength = length)}
+									disabled={blocked}>{length}</button
+								>{/each}
+						</div>
+						<button
+							class="secondary"
+							onclick={generate}
+							disabled={!ready ||
+								!Number.isInteger(topK) ||
+								topK < 1 ||
+								topK > 256 ||
+								!Number.isInteger(samplingSeed) ||
+								samplingSeed < 0 ||
+								samplingSeed > 0xffffffff ||
+								!Number.isFinite(temperature) ||
+								temperature < 0.1 ||
+								temperature > 2}><Icon name="play" size={12} />Sample</button
+						>
 					</div>
 				</details>
 				<div class="archive-panel">
@@ -1441,6 +1605,38 @@
 			</aside>
 		{/snippet}
 		<main class="token-story-main">
+			<TokenStoryLivePanel
+				prompt={samplePrompt}
+				sample={liveGeneration ? null : sample}
+				{tokenizer}
+				frame={activityFrame}
+				frames={playbackFrames}
+				layer={playbackLayer}
+				layers={config.layers}
+				{selected}
+				tokens={playbackTokens}
+				prefix={playbackPrompt}
+				running={liveGeneration && phase === 'generating'}
+				replaying={phase === 'replaying'}
+				paused={playbackPaused}
+				stopping={stopRequested && playing}
+				complete={playbackComplete}
+				{blocked}
+				availability={generationAvailability}
+				pace={playbackPace}
+				limit={sampleLength}
+				{temperature}
+				{samplingSeed}
+				{topK}
+				onprompt={(text) => (samplePrompt = text)}
+				onnextlayer={nextPlaybackLayer}
+				onnexttoken={nextPlaybackToken}
+				onstop={stopPlayback}
+				onpace={setPlaybackPace}
+				onlayer={(layer) => (playbackLayer = layer)}
+				onframe={inspectPlaybackFrame}
+				onclear={returnToProbe}
+			/>
 			<div class="view-toolbar">
 				<div class="segmented">
 					<button
@@ -1523,86 +1719,13 @@
 						<p>
 							{busy
 								? status
-								: 'Generate text with the trained example and watch each token move through its measured layers. Or replay a saved trace without loading weights.'}
+								: 'Choose Generate live above to load the trained model, or Replay trace to explore recorded activations immediately. Open Model to build and train your own.'}
 						</p>
-						{#if !busy}<div class="welcome-actions">
-								<button class="primary" onclick={startLive} disabled={!canLoadModel || blocked}
-									>Generate with trained model</button
-								>
-								<button
-									class="secondary"
-									disabled={!references.length || blocked}
-									onclick={() => {
-										const reference = references.find((item) =>
-											item.title.startsWith('Live replay')
-										);
-										if (reference) void openReference(reference);
-									}}>Open recorded replay</button
-								>
-								<button
-									class="secondary"
-									onclick={() => {
-										toolPanel = 'model';
-										toolsCollapsed = false;
-										setupOpen = true;
-									}}>Set up a model</button
-								>
-							</div>{/if}
 						<div>
 							{unitCount.toLocaleString()} MLP channels <span>×</span> 128 calibration coordinates
 						</div>
 					</div>{/if}
 			</div>
-			<TokenStoryLivePanel
-				prompt={samplePrompt}
-				sample={liveGeneration ? null : sample}
-				{tokenizer}
-				frame={activityFrame}
-				frames={playbackFrames}
-				layer={playbackLayer}
-				layers={config.layers}
-				{selected}
-				tokens={playbackTokens}
-				prefix={playbackPrompt}
-				running={liveGeneration && phase === 'generating'}
-				replaying={phase === 'replaying'}
-				paused={playbackPaused}
-				stopping={stopRequested && playing}
-				complete={playbackComplete}
-				{blocked}
-				startLabel={runtimeReady
-					? 'Generate live'
-					: blocked
-						? 'Loading model…'
-						: 'Load & generate live'}
-				availability={generationAvailability}
-				canStart={(ready || (canLoadModel && !blocked)) &&
-					Number.isInteger(samplingSeed) &&
-					samplingSeed >= 0 &&
-					samplingSeed <= 0xffffffff &&
-					Number.isFinite(temperature) &&
-					temperature >= 0.1 &&
-					temperature <= 2 &&
-					Number.isInteger(topK) &&
-					topK >= 1 &&
-					topK <= 256}
-				pace={playbackPace}
-				limit={sampleLength}
-				{temperature}
-				{samplingSeed}
-				{topK}
-				onprompt={(text) => (samplePrompt = text)}
-				onstart={startLive}
-				onpause={togglePlaybackPause}
-				onnextlayer={nextPlaybackLayer}
-				onnexttoken={nextPlaybackToken}
-				onstop={stopPlayback}
-				onpace={setPlaybackPace}
-				onlayer={(layer) => (playbackLayer = layer)}
-				onframe={inspectPlaybackFrame}
-				onreplay={replayTrace}
-				onclear={returnToProbe}
-			/>
 			{#if snapshot}<div class="map-context">
 					<span
 						>{viewMode === 'functional'
@@ -1701,7 +1824,7 @@
 			</details>
 		</main>
 		{#snippet inspector()}
-			<details class="prompt-probe" bind:open={probeOpen}>
+			<details class="prompt-probe" bind:open={probeOpen} hidden={interventionOpen}>
 				<summary>Prompt probe <span>Inspect every input position</span></summary>
 				<div class="probe-input">
 					<div class="prompt-seeds">
@@ -1732,6 +1855,7 @@
 			</details>
 			<div class="token-story-inspector">
 				<TokenStoryProbePanel
+					interventionFirst={interventionOpen}
 					liveFrame={activityFrame}
 					{tokenizer}
 					atlas={snapshot?.atlas ?? null}
@@ -1784,59 +1908,7 @@
 								<span>{record?.observations.length ?? 0}</span></button
 							>
 						</div>
-						{#if footerTab === 'samples'}<div class="sample-controls">
-								<span class="batch-caption">Batch sampling · no live trace</span>
-								<label for="token-story-sample-prompt">Sampling prompt</label><input
-									id="token-story-sample-prompt"
-									bind:value={samplePrompt}
-									maxlength="100000"
-									disabled={blocked}
-								/><label for="token-story-sampling-seed">Seed</label><input
-									id="token-story-sampling-seed"
-									type="number"
-									min="0"
-									max="4294967295"
-									bind:value={samplingSeed}
-									disabled={blocked}
-								/><label for="token-story-temperature">Temperature</label><input
-									id="token-story-temperature"
-									type="number"
-									min="0.1"
-									max="2"
-									step="0.1"
-									bind:value={temperature}
-									disabled={blocked}
-								/>
-								<label for="token-story-top-k">Top-k</label><input
-									id="token-story-top-k"
-									type="number"
-									min="1"
-									max="256"
-									bind:value={topK}
-									disabled={blocked}
-								/>
-								<div class="segmented">
-									{#each [32, 64, 128, 256] as length (length)}<button
-											class:chosen={sampleLength === length}
-											onclick={() => (sampleLength = length)}
-											disabled={blocked}>{length}</button
-										>{/each}
-								</div>
-								<button
-									class="secondary"
-									onclick={generate}
-									disabled={!ready ||
-										!Number.isInteger(topK) ||
-										topK < 1 ||
-										topK > 256 ||
-										!Number.isInteger(samplingSeed) ||
-										samplingSeed < 0 ||
-										samplingSeed > 0xffffffff ||
-										!Number.isFinite(temperature) ||
-										temperature < 0.1 ||
-										temperature > 2}><Icon name="play" size={12} />Sample</button
-								>
-							</div>
+						{#if footerTab === 'samples'}
 							<TokenStoryTokenization
 								text={samplePrompt}
 								{tokenizer}
@@ -2078,9 +2150,6 @@
 	.transport > span {
 		color: var(--muted);
 		font: 12px var(--mono);
-	}
-	.transport > button {
-		min-width: 83px;
 	}
 	.file-controls {
 		gap: 3px;
@@ -2772,7 +2841,7 @@
 		flex: 1;
 	}
 	.token-story-toolbar {
-		padding: 22px 24px;
+		padding: 16px 24px;
 		background: var(--bg);
 		border-bottom: 0;
 		flex-wrap: wrap;
@@ -2886,7 +2955,7 @@
 	}
 	.token-story-field,
 	.token-story-field.live-view {
-		height: clamp(270px, calc(100dvh - 480px), 600px);
+		height: clamp(320px, calc(100dvh - 490px), 720px);
 	}
 	.token-story-lower {
 		grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr);
@@ -2963,17 +3032,6 @@
 		}
 	}
 
-	.welcome-actions {
-		display: flex;
-		justify-content: center;
-		gap: 10px;
-		flex-wrap: wrap;
-		margin: 20px 0;
-	}
-	.training-progress {
-		margin-left: auto;
-	}
-
 	@media (max-width: 700px) {
 		.preset-list {
 			flex-direction: column;
@@ -2998,5 +3056,41 @@
 		.corpus-card {
 			display: block;
 		}
+	}
+	.token-story-toolbar {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background: var(--bg);
+		min-height: 88px;
+		gap: 16px;
+	}
+	.model-utilities {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		padding: 14px;
+		flex-wrap: wrap;
+		border-bottom: 1px solid var(--line);
+	}
+	.training-help {
+		color: var(--muted);
+		line-height: 1.6;
+		margin: 0;
+		font-size: 13px;
+	}
+	.setup-panel .sample-controls {
+		display: flex;
+		flex-wrap: wrap;
+		padding: 16px;
+		gap: 10px;
+	}
+	.setup-panel .sample-controls label {
+		width: 100%;
+	}
+	.setup-panel .sample-controls input {
+		width: 100%;
+		min-width: 0;
 	}
 </style>

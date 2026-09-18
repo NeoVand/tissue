@@ -22,6 +22,7 @@ test('TinyStories reference resumes real weights, records interventions, trains,
 		timeout: 90000
 	});
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Characters', exact: true }).click();
 	const lab = page.locator('.story-lab');
 	await lab.getByRole('button', { name: /TinyStories small.*Reference/ }).click();
@@ -102,6 +103,7 @@ test('TinyStories reference resumes real weights, records interventions, trains,
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2);
 	await page.reload();
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Characters', exact: true }).click();
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2, { timeout: 30000 });
 	expect(errors).toEqual([]);
@@ -117,6 +119,7 @@ test('large model reference exposes every unit and remains explicitly inspection
 		timeout: 90000
 	});
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Characters', exact: true }).click();
 	const lab = page.locator('.story-lab');
 	await lab.getByRole('button', { name: /TinyStories large.*Reference/ }).click();

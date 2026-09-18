@@ -116,8 +116,9 @@ model; a generation trace always refers to one fixed checkpoint.
 
 ## Recorded example
 
-Open **Live replay · TinyStories BPE small at 4096** under Recorded specimens,
-then choose **Replay trace** or a recorded token. This 5.90 MB inspection-only
+On a fresh TinyStories visit, choose **Replay example** in the top action bar.
+Or open **Model → Live replay · TinyStories BPE small at 4096**, then choose
+**Replay trace** or expand **Recorded tokens** above the network. This 5.90 MB inspection-only
 archive requires no model allocation. Its 24 WebGPU frames were captured from the
 original 1.85M-parameter checkpoint with prefix `Once upon a time`, seed 71,
 temperature 0.8 and top-k 40. The completion is:

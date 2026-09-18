@@ -2,6 +2,13 @@
 	import ResearchWorkspace from '$lib/components/ResearchWorkspace.svelte';
 	let toolsCollapsed = $state(false);
 	let toolPanel = $state<'model' | 'inspector'>('model');
+	let bindingTrainingOpen = $state(false);
+	let repairSetup = $state(false);
+	let commandHeight = $state(92);
+	function openBindingTools(panel: 'model' | 'inspector') {
+		toolPanel = panel;
+		toolsCollapsed = false;
+	}
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { publicAsset } from '$lib/deployment/public-assets';
@@ -915,7 +922,7 @@
 			/>
 		</div>{/if}
 	{#if tab === 'observatory'}
-		<div class="command-bar">
+		<div class="command-bar" bind:clientHeight={commandHeight}>
 			<div class="study-title">
 				<span class="study-icon"><Icon name="network" size={19} /></span>
 				<div>
@@ -927,32 +934,73 @@
 					>
 				</div>
 			</div>
-			<div class="file-actions">
+			<div class="lab-actions" role="toolbar" aria-label="Binding actions">
 				<button
-					class="secondary"
+					class="primary"
+					onclick={phase === 'training' ? pause : train}
+					disabled={phase !== 'training' && (!ready || !run)}
+					><Icon name={phase === 'training' ? 'pause' : 'activity'} size={17} />{phase ===
+					'training'
+						? 'Pause training'
+						: metrics?.step
+							? 'Continue training'
+							: 'Start training'}</button
+				>
+				<button
+					onclick={() => openBindingTools('inspector')}
+					aria-pressed={!toolsCollapsed && toolPanel === 'inspector'}
+					><Icon name="search" size={17} />Probe</button
+				>
+				<button
+					onclick={() => {
+						if (snapshot?.effect) mode = 'effect';
+						else interventionSetup = true;
+					}}><Icon name="target" size={17} />Intervene</button
+				>
+				<button
+					onclick={() => {
+						repairSetup = !repairSetup;
+						openBindingTools('inspector');
+					}}><Icon name="flask" size={17} />Repair</button
+				>
+				<button
+					onclick={() => openBindingTools('model')}
+					aria-pressed={!toolsCollapsed && toolPanel === 'model'}
+					><Icon name="settings" size={17} />Model</button
+				>
+				<button
 					onclick={() => {
 						storyVisited = true;
 						tab = 'stories';
-					}}><Icon name="play" size={14} />Generate stories</button
-				>
-				<button
-					class="icon-button"
-					onclick={() => run && exportRun(run)}
-					disabled={!run?.checkpoint || busy}
-					aria-label="Export experiment"
-					title="Export experiment"><Icon name="download" /></button
-				><button
-					class="icon-button"
-					onclick={() => importInput.click()}
-					disabled={busy}
-					aria-label="Import experiment"
-					title="Import experiment"><Icon name="upload" /></button
+					}}><Icon name="play" size={17} />Generate stories</button
 				>
 			</div>
 		</div>
-		<ResearchWorkspace name="binding" bind:panel={toolPanel} bind:collapsed={toolsCollapsed}>
+		<ResearchWorkspace
+			name="binding"
+			topOffset={commandHeight + 16}
+			externalControls
+			toolTitle={toolPanel === 'model' ? 'Model & runs' : 'Prompt & unit inspection'}
+			bind:panel={toolPanel}
+			bind:collapsed={toolsCollapsed}
+		>
 			{#snippet model()}
 				<aside class="model-sidebar">
+					<div class="file-actions">
+						<button
+							class="icon-button"
+							onclick={() => run && exportRun(run)}
+							disabled={!run?.checkpoint || busy}
+							aria-label="Export experiment"
+							title="Export experiment"><Icon name="download" /></button
+						><button
+							class="icon-button"
+							onclick={() => importInput.click()}
+							disabled={busy}
+							aria-label="Import experiment"
+							title="Import experiment"><Icon name="upload" /></button
+						>
+					</div>
 					<div class="panel-title">
 						<Icon name="layers" size={14} />
 						<h2>Model anatomy</h2>
@@ -1009,7 +1057,7 @@
 							>The atlas represents MLP channels. Select a block to isolate its units.</span
 						>
 					</div>
-					<details class="lab-disclosure">
+					<details class="lab-disclosure" bind:open={bindingTrainingOpen}>
 						<summary>Training settings</summary>
 						<div class="training-controls">
 							<span class="control-label">Updates</span>
@@ -1020,18 +1068,42 @@
 										onclick={() => (budget = steps)}>{steps.toLocaleString()}</button
 									>{/each}
 							</div>
-							{#if phase === 'training'}<button class="primary train" onclick={pause}
-									><Icon name="pause" size={13} />Pause training</button
-								>{:else}<button class="primary train" onclick={train} disabled={!ready || !run}
-									><Icon name="play" size={13} />{metrics?.step
-										? 'Continue training'
-										: 'Start training'}</button
-								>{/if}
 						</div>
 					</details>
 				</aside>
 			{/snippet}
 			<section class="spatial-panel">
+				{#if repairSetup}<div
+						class="action-setup"
+						role="region"
+						aria-label="Repair experiment setup"
+					>
+						<div>
+							<strong>Compare repair neighborhoods</strong>
+							<p>
+								{!run?.atlas?.effectFingerprints
+									? 'Measure the intervention atlas first to compare functional, causal, geometric and random neighborhoods.'
+									: selected === null
+										? 'Select a unit in the map or inspector to use as the lesion target.'
+										: `Lesion unit ${selected}, then compare four repair neighborhoods with the same training budget.`}
+							</p>
+						</div>
+						{#if !run?.atlas?.effectFingerprints}<button
+								class="secondary"
+								onclick={measureEffects}
+								disabled={!ready || !run || historical}>Measure intervention atlas</button
+							>{:else}<button
+								class="primary"
+								onclick={compareRepair}
+								disabled={!ready || selected === null || historical}
+								>Compare repair neighborhoods</button
+							>{/if}
+						<button
+							class="icon-button"
+							onclick={() => (repairSetup = false)}
+							aria-label="Close repair setup"><Icon name="close" /></button
+						>
+					</div>{/if}
 				<div class="map-toolbar">
 					<div class="segmented" aria-label="Coordinate system">
 						<button class:chosen={layout === 'functional'} onclick={() => (layout = 'functional')}
@@ -1281,6 +1353,7 @@
 							><Icon name="grid" size={13} />Measure all effects</button
 						><button
 							class="text-button repair-action"
+							hidden={repairSetup}
 							onclick={compareRepair}
 							disabled={!ready ||
 								selected === null ||
@@ -1746,9 +1819,6 @@
 		font: 12px var(--mono);
 		min-height: 22px;
 		padding: 3px 9px;
-	}
-	.train {
-		min-width: 139px;
 	}
 	.file-actions {
 		display: flex;
@@ -2717,5 +2787,38 @@
 		.learning-panel {
 			padding: 16px;
 		}
+	}
+	.command-bar {
+		flex-wrap: wrap;
+		min-width: 0;
+		position: sticky;
+		top: 0;
+		z-index: 20;
+		background: var(--bg);
+		padding: 16px 24px;
+		gap: 16px;
+	}
+	.model-sidebar > .file-actions {
+		padding: 12px 16px;
+		justify-content: flex-end;
+		border-bottom: 1px solid var(--line);
+	}
+	.action-setup {
+		padding: 18px;
+		border-bottom: 1px solid var(--line);
+		display: flex;
+		gap: 16px;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+	.action-setup > div {
+		flex: 1;
+		min-width: 240px;
+	}
+	.action-setup p {
+		color: var(--muted);
+		line-height: 1.6;
+		margin: 8px 0 0;
+		font-size: 14px;
 	}
 </style>

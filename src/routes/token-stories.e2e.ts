@@ -18,12 +18,13 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	const existingWorkerCount = workers.length;
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
 	const lab = page.locator('.token-story-lab');
+	await tools(lab, 'model');
 	await expect(page.getByRole('button', { name: 'Subword', exact: true })).toHaveAttribute(
 		'aria-pressed',
 		'true'
 	);
 	await tools(lab, 'inspector');
-	await lab.locator('.prompt-probe > summary').click();
+	await disclose(lab, 'Prompt probe');
 	await expect(lab.getByText('All text fits.', { exact: false }).first()).toBeVisible({
 		timeout: 30_000
 	});
@@ -52,6 +53,7 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
 	await train.click();
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Characters', exact: true }).click();
 	const characters = page.locator('.story-lab');
 	await disclose(characters, 'New model');
@@ -101,6 +103,8 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled();
+	await tools(lab, 'model');
+	await disclose(lab, 'Generation settings');
 	await disclose(lab, 'Samples & evidence');
 	await lab
 		.locator('.sample-controls .segmented')
@@ -114,6 +118,7 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 		'Inspect generated token boundaries'
 	);
 	const download = page.waitForEvent('download');
+	await tools(lab, 'model');
 	await lab.getByRole('button', { name: 'Export subword run', exact: true }).click();
 	const path = testInfo.outputPath('subword.tissue');
 	await (await download).saveAs(path);
@@ -142,7 +147,9 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	});
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
-	await expect(train).toBeDisabled();
+	// Train now opens restoration/setup when no weights are resident.
+	await train.click();
+	await expect(lab.getByRole('button', { name: 'Resume step 25', exact: true })).toBeVisible();
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2);
 	await tools(lab, 'model');
 	await lab.getByRole('button', { name: 'Resume step 25', exact: true }).click();
@@ -159,6 +166,7 @@ test('subword lab trains, probes token positions, records exact ablation, sample
 	await page.reload();
 	await page.getByRole('button', { name: 'TinyStories', exact: true }).click();
 	await expect(lab.locator('.archive-item:not(.reference)')).toHaveCount(2, { timeout: 30_000 });
+	await tools(lab, 'model');
 	await lab.locator('.archive-item:not(.reference)').first().click();
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');

@@ -10,11 +10,12 @@ _An actual 1.85M-parameter TinyStories BPE model at training step 4,096. Positio
 
 ## Start with a trained model
 
-1. Open **TinyStories → Subword → Model & runs**, then the recorded specimen **Live replay · TinyStories BPE small at 4096**. Choose **Replay trace** to explore 24 measured token frames. No model allocation or training is required.
-2. Switch between **Functional** and **Model layout**, select a channel, and inspect its exact activation. Pause, advance a layer or token, and compare the raw next-token probabilities.
-3. To generate your own continuation, enter a prefix and choose **Load & generate live**. This loads the trained example (or your open specimen's saved weights) and starts generation. The same button pauses and resumes it. Or initialize a fresh model and watch it train.
+1. Open **TinyStories** and choose **Replay example** in the top action bar. It loads and plays 24 measured token frames without allocating a model. The same primary button pauses and resumes playback.
+2. Switch between **Functional** and **Model layout**. Select a channel or choose **Probe** to inspect its exact activation. **Next layer** and **Next token** sit above the network; recorded tokens and raw probabilities are available in the console's disclosures.
+3. To generate your own continuation, stop replay, edit the prompt above the network, and choose **Load & generate live**. It restores the open specimen's weights or loads the trained example, then shows the continuation token by token.
+4. Use **Train** to start or pause a resident model. **Model** contains initialization, saved runs, continuous/finite training settings, generation settings, import/export, and the character-model comparison. **Intervene** opens single-unit ablation controls and explains any preparation needed.
 
-Drag the tools-panel divider to resize it, or collapse it to give the network more room. **Inspect** holds prompt probes and channel details; **Measurement details** and **Samples & evidence** reveal projection diagnostics, training curves, and run history.
+The network gets the full workspace until you open tools. Drag the tools-panel divider to resize it, or close it to regain the canvas width. **Measurement details** and **Samples & evidence** below the network retain projection diagnostics, training curves, and run history.
 
 The replay specimen contains measurements only. The original specimen contains the trained weights. WebGPU is preferred for training and inference; the compact preset also supports WASM. The first model operation compiles kernels and takes longer than subsequent ones.
 

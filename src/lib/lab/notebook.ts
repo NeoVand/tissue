@@ -11,6 +11,21 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '024',
+		date: '2026-09-18',
+		kind: 'decision',
+		title: 'Put the experiments in the action bar.',
+		text: 'The previous polish still buried the work beneath the network. TinyStories now starts with Generate, Replay, Train, Probe, Intervene and Model in its top action bar. Its prompt, live text and layer transport sit above the canvas. Tools open on demand, and intervention controls move to the top when requested. The binding workbench exposes training, probing, intervention and repair from the same level.',
+		lesson:
+			'Progressive disclosure should hide configuration, not the purpose of the instrument. A replay can begin immediately from a fresh visit; generating new text still requires real model weights. Controls preserve the selected geometry, channel identities, raw frame values and the original evidence archive.',
+		links: [
+			{
+				title: 'Action hierarchy and visual verification',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/interface-audit.md'
+			}
+		]
+	},
+	{
 		id: '023',
 		date: '2026-09-18',
 		kind: 'decision',

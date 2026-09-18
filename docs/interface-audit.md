@@ -2,7 +2,7 @@
 
 The lab had accumulated four competing control bands above the TinyStories canvas, two fixed narrow sidebars, and labels as small as 7–9 px. Initialization, live generation, batch sampling, projection diagnostics, and experiment history all appeared at once. Researchers had to read the instrument's implementation before finding the model.
 
-## Working hierarchy
+## First-pass hierarchy
 
 - **Navigation:** one lab-wide navigation row. Subword/character selection sits beside the TinyStories title; it no longer occupies a separate navigation band.
 - **Model context:** parameter count, layer count, and the measured checkpoint remain visible above the workspace. The canvas toolbar controls only the visualization.
@@ -27,7 +27,7 @@ The binding model's **Intervention** control opens a short explanation and a **M
 
 The correction passed seven browser workflows, including a fresh one-action model load/generation followed by a measured single-unit ablation. A layout assertion checks a gap of at most 20 px in both tools-panel views, and the new intervention-map action computes real effects. Type checking and the static Pages worker/checkpoint smoke test also passed.
 
-## Verification scope
+## First-pass verification scope
 
 The UI regression suite exercises panel resizing with both pointer and keyboard, collapse/expand, persisted width, measured replay values across view changes, light mode, and a narrow viewport with evidence expanded. Existing end-to-end tests follow the new disclosure paths for training, prompt probes, intervention, export/import, and resume. The Pages smoke test also exercises those paths against the actual static deployment.
 
@@ -41,3 +41,19 @@ Validation for this revision:
 - The refreshed 3,200 × 2,240 README banner is an actual browser capture of the published step-4096 model. Its measurement source and image hash are recorded in `docs/assets/tissue-banner.json`.
 
 This is an instrument design change, not a new scientific result. Training code, recorded activations, projection algorithms, checkpoint weights, and historical provenance are unchanged. The 3D map remains PCA; similarity edges do not represent model connections. Paced layer playback still presents measured values rather than GPU execution timing.
+
+## Action-first revision · September 18
+
+The first two passes improved spacing and prerequisite messages but left the main experiments near the bottom. That failed the central task: running a model while watching its network. The revised hierarchy starts with actions:
+
+- **TinyStories:** Generate / Pause / Resume, Replay trace, Train / Pause training, Probe, Intervene and Model share one study action bar. A fresh visit offers Replay example, which loads and plays the measured reference without allocating weights. Once a different specimen is open, replay never silently replaces it.
+- **Console:** the prompt, emitted text, layer transport and selected raw value sit above the canvas. Playback settings, recorded-token selection and full probability evidence expand in place. Sampling parameters and batch comparison live under Model → Generation settings.
+- **Tools:** the TinyStories tools panel starts closed. Model, Probe and Intervene open the appropriate content; the panel header is a title and close control rather than a second navigation bar. Resizing remains available. Intervene puts preparation and ablation controls directly below the unit picker, preserving the reason an action may be unavailable.
+- **Binding:** training, probing, intervention-map setup and repair setup are available in its action bar. Repair explains whether an intervention atlas or a selected lesion target is needed before comparison.
+- **Continuity:** Generate keeps one button element while its action changes to Pause or Resume. Opening tools preserves the selected unit and measured replay frame. Projection caveats remain beside the network, and evidence still follows the canvas without inheriting the sidebar height.
+
+The character-model comparison retains its existing study controls. This revision concentrates the new interaction hierarchy on the live subword lab and binding workbench; it does not change model computation or historical measurements.
+
+A laptop regression checks that the action bar, full network and layer transport are in view at 1,280 × 850, and that Intervene reveals its controls without scrolling through the inspector. Desktop/light/mobile browser captures accompany the replay, resizing, generation, training and ablation workflows. The README banner is recaptured from the actual published trained specimen.
+
+Validation for the action-bar revision: all 17 browser workflows passed across the initial run and the corrected rerun; the six workflows covering final layout and navigation changes were rerun together. These include actual checkpoint loading, live generation, pause/step/stop, exact single-unit ablation, continuous training, archive round-trips, and a retained replay value of 1.8640 for unit 1403. Svelte/type checks reported no errors or warnings, the component autofixer returned no issues or suggestions, and lint passed. The GitHub Pages build passed its strict static-server replay, WASM checkpoint restoration and worker-path checks with no page errors or failed requests.

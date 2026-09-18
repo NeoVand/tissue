@@ -192,6 +192,7 @@ test('measured specimen survives inspection, export, and reload', async ({ page 
 	await expect(page.getByText('E2E: an observation retained with this specimen.')).toBeVisible();
 	await page.getByRole('button', { name: 'Workbench', exact: true }).click();
 	const downloadPromise = page.waitForEvent('download');
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Export experiment' }).click();
 	const download = await downloadPromise;
 	const artifact = testInfo.outputPath('experiment.json');
@@ -305,6 +306,7 @@ test('a failed capture preserves evidence and requires checkpoint recovery', asy
 	await page.getByLabel('Neuron ID', { exact: true }).fill('172');
 	await expect(page.getByRole('button', { name: 'Silence selected unit' })).toBeDisabled();
 	const receipt = page.waitForEvent('download');
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Export experiment' }).click();
 	const failedPath = testInfo.outputPath('interrupted-evidence.json');
 	await (await receipt).saveAs(failedPath);
@@ -319,6 +321,7 @@ test('a failed capture preserves evidence and requires checkpoint recovery', asy
 	});
 	await expect(page.getByTestId('step')).toHaveText('0');
 	const recoveredReceipt = page.waitForEvent('download');
+	await tools(page, 'model');
 	await page.getByRole('button', { name: 'Export experiment' }).click();
 	const recoveredPath = testInfo.outputPath('recovered-specimen.json');
 	await (await recoveredReceipt).saveAs(recoveredPath);

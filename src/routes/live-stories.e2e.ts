@@ -18,6 +18,7 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await page.setViewportSize({ width: 1360, height: 1000 });
 	await page.goto('/?view=tinystories');
 	const lab = page.locator('.token-story-lab');
+	await tools(lab, 'model');
 	await lab
 		.locator('.archive-item.reference')
 		.filter({ hasText: 'TinyStories BPE small · seed 42' })
@@ -29,7 +30,7 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await resume.click();
 	const live = lab.getByRole('region', { name: 'Live token generation', exact: true });
 	const generate = lab.getByRole('button', { name: 'Generate live', exact: true });
-	const primary = live.locator('.live-prefix > button');
+	const primary = lab.locator('.generate-action');
 	await expect(generate).toBeEnabled({ timeout: 90_000 });
 	const primaryElement = await primary.elementHandle();
 	const functional = lab.getByRole('button', { name: 'Functional', exact: true });
@@ -77,6 +78,7 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await live.getByRole('button', { name: 'Stop generation', exact: true }).click();
 	await expect(generate).toBeEnabled({ timeout: 30_000 });
 	const download = page.waitForEvent('download');
+	await tools(lab, 'model');
 	await lab.getByRole('button', { name: 'Export subword run', exact: true }).click();
 	const path = testInfo.outputPath('live-stopped.tissue');
 	await (await download).saveAs(path);
@@ -116,14 +118,15 @@ test('live generation pauses the worker, steps measured layers and tokens, and r
 	await live.getByRole('button', { name: 'Stop generation', exact: true }).click();
 	await expect(generate).toBeEnabled({ timeout: 30_000 });
 	await page.reload();
+	await tools(lab, 'model');
 	await lab.locator('.archive-item:not(.reference)').first().click();
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
 	await expect(lab.getByRole('button', { name: 'Resume step 4096', exact: true })).toBeEnabled({
 		timeout: 60_000
 	});
-	await expect(live.getByRole('button', { name: 'Replay trace', exact: true })).toBeEnabled();
-	await live.getByRole('button', { name: 'Replay trace', exact: true }).click();
+	await expect(lab.getByRole('button', { name: 'Replay trace', exact: true })).toBeEnabled();
+	await lab.getByRole('button', { name: 'Replay trace', exact: true }).click();
 	await expect(live).toHaveAttribute('data-frame', '0');
 	await expect(live).toContainText('4096');
 	await tools(lab, 'model');
@@ -143,14 +146,15 @@ test('recorded playback preserves visual controls and uses its primary pause act
 	await page.setViewportSize({ width: 1360, height: 1000 });
 	await page.goto('/?view=tinystories');
 	const lab = page.locator('.token-story-lab');
+	await tools(lab, 'model');
 	await lab
 		.locator('.archive-item.reference')
 		.filter({ hasText: 'Live replay · TinyStories BPE small at 4096' })
 		.click();
 	const live = lab.getByRole('region', { name: 'Live token generation', exact: true });
-	const replay = live.getByRole('button', { name: 'Replay trace', exact: true });
+	const replay = lab.getByRole('button', { name: 'Replay trace', exact: true });
 	await expect(replay).toBeEnabled({ timeout: 60_000 });
-	const primary = live.locator('.live-prefix > button');
+	const primary = lab.locator('.generate-action');
 	const original = await primary.elementHandle();
 	await expect(primary).toHaveText('Load & generate live');
 	await expect(primary).toBeEnabled();
@@ -255,7 +259,7 @@ test('continuous training crosses the old default burst and saves its actual pau
 	await expect.poll(updates, { timeout: 150_000 }).toBeGreaterThanOrEqual(125);
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
-	await lab.locator('.transport').getByRole('button', { name: 'Pause', exact: true }).click();
+	await lab.getByRole('button', { name: 'Pause training', exact: true }).click();
 	await tools(lab, 'model');
 	await disclose(lab, 'Training');
 	await expect(train).toBeEnabled({ timeout: 60_000 });
@@ -263,6 +267,7 @@ test('continuous training crosses the old default burst and saves its actual pau
 	expect(actualStep).toBeGreaterThanOrEqual(125);
 	await expect(lab.locator('.timeline')).toContainText(`Durable weights ${actualStep}`);
 	const download = page.waitForEvent('download');
+	await tools(lab, 'model');
 	await lab.getByRole('button', { name: 'Export subword run', exact: true }).click();
 	const path = testInfo.outputPath('continuous-paused.tissue');
 	await (await download).saveAs(path);

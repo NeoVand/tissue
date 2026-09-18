@@ -24,24 +24,26 @@ try {
 	page.on('pageerror', (error) => errors.push(error.message));
 	await page.goto(url.href);
 	const lab = page.locator('.token-story-lab');
+	await lab.getByRole('button', { name: 'Model', exact: true }).click();
 	await lab
 		.locator('.archive-item.reference')
 		.filter({ hasText: 'Live replay · TinyStories BPE small at 4096' })
 		.click();
 	const live = lab.getByRole('region', { name: 'Live token generation', exact: true });
-	await live
+	await lab
 		.getByRole('button', { name: 'Replay trace', exact: true })
 		.waitFor({ state: 'visible', timeout: 60_000 });
-	await lab.getByRole('button', { name: 'Inspect', exact: true }).click();
+	await lab.getByRole('button', { name: 'Probe', exact: true }).click();
+	await lab.locator('.prompt-probe > summary').click();
 	await lab.getByLabel('Subword unit ID', { exact: true }).fill('1403');
-	await live.getByRole('button', { name: 'Replay trace', exact: true }).click();
+	await lab.getByRole('button', { name: 'Replay trace', exact: true }).click();
 	await page.waitForFunction(
 		() =>
 			Number(
 				document.querySelector('[aria-label="Live token generation"]')?.getAttribute('data-frame')
 			) >= 10
 	);
-	await live.getByRole('button', { name: 'Pause replay', exact: true }).click();
+	await lab.getByRole('button', { name: 'Pause replay', exact: true }).click();
 	// Use the playback controls to focus a measured layer; never edit the canvas or data.
 	while (Number(await live.getAttribute('data-layer')) < 2) {
 		const before = await live.getAttribute('data-layer');

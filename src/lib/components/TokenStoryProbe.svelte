@@ -22,6 +22,7 @@
 		ontoken,
 		onlesion,
 		oncontext,
+		interventionFirst = false,
 		interventionHint = '',
 		prepareLabel = 'Measure prompt for intervention',
 		onprepare
@@ -39,6 +40,7 @@
 		ontoken: (position: number) => void;
 		onlesion: () => void;
 		oncontext?: (text: string) => void;
+		interventionFirst?: boolean;
 		interventionHint?: string;
 		prepareLabel?: string;
 		onprepare?: () => void;
@@ -143,6 +145,31 @@
 	}
 </script>
 
+{#snippet intervention()}
+	<div class="intervention">
+		<button class="secondary" onclick={onlesion} disabled={busy || !probe || selected === null}
+			><Icon name="target" size={13} />Silence selected unit</button
+		>
+		<p>Exact forward pass with this channel set to zero at all prompt positions.</p>
+		{#if interventionHint}<p class="intervention-hint" role="status">{interventionHint}</p>{/if}
+		{#if onprepare}<button class="secondary" onclick={onprepare}>{prepareLabel}</button>{/if}
+		{#if lesionMatches}<div class="lesion-result">
+				<div class="minor-heading">
+					<span>Largest probability changes</span><span>Δ lesioned − intact</span>
+				</div>
+				{#each effectRows as effect (effect.id)}<div>
+						<code title={literal(effect.id)}>{tokenPiece(effect.id)}</code><span
+							>{effect.delta > 0 ? '+' : ''}{numeric(100 * effect.delta)} pp</span
+						>
+					</div>{/each}<small>Unit {selected} · step {lesioned?.step} · same prompt</small>
+				{#if effectRows.length && Math.abs(effectRows[0].delta) < 1e-6}<p class="scale">
+						Maximum change below 1e−6 probability. Repeat intact controls before interpreting
+						effects this small.
+					</p>{/if}
+			</div>{/if}
+	</div>
+{/snippet}
+
 <aside class="token-story-probe" aria-label="TinyStories unit inspector">
 	<div class="panel-heading">
 		<h2><Icon name="target" size={14} />Unit inspector</h2>
@@ -169,6 +196,7 @@
 			><Icon name="right" size={12} /></button
 		>
 	</div>
+	{#if interventionFirst}{@render intervention()}{/if}
 	{#if selected !== null}
 		<div class="address">
 			<strong>L{(layer ?? 0) + 1} / {String(channel).padStart(4, '0')}</strong><span
@@ -302,28 +330,7 @@
 			</div>
 		</div>
 	{/if}
-	<div class="intervention">
-		<button class="secondary" onclick={onlesion} disabled={busy || !probe || selected === null}
-			><Icon name="target" size={13} />Silence selected unit</button
-		>
-		<p>Exact forward pass with this channel set to zero at all prompt positions.</p>
-		{#if interventionHint}<p class="intervention-hint" role="status">{interventionHint}</p>{/if}
-		{#if onprepare}<button class="secondary" onclick={onprepare}>{prepareLabel}</button>{/if}
-		{#if lesionMatches}<div class="lesion-result">
-				<div class="minor-heading">
-					<span>Largest probability changes</span><span>Δ lesioned − intact</span>
-				</div>
-				{#each effectRows as effect (effect.id)}<div>
-						<code title={literal(effect.id)}>{tokenPiece(effect.id)}</code><span
-							>{effect.delta > 0 ? '+' : ''}{numeric(100 * effect.delta)} pp</span
-						>
-					</div>{/each}<small>Unit {selected} · step {lesioned?.step} · same prompt</small>
-				{#if effectRows.length && Math.abs(effectRows[0].delta) < 1e-6}<p class="scale">
-						Maximum change below 1e−6 probability. Repeat intact controls before interpreting
-						effects this small.
-					</p>{/if}
-			</div>{/if}
-	</div>
+	{#if !interventionFirst}{@render intervention()}{/if}
 </aside>
 
 <style>

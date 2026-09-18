@@ -136,25 +136,27 @@ try {
 	await page.goto(new URL('?view=tinystories', site).href);
 	const tokens = page.locator('.token-story-lab');
 	await stage('recorded BPE live trace loads and replays', async () => {
+		await tokens.getByRole('button', { name: 'Model', exact: true }).click();
 		await tokens.locator('.archive-item.reference').filter({ hasText: 'Live replay' }).click();
 		const live = tokens.getByRole('region', { name: 'Live token generation', exact: true });
 		await expect(live.locator('.trace-tokens button')).toHaveCount(24);
 		await expect(tokens.getByRole('button', { name: /^Resume step/ })).toHaveCount(0);
+		await live.locator('.playback-settings > summary').click();
 		await live.getByRole('button', { name: 'Slow · 400 ms', exact: true }).click();
-		await live.getByRole('button', { name: 'Replay trace', exact: true }).click();
+		await tokens.getByRole('button', { name: 'Replay trace', exact: true }).click();
 		await expect(live).toHaveAttribute('data-frame', '0');
-		await live.getByRole('button', { name: 'Pause replay', exact: true }).click();
+		await tokens.getByRole('button', { name: 'Pause replay', exact: true }).click();
 		await expect(live).toHaveAttribute('data-state', 'paused');
-		await tokens.getByRole('button', { name: 'Inspect', exact: true }).click();
+		await tokens.getByRole('button', { name: 'Probe', exact: true }).click();
 		await tokens.getByLabel('Subword unit ID', { exact: true }).fill('1024');
 		assert(
 			Number.isFinite(Number(await live.getByLabel('Selected channel activation').innerText()))
 		);
 		await live.getByRole('button', { name: 'Stop replay', exact: true }).click();
-		await expect(live.getByRole('button', { name: 'Replay trace', exact: true })).toBeEnabled();
+		await expect(tokens.getByRole('button', { name: 'Replay trace', exact: true })).toBeEnabled();
 	});
 	await stage('BPE checkpoint restores on WASM and probes new input', async () => {
-		await tokens.getByRole('button', { name: 'Model & runs', exact: true }).click();
+		await tokens.getByRole('button', { name: 'Model', exact: true }).click();
 		await tokens
 			.locator('.archive-item.reference')
 			.filter({ hasText: 'TinyStories BPE small · seed 42' })
@@ -167,14 +169,16 @@ try {
 		await expect(tokens.getByText('Restored step 4096 · WASM', { exact: true })).toBeVisible({
 			timeout: 180_000
 		});
-		await tokens.getByRole('button', { name: 'Inspect', exact: true }).click();
-		await tokens.locator('.prompt-probe > summary').click();
+		await tokens.getByRole('button', { name: 'Probe', exact: true }).click();
+		if (!(await tokens.locator('.prompt-probe').evaluate((el) => el.open)))
+			await tokens.locator('.prompt-probe > summary').click();
 		await tokens.getByLabel('Probe context', { exact: true }).fill('Lily put the ball in a box.');
 		await tokens.getByRole('button', { name: 'Run prompt', exact: true }).click();
 		await expect(tokens.getByText('Prompt measured at step 4096', { exact: true })).toBeVisible();
 		await expect(tokens.locator('.token-grid button')).not.toHaveCount(0);
 	});
 	await stage('character checkpoint restores on WASM and probes new input', async () => {
+		await tokens.getByRole('button', { name: 'Model', exact: true }).click();
 		await page.getByRole('button', { name: 'Characters', exact: true }).click();
 		const characters = page.locator('.story-lab');
 		await characters.getByRole('button', { name: /TinyStories small.*Reference/ }).click();
