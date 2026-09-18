@@ -17,6 +17,16 @@ Drag the divider beside the tools panel to resize it. Keyboard users can focus t
 
 Collapsing tools gives the canvas the available width. Switching Model/Inspect preserves the resident model and measurements. Below 1,000 px, tools become a collapsible section above the canvas; the pointer-only divider disappears. Optional content remains accessible through the same buttons and disclosures.
 
+## Corrections after use
+
+The first pass placed evidence after the entire workspace grid. A tall tools panel therefore left a blank area beneath a shorter visualization. Each workspace now keeps its evidence in the canvas column, immediately after the visualization, regardless of panel height.
+
+Generation and intervention prerequisites were also too obscure. TinyStories now offers **Load & generate live**, which restores the current specimen's weights or loads the explicitly identified trained example before generating. The displayed prefix is preserved. The button then becomes Pause/Resume as before. Recorded replay remains a separate operation.
+
+The binding model's **Intervention** control opens a short explanation and a **Measure 256 interventions** action when its causal measurements are missing. TinyStories' unit inspector explains whether it needs weights, a current prompt measurement, a selected unit, or stopped playback, and offers the relevant preparation action. These paths use the existing measured forward passes and archive contracts.
+
+The correction passed seven browser workflows, including a fresh one-action model load/generation followed by a measured single-unit ablation. A layout assertion checks a gap of at most 20 px in both tools-panel views, and the new intervention-map action computes real effects. Type checking and the static Pages worker/checkpoint smoke test also passed.
+
 ## Verification scope
 
 The UI regression suite exercises panel resizing with both pointer and keyboard, collapse/expand, persisted width, measured replay values across view changes, light mode, and a narrow viewport with evidence expanded. Existing end-to-end tests follow the new disclosure paths for training, prompt probes, intervention, export/import, and resume. The Pages smoke test also exercises those paths against the actual static deployment.

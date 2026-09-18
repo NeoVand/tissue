@@ -87,6 +87,7 @@
 	let token = $state(13);
 	let example = $state(0);
 	let cursor = $state(-1);
+	let interventionSetup = $state(false);
 	let run = $state.raw<RunRecord | null>(null);
 	let runs = $state.raw<RunRecord[]>([]);
 	let currentProbe = $state.raw<Probe | null>(null);
@@ -395,6 +396,7 @@
 		try {
 			await capture(true);
 			mode = 'effect';
+			interventionSetup = false;
 			observe(
 				'measurement',
 				'An intervention atlas',
@@ -927,6 +929,13 @@
 			</div>
 			<div class="file-actions">
 				<button
+					class="secondary"
+					onclick={() => {
+						storyVisited = true;
+						tab = 'stories';
+					}}><Icon name="play" size={14} />Generate stories</button
+				>
+				<button
 					class="icon-button"
 					onclick={() => run && exportRun(run)}
 					disabled={!run?.checkpoint || busy}
@@ -1046,12 +1055,38 @@
 								>Activation</button
 							><button
 								class:chosen={mode === 'effect'}
-								onclick={() => (mode = 'effect')}
-								disabled={!snapshot?.effect}>Intervention</button
+								onclick={() => {
+									if (snapshot?.effect) mode = 'effect';
+									else interventionSetup = !interventionSetup;
+								}}
+								aria-pressed={mode === 'effect'}>Intervention</button
 							>
 						</div>
 					</div>
 				</div>
+				{#if interventionSetup && !snapshot?.effect}<div
+						class="intervention-setup"
+						role="region"
+						aria-label="Intervention map setup"
+					>
+						<div>
+							<strong>Measure an intervention map</strong>
+							<p>
+								Activation similarity does not measure causal effects. This map requires silencing
+								each of the 256 units and measuring changes in predictions.
+							</p>
+							{#if historical}<p>
+									Select the latest checkpoint to measure new effects.
+								</p>{:else if !ready}<p role="status">{status}</p>{/if}
+						</div>
+						{#if historical}<button class="secondary" onclick={() => (cursor = -1)}
+								>Return to latest checkpoint</button
+							>{:else}<button class="primary" onclick={measureEffects} disabled={!ready || !run}
+								>{phase === 'measuring'
+									? `Measuring ${progress.completed}/${progress.total}…`
+									: 'Measure 256 interventions'}</button
+							>{/if}
+					</div>{/if}
 				<div class="metric-strip">
 					<div>
 						<span>Held-out accuracy</span><strong data-testid="accuracy"
@@ -1259,110 +1294,116 @@
 					</div>
 				</aside>
 			{/snippet}
-		</ResearchWorkspace>
-		<details class="lab-disclosure evidence-drawer" open>
-			<summary
-				>Analysis & evidence <small>Activations, learning curves and repair experiments</small
-				></summary
-			>
-			<section class="bottom-panel">
-				<div class="bottom-tabs">
-					<button
-						class:active={bottomTab === 'activations'}
-						onclick={() => (bottomTab = 'activations')}
-						><Icon name="grid" size={13} />Activation matrix</button
-					><button class:active={bottomTab === 'repairs'} onclick={() => (bottomTab = 'repairs')}
-						><Icon name="flask" size={13} />Repair experiments{#if run?.repairs?.length}<span
-								class="count">{run.repairs.length}</span
-							>{/if}</button
-					><button class:active={bottomTab === 'findings'} onclick={() => (bottomTab = 'findings')}
-						><Icon name="chart" size={13} />Findings</button
-					><span
-						>{#if bottomTab === 'findings'}Recorded references · step 2,000{:else}Checkpoint {probe?.step ??
-								'—'} · {historical ? 'recorded probe' : 'calibration only'}{/if}</span
+			{#snippet evidence()}
+				<details class="lab-disclosure evidence-drawer" open>
+					<summary
+						>Analysis & evidence <small>Activations, learning curves and repair experiments</small
+						></summary
 					>
-				</div>
-				{#if bottomTab === 'activations'}<div class="activation-layout">
-						<div class="heatmap-wrap">
-							<ActivationHeatmap
-								{probe}
-								{selected}
-								{token}
-								onselect={selectUnit}
-								ontoken={(value) => (token = value)}
-								{theme}
-								{layerFilter}
-							/>
+					<section class="bottom-panel">
+						<div class="bottom-tabs">
+							<button
+								class:active={bottomTab === 'activations'}
+								onclick={() => (bottomTab = 'activations')}
+								><Icon name="grid" size={13} />Activation matrix</button
+							><button
+								class:active={bottomTab === 'repairs'}
+								onclick={() => (bottomTab = 'repairs')}
+								><Icon name="flask" size={13} />Repair experiments{#if run?.repairs?.length}<span
+										class="count">{run.repairs.length}</span
+									>{/if}</button
+							><button
+								class:active={bottomTab === 'findings'}
+								onclick={() => (bottomTab = 'findings')}
+								><Icon name="chart" size={13} />Findings</button
+							><span
+								>{#if bottomTab === 'findings'}Recorded references · step 2,000{:else}Checkpoint {probe?.step ??
+										'—'} · {historical ? 'recorded probe' : 'calibration only'}{/if}</span
+							>
 						</div>
-						<div class="learning-panel">
-							<div class="sidebar-label">
-								<Icon name="chart" size={13} />Held-out learning curve
-							</div>
-							<LearningCurve metrics={run?.metrics ?? []} selectedStep={snapshot?.step ?? 0} />
-							<div class="curve-key">
-								<span><i></i>Answer loss</span><span
-									><i class="dashed"></i>Uniform answer prior</span
-								>
-							</div>
-							<p>96 fixed evaluation prompts<br />Chance 12.5% · input-copy baseline 33.3%</p>
-						</div>
-					</div>
-				{:else if bottomTab === 'findings'}<div class="findings-wrap">
-						<FingerprintComparison />
-					</div>{:else}<div class="repair-results">
-						{#if latestRepair}<div class="repair-baseline">
-								<span
-									>SEED {latestRepair.seed} / STEP {latestRepair.step} / UNIT {latestRepair.lesionNeuron}</span
-								><span
-									>Intact <b>{latestRepair.intact.loss.toFixed(4)}</b><Icon
-										name="right"
-										size={11}
-									/>lesioned <b>{latestRepair.lesioned.loss.toFixed(4)}</b></span
-								>
-							</div>
-							<div class="repair-body">
-								<table>
-									<thead
-										><tr><th>Neighborhood</th><th>Loss</th><th>Accuracy</th><th>Weights</th></tr
-										></thead
-									><tbody
-										>{#each latestRepair.arms as arm (arm.method)}<tr
-												><td>{repairNames[arm.method]}</td><td
-													>{arm.curve.at(-1)?.loss.toFixed(4)}</td
-												><td>{percent(arm.curve.at(-1)?.accuracy)}</td><td
-													>{arm.trainableParameters}</td
-												></tr
-											>{/each}</tbody
-									>
-								</table>
-								<div class="repair-note">
-									<span class="eyebrow">Pilot / not a validated finding</span>
-									<p>
-										{latestRepair.caveat} Improvement beyond intact loss also requires an unlesioned fine-tuning
-										control.
-									</p>
-									<details>
-										<summary>Neighborhood membership</summary
-										>{#each latestRepair.arms as arm (arm.method)}<p>
-												<b>{repairNames[arm.method]}:</b>
-												{arm.neurons.join(', ')}
-											</p>{/each}
-									</details>
+						{#if bottomTab === 'activations'}<div class="activation-layout">
+								<div class="heatmap-wrap">
+									<ActivationHeatmap
+										{probe}
+										{selected}
+										{token}
+										onselect={selectUnit}
+										ontoken={(value) => (token = value)}
+										{theme}
+										{layerFilter}
+									/>
 								</div>
-							</div>{:else}<div class="empty-repair">
-								<Icon name="flask" size={23} />
-								<div>
-									<h3>Compare recovery across neighborhoods.</h3>
-									<p>
-										Select a neuron, measure its intervention fingerprint, then compare four
-										neighborhoods of eight same-layer units over 50 updates. Every arm starts from
-										the same checkpoint.
-									</p>
+								<div class="learning-panel">
+									<div class="sidebar-label">
+										<Icon name="chart" size={13} />Held-out learning curve
+									</div>
+									<LearningCurve metrics={run?.metrics ?? []} selectedStep={snapshot?.step ?? 0} />
+									<div class="curve-key">
+										<span><i></i>Answer loss</span><span
+											><i class="dashed"></i>Uniform answer prior</span
+										>
+									</div>
+									<p>96 fixed evaluation prompts<br />Chance 12.5% · input-copy baseline 33.3%</p>
 								</div>
+							</div>
+						{:else if bottomTab === 'findings'}<div class="findings-wrap">
+								<FingerprintComparison />
+							</div>{:else}<div class="repair-results">
+								{#if latestRepair}<div class="repair-baseline">
+										<span
+											>SEED {latestRepair.seed} / STEP {latestRepair.step} / UNIT {latestRepair.lesionNeuron}</span
+										><span
+											>Intact <b>{latestRepair.intact.loss.toFixed(4)}</b><Icon
+												name="right"
+												size={11}
+											/>lesioned <b>{latestRepair.lesioned.loss.toFixed(4)}</b></span
+										>
+									</div>
+									<div class="repair-body">
+										<table>
+											<thead
+												><tr><th>Neighborhood</th><th>Loss</th><th>Accuracy</th><th>Weights</th></tr
+												></thead
+											><tbody
+												>{#each latestRepair.arms as arm (arm.method)}<tr
+														><td>{repairNames[arm.method]}</td><td
+															>{arm.curve.at(-1)?.loss.toFixed(4)}</td
+														><td>{percent(arm.curve.at(-1)?.accuracy)}</td><td
+															>{arm.trainableParameters}</td
+														></tr
+													>{/each}</tbody
+											>
+										</table>
+										<div class="repair-note">
+											<span class="eyebrow">Pilot / not a validated finding</span>
+											<p>
+												{latestRepair.caveat} Improvement beyond intact loss also requires an unlesioned
+												fine-tuning control.
+											</p>
+											<details>
+												<summary>Neighborhood membership</summary
+												>{#each latestRepair.arms as arm (arm.method)}<p>
+														<b>{repairNames[arm.method]}:</b>
+														{arm.neurons.join(', ')}
+													</p>{/each}
+											</details>
+										</div>
+									</div>{:else}<div class="empty-repair">
+										<Icon name="flask" size={23} />
+										<div>
+											<h3>Compare recovery across neighborhoods.</h3>
+											<p>
+												Select a neuron, measure its intervention fingerprint, then compare four
+												neighborhoods of eight same-layer units over 50 updates. Every arm starts
+												from the same checkpoint.
+											</p>
+										</div>
+									</div>{/if}
 							</div>{/if}
-					</div>{/if}
-			</section>
-		</details>
+					</section>
+				</details>
+			{/snippet}
+		</ResearchWorkspace>
 		<footer class="status-bar">
 			<span class="operation-status" aria-live="polite"><i class:working={busy}></i>{status}</span
 			>{#if phase === 'measuring'}<span class="measurement-progress"
@@ -1469,6 +1510,22 @@
 </div>
 
 <style>
+	.intervention-setup {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 12px;
+		padding: 16px;
+		border-bottom: 1px solid var(--line);
+	}
+	.intervention-setup > div {
+		flex: 1 1 300px;
+	}
+	.intervention-setup p {
+		margin: 6px 0 0;
+		color: var(--muted);
+		font-size: 13px;
+	}
 	.query-operation-status {
 		margin: 8px 18px 14px;
 		font: 12px var(--mono);

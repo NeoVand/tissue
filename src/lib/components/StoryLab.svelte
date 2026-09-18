@@ -1231,137 +1231,143 @@
 				/>
 			</div>
 		{/snippet}
-	</ResearchWorkspace>
-	<details class="lab-disclosure evidence-drawer">
-		<summary
-			>Samples & evidence <small>Batch generation, learning curves and experiment history</small
-			></summary
-		>
-		<div class="story-lower">
-			<section class="sample-panel">
-				<div class="lower-tabs">
-					<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
-						><Icon name="book" size={13} />Generate & compare</button
-					><button class:chosen={footerTab === 'history'} onclick={() => (footerTab = 'history')}
-						><Icon name="activity" size={13} />Experiment history
-						<span>{record?.observations.length ?? 0}</span></button
-					>
-				</div>
-				{#if footerTab === 'samples'}<div class="sample-controls">
-						<label for="story-sample-prompt">Sampling prompt</label><input
-							id="story-sample-prompt"
-							bind:value={samplePrompt}
-							disabled={blocked}
-						/><label for="story-sampling-seed">Seed</label><input
-							id="story-sampling-seed"
-							type="number"
-							min="0"
-							max="4294967295"
-							bind:value={samplingSeed}
-							disabled={blocked}
-						/><label for="story-temperature">Temperature</label><input
-							id="story-temperature"
-							type="number"
-							min="0.1"
-							max="2"
-							step="0.1"
-							bind:value={temperature}
-							disabled={blocked}
-						/>
-						<div class="segmented">
-							{#each [32, 64, 128] as length (length)}<button
-									class:chosen={sampleLength === length}
-									onclick={() => (sampleLength = length)}
-									disabled={blocked}>{length}</button
-								>{/each}
+		{#snippet evidence()}
+			<details class="lab-disclosure evidence-drawer">
+				<summary
+					>Samples & evidence <small>Batch generation, learning curves and experiment history</small
+					></summary
+				>
+				<div class="story-lower">
+					<section class="sample-panel">
+						<div class="lower-tabs">
+							<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
+								><Icon name="book" size={13} />Generate & compare</button
+							><button
+								class:chosen={footerTab === 'history'}
+								onclick={() => (footerTab = 'history')}
+								><Icon name="activity" size={13} />Experiment history
+								<span>{record?.observations.length ?? 0}</span></button
+							>
 						</div>
-						<button
-							class="secondary"
-							onclick={generate}
-							disabled={!ready ||
-								!samplePrompt.length ||
-								!Number.isInteger(samplingSeed) ||
-								samplingSeed < 0 ||
-								samplingSeed > 0xffffffff ||
-								!Number.isFinite(temperature) ||
-								temperature < 0.1 ||
-								temperature > 2}><Icon name="play" size={12} />Sample</button
-						>
-					</div>
-					<div class="sample-output">
-						{#if sample}<div class="sample-meta">
-								<span
-									>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
-									· top-k {sample.topK}</span
-								><span
-									>{sample.tokenIds.length} / {sample.requestedTokens} characters{sample.cancelled
-										? ' · cancelled'
-										: ''}</span
+						{#if footerTab === 'samples'}<div class="sample-controls">
+								<label for="story-sample-prompt">Sampling prompt</label><input
+									id="story-sample-prompt"
+									bind:value={samplePrompt}
+									disabled={blocked}
+								/><label for="story-sampling-seed">Seed</label><input
+									id="story-sampling-seed"
+									type="number"
+									min="0"
+									max="4294967295"
+									bind:value={samplingSeed}
+									disabled={blocked}
+								/><label for="story-temperature">Temperature</label><input
+									id="story-temperature"
+									type="number"
+									min="0.1"
+									max="2"
+									step="0.1"
+									bind:value={temperature}
+									disabled={blocked}
+								/>
+								<div class="segmented">
+									{#each [32, 64, 128] as length (length)}<button
+											class:chosen={sampleLength === length}
+											onclick={() => (sampleLength = length)}
+											disabled={blocked}>{length}</button
+										>{/each}
+								</div>
+								<button
+									class="secondary"
+									onclick={generate}
+									disabled={!ready ||
+										!samplePrompt.length ||
+										!Number.isInteger(samplingSeed) ||
+										samplingSeed < 0 ||
+										samplingSeed > 0xffffffff ||
+										!Number.isFinite(temperature) ||
+										temperature < 0.1 ||
+										temperature > 2}><Icon name="play" size={12} />Sample</button
 								>
 							</div>
-							<p>
-								<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
-							</p>{:else}<p class="empty-sample">
-								Sampled text will appear here. Samples are observations of the current checkpoint,
-								not evidence of story understanding.
-							</p>{/if}
-					</div>
-					{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
-							<span>Recorded samples</span
-							>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
-									onclick={() => (sample = past)}
-									class:chosen={sample === past}>Step {past.step} · #{i + 1}</button
-								>{/each}
-						</div>{/if}{:else}<div class="observation-list">
-						{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
-								class="archived-intervention"
-							>
-								<summary
-									>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
-								>
-								<p>
-									All prompt positions silenced. The table shows the eight largest absolute
-									probability changes; the archive retains all 96 values.
-								</p>
-								<code class="intervention-prompt">{intervention.prompt}</code>
-								<table>
-									<thead
-										><tr
-											><th>Character</th><th>Intact</th><th>Lesioned</th><th>Δ percentage points</th
-											></tr
-										></thead
-									><tbody
-										>{#each archivedEffects(intervention) as effect (effect.id)}<tr
-												><td
-													>{effect.id === 0
-														? '↵'
-														: effect.id === 1
-															? '␣'
-															: STORY_CHARACTERS[effect.id]}</td
-												><td>{(effect.probability * 100).toFixed(3)}%</td><td
-													>{(effect.lesioned * 100).toFixed(3)}%</td
-												><td>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td></tr
-											>{/each}</tbody
+							<div class="sample-output">
+								{#if sample}<div class="sample-meta">
+										<span
+											>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
+											· top-k {sample.topK}</span
+										><span
+											>{sample.tokenIds.length} / {sample.requestedTokens} characters{sample.cancelled
+												? ' · cancelled'
+												: ''}</span
+										>
+									</div>
+									<p>
+										<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
+									</p>{:else}<p class="empty-sample">
+										Sampled text will appear here. Samples are observations of the current
+										checkpoint, not evidence of story understanding.
+									</p>{/if}
+							</div>
+							{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
+									<span>Recorded samples</span
+									>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
+											onclick={() => (sample = past)}
+											class:chosen={sample === past}>Step {past.step} · #{i + 1}</button
+										>{/each}
+								</div>{/if}{:else}<div class="observation-list">
+								{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
+										class="archived-intervention"
 									>
-								</table>
-							</details>{/each}
-						{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
-							>
-								<time datetime={observation.time}
-									>{time(observation.time)} · step {observation.step}</time
-								>
-								<h3>{observation.title}</h3>
-								<p>{observation.detail}</p>
-							</article>{:else}<p class="empty-sample">
-								Initialization, training, samples and interventions will be recorded here.
-							</p>{/each}
-					</div>{/if}
-			</section>
-			<section class="learning-panel">
-				<StoryMetricsPanel metrics={record?.metrics ?? []} />
-			</section>
-		</div>
-	</details>
+										<summary
+											>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
+										>
+										<p>
+											All prompt positions silenced. The table shows the eight largest absolute
+											probability changes; the archive retains all 96 values.
+										</p>
+										<code class="intervention-prompt">{intervention.prompt}</code>
+										<table>
+											<thead
+												><tr
+													><th>Character</th><th>Intact</th><th>Lesioned</th><th
+														>Δ percentage points</th
+													></tr
+												></thead
+											><tbody
+												>{#each archivedEffects(intervention) as effect (effect.id)}<tr
+														><td
+															>{effect.id === 0
+																? '↵'
+																: effect.id === 1
+																	? '␣'
+																	: STORY_CHARACTERS[effect.id]}</td
+														><td>{(effect.probability * 100).toFixed(3)}%</td><td
+															>{(effect.lesioned * 100).toFixed(3)}%</td
+														><td>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td
+														></tr
+													>{/each}</tbody
+											>
+										</table>
+									</details>{/each}
+								{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
+									>
+										<time datetime={observation.time}
+											>{time(observation.time)} · step {observation.step}</time
+										>
+										<h3>{observation.title}</h3>
+										<p>{observation.detail}</p>
+									</article>{:else}<p class="empty-sample">
+										Initialization, training, samples and interventions will be recorded here.
+									</p>{/each}
+							</div>{/if}
+					</section>
+					<section class="learning-panel">
+						<StoryMetricsPanel metrics={record?.metrics ?? []} />
+					</section>
+				</div>
+			</details>
+		{/snippet}
+	</ResearchWorkspace>
 	<footer class="story-status" role="status">
 		<span class:working={busy}></span>
 		<p>{status}</p>

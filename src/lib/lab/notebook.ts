@@ -11,6 +11,21 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '023',
+		date: '2026-09-18',
+		kind: 'decision',
+		title: 'Keep the next action within reach.',
+		text: 'The first interface pass left evidence below the full sidebar height, creating an empty gap beneath shorter visualizations. It also buried weight loading and intervention measurement behind tools. Evidence now follows its own canvas column. TinyStories can load trained weights and begin live generation from one action; the intervention map offers its prerequisite measurement directly.',
+		lesson:
+			'A disabled control needs an explanation and a useful next step. Saved activations are not a resident model, and an activation map is not an intervention map. These distinctions belong beside the action, where researchers can act on them.',
+		links: [
+			{
+				title: 'Interface audit and corrections',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/interface-audit.md'
+			}
+		]
+	},
+	{
 		id: '022',
 		date: '2026-09-17',
 		kind: 'decision',

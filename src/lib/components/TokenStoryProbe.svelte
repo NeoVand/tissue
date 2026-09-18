@@ -21,7 +21,10 @@
 		onselect,
 		ontoken,
 		onlesion,
-		oncontext
+		oncontext,
+		interventionHint = '',
+		prepareLabel = 'Measure prompt for intervention',
+		onprepare
 	}: {
 		probe: TokenStoryProbe | null;
 		liveFrame?: LiveTokenStoryFrame | null;
@@ -36,6 +39,9 @@
 		ontoken: (position: number) => void;
 		onlesion: () => void;
 		oncontext?: (text: string) => void;
+		interventionHint?: string;
+		prepareLabel?: string;
+		onprepare?: () => void;
 	} = $props();
 	let count = $derived(config.layers * config.hidden);
 	let layer = $derived(selected === null ? null : Math.floor(selected / config.hidden));
@@ -301,6 +307,8 @@
 			><Icon name="target" size={13} />Silence selected unit</button
 		>
 		<p>Exact forward pass with this channel set to zero at all prompt positions.</p>
+		{#if interventionHint}<p class="intervention-hint" role="status">{interventionHint}</p>{/if}
+		{#if onprepare}<button class="secondary" onclick={onprepare}>{prepareLabel}</button>{/if}
 		{#if lesionMatches}<div class="lesion-result">
 				<div class="minor-heading">
 					<span>Largest probability changes</span><span>Δ lesioned − intact</span>

@@ -152,8 +152,8 @@ test('recorded playback preserves visual controls and uses its primary pause act
 	await expect(replay).toBeEnabled({ timeout: 60_000 });
 	const primary = live.locator('.live-prefix > button');
 	const original = await primary.elementHandle();
-	await expect(primary).toHaveText('Generate live');
-	await expect(primary).toBeDisabled();
+	await expect(primary).toHaveText('Load & generate live');
+	await expect(primary).toBeEnabled();
 	const encoding = lab.getByRole('group', { name: 'Activation encoding' });
 	const brightness = encoding.getByRole('button', { name: 'Brightness', exact: true });
 	const size = encoding.getByRole('button', { name: 'Size', exact: true });
@@ -181,8 +181,8 @@ test('recorded playback preserves visual controls and uses its primary pause act
 	await primary.click();
 	await expect(primary).toHaveText('Resume replay');
 	await live.getByRole('button', { name: 'Stop replay', exact: true }).click();
-	await expect(primary).toHaveText('Generate live');
-	await expect(primary).toBeDisabled();
+	await expect(primary).toHaveText('Load & generate live');
+	await expect(primary).toBeEnabled();
 	const modelLayout = lab.getByRole('button', { name: 'Model layout', exact: true });
 	await modelLayout.click();
 	const l4 = lab.locator('.layer-options').getByRole('button', { name: 'L4', exact: true });

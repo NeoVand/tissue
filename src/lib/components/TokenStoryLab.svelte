@@ -183,6 +183,38 @@
 			: null
 	);
 	let ready = $derived(runtimeReady && !blocked && !historical);
+	let trainedReference = $derived(
+		references.find((reference) => reference.title === 'TinyStories BPE small · seed 42')
+	);
+	let canLoadModel = $derived(!runtimeReady && !!(record?.checkpoint || trainedReference));
+	let generationAvailability = $derived(
+		blocked
+			? status
+			: historical
+				? 'You are inspecting an earlier checkpoint. Select Latest in Measurement details to generate.'
+				: runtimeReady
+					? 'Enter a prefix, then generate. Activations follow each token through the layers; the same button pauses playback.'
+					: record?.checkpoint
+						? `Load the saved weights at step ${record.checkpoint.step}, then generate with live activations.`
+						: 'Load the trained 1.85M-parameter example (27.5 MB), then generate with live activations. Recorded replays contain measurements only.'
+	);
+	let interventionHint = $derived(
+		playing
+			? 'Stop generation or replay before running a separate intervention.'
+			: blocked
+				? status
+				: !runtimeReady
+					? 'Saved activations cannot run interventions. Load model weights first.'
+					: historical
+						? 'Return to the latest checkpoint before measuring an intervention.'
+						: activityFrame
+							? 'This is a recorded token frame. Measure a prompt to compare intact and silenced predictions.'
+							: !liveProbe
+								? 'Run a valid prompt at this checkpoint before silencing a unit.'
+								: selected === null
+									? 'Select a point in the network or enter a unit ID first.'
+									: ''
+	);
 	let points = $derived.by(() => {
 		if (!snapshot && !(activityFrame && viewMode === 'architecture')) return [];
 		const atlas = snapshot?.atlas;
@@ -1033,6 +1065,29 @@
 			if (current(ticket)) await failTraining(reason);
 		}
 	}
+	async function loadForInference(): Promise<void> {
+		if (blocked || runtimeReady) return;
+		if (!record?.checkpoint) {
+			if (!trainedReference) return;
+			await openReference(trainedReference);
+		}
+		if (record?.checkpoint && (phase === 'archived' || phase === 'error')) await resume();
+	}
+	async function startLive(): Promise<void> {
+		if (blocked) return;
+		if (!runtimeReady) await loadForInference();
+		if (ready) await generateLive();
+	}
+	async function prepareIntervention(): Promise<void> {
+		if (blocked) return;
+		if (!runtimeReady) {
+			await loadForInference();
+			return;
+		}
+		if (historical) await selectSnapshot(null);
+		returnToProbe();
+		await inspectPrompt();
+	}
 	async function selectSnapshot(index: number | null): Promise<void> {
 		if (blocked || !record) return;
 		clearPlaybackView();
@@ -1468,11 +1523,14 @@
 						<p>
 							{busy
 								? status
-								: 'Open a recorded run to explore measured activations, or initialize a model in the tools panel to start training.'}
+								: 'Generate text with the trained example and watch each token move through its measured layers. Or replay a saved trace without loading weights.'}
 						</p>
 						{#if !busy}<div class="welcome-actions">
+								<button class="primary" onclick={startLive} disabled={!canLoadModel || blocked}
+									>Generate with trained model</button
+								>
 								<button
-									class="primary"
+									class="secondary"
 									disabled={!references.length || blocked}
 									onclick={() => {
 										const reference = references.find((item) =>
@@ -1512,7 +1570,13 @@
 				stopping={stopRequested && playing}
 				complete={playbackComplete}
 				{blocked}
-				canStart={ready &&
+				startLabel={runtimeReady
+					? 'Generate live'
+					: blocked
+						? 'Loading model…'
+						: 'Load & generate live'}
+				availability={generationAvailability}
+				canStart={(ready || (canLoadModel && !blocked)) &&
 					Number.isInteger(samplingSeed) &&
 					samplingSeed >= 0 &&
 					samplingSeed <= 0xffffffff &&
@@ -1528,7 +1592,7 @@
 				{samplingSeed}
 				{topK}
 				onprompt={(text) => (samplePrompt = text)}
-				onstart={generateLive}
+				onstart={startLive}
 				onpause={togglePlaybackPause}
 				onnextlayer={nextPlaybackLayer}
 				onnexttoken={nextPlaybackToken}
@@ -1683,186 +1747,204 @@
 					{token}
 					{config}
 					busy={blocked}
+					{interventionHint}
+					prepareLabel={!runtimeReady
+						? record?.checkpoint
+							? 'Load model weights'
+							: 'Load trained example'
+						: historical
+							? 'Return to latest checkpoint'
+							: 'Measure prompt for intervention'}
+					onprepare={!blocked &&
+					((!runtimeReady && canLoadModel) ||
+						(runtimeReady && (historical || !!activityFrame || !liveProbe)))
+						? prepareIntervention
+						: undefined}
 					onselect={selectUnit}
 					ontoken={(position) => (token = position)}
 					onlesion={silenceUnit}
 				/>
 			</div>
 		{/snippet}
-	</ResearchWorkspace>
-	<details class="lab-disclosure evidence-drawer">
-		<summary
-			>Samples & evidence <small>Batch generation, learning curves and experiment history</small
-			></summary
-		>
-		<div class="token-story-lower">
-			<section class="sample-panel">
-				<div class="lower-tabs">
-					<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
-						><Icon name="book" size={13} />Generate & compare</button
-					><button class:chosen={footerTab === 'history'} onclick={() => (footerTab = 'history')}
-						><Icon name="activity" size={13} />Experiment history
-						<span>{record?.observations.length ?? 0}</span></button
-					>
-				</div>
-				{#if footerTab === 'samples'}<div class="sample-controls">
-						<span class="batch-caption">Batch sampling · no live trace</span>
-						<label for="token-story-sample-prompt">Sampling prompt</label><input
-							id="token-story-sample-prompt"
-							bind:value={samplePrompt}
-							maxlength="100000"
-							disabled={blocked}
-						/><label for="token-story-sampling-seed">Seed</label><input
-							id="token-story-sampling-seed"
-							type="number"
-							min="0"
-							max="4294967295"
-							bind:value={samplingSeed}
-							disabled={blocked}
-						/><label for="token-story-temperature">Temperature</label><input
-							id="token-story-temperature"
-							type="number"
-							min="0.1"
-							max="2"
-							step="0.1"
-							bind:value={temperature}
-							disabled={blocked}
-						/>
-						<label for="token-story-top-k">Top-k</label><input
-							id="token-story-top-k"
-							type="number"
-							min="1"
-							max="256"
-							bind:value={topK}
-							disabled={blocked}
-						/>
-						<div class="segmented">
-							{#each [32, 64, 128, 256] as length (length)}<button
-									class:chosen={sampleLength === length}
-									onclick={() => (sampleLength = length)}
-									disabled={blocked}>{length}</button
-								>{/each}
+		{#snippet evidence()}
+			<details class="lab-disclosure evidence-drawer">
+				<summary
+					>Samples & evidence <small>Batch generation, learning curves and experiment history</small
+					></summary
+				>
+				<div class="token-story-lower">
+					<section class="sample-panel">
+						<div class="lower-tabs">
+							<button class:chosen={footerTab === 'samples'} onclick={() => (footerTab = 'samples')}
+								><Icon name="book" size={13} />Generate & compare</button
+							><button
+								class:chosen={footerTab === 'history'}
+								onclick={() => (footerTab = 'history')}
+								><Icon name="activity" size={13} />Experiment history
+								<span>{record?.observations.length ?? 0}</span></button
+							>
 						</div>
-						<button
-							class="secondary"
-							onclick={generate}
-							disabled={!ready ||
-								!Number.isInteger(topK) ||
-								topK < 1 ||
-								topK > 256 ||
-								!Number.isInteger(samplingSeed) ||
-								samplingSeed < 0 ||
-								samplingSeed > 0xffffffff ||
-								!Number.isFinite(temperature) ||
-								temperature < 0.1 ||
-								temperature > 2}><Icon name="play" size={12} />Sample</button
-						>
-					</div>
-					<TokenStoryTokenization
-						text={samplePrompt}
-						{tokenizer}
-						context={config.context}
-						compact
-					/>
-					<div class="sample-output">
-						{#if sample}<div class="sample-meta">
-								<span
-									>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
-									· top-k {sample.topK}</span
-								><span
-									>{sample.tokenIds.length} / {sample.requestedTokens} tokens{sample.cancelled
-										? ' · cancelled'
-										: sample.stoppedOnEos
-											? ' · end-of-story token'
-											: ' · length limit'}</span
-								>
-							</div>
-							<p>
-								<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
-							</p>
-							<div class="generation-coverage">
-								Prefix: {sample.prompt.tokenIds.length} context tokens, {sample.prompt.text.length} retained
-								characters{sample.prompt.truncatedTokens
-									? `; ${sample.prompt.truncatedTokens} earlier tokens omitted`
-									: ''}. Completion: {sample.completion.length} characters. The model uses the latest
-								{config.context}
-								tokens as generation advances.
-							</div>
-							<details class="generated-tokens">
-								<summary
-									>Inspect generated token boundaries · {sample.tokenIds.length} tokens</summary
-								>
-								<div>
-									{#each sample.tokenIds as id, index (index)}<span title={`Vocabulary ID ${id}`}
-											>{tokenPiece(id)}</span
+						{#if footerTab === 'samples'}<div class="sample-controls">
+								<span class="batch-caption">Batch sampling · no live trace</span>
+								<label for="token-story-sample-prompt">Sampling prompt</label><input
+									id="token-story-sample-prompt"
+									bind:value={samplePrompt}
+									maxlength="100000"
+									disabled={blocked}
+								/><label for="token-story-sampling-seed">Seed</label><input
+									id="token-story-sampling-seed"
+									type="number"
+									min="0"
+									max="4294967295"
+									bind:value={samplingSeed}
+									disabled={blocked}
+								/><label for="token-story-temperature">Temperature</label><input
+									id="token-story-temperature"
+									type="number"
+									min="0.1"
+									max="2"
+									step="0.1"
+									bind:value={temperature}
+									disabled={blocked}
+								/>
+								<label for="token-story-top-k">Top-k</label><input
+									id="token-story-top-k"
+									type="number"
+									min="1"
+									max="256"
+									bind:value={topK}
+									disabled={blocked}
+								/>
+								<div class="segmented">
+									{#each [32, 64, 128, 256] as length (length)}<button
+											class:chosen={sampleLength === length}
+											onclick={() => (sampleLength = length)}
+											disabled={blocked}>{length}</button
 										>{/each}
 								</div>
-							</details>
-						{:else}<p class="empty-sample">
-								Sampled text will appear here. Samples are observations of the current checkpoint,
-								not evidence of story understanding.
-							</p>{/if}
-					</div>
-					{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
-							<span>Recorded samples</span
-							>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
-									onclick={() => chooseSample(past)}
-									disabled={blocked}
-									aria-label={`Inspect sample ${i + 1}: step ${past.step}, seed ${past.samplingSeed}`}
-									title={`Original prefix: ${past.prompt.original}`}
-									class:chosen={sample === past}>Step {past.step} · seed {past.samplingSeed}</button
-								>{/each}
-						</div>{/if}{:else}<div class="observation-list">
-						{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
-								class="archived-intervention"
-							>
-								<summary
-									>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
+								<button
+									class="secondary"
+									onclick={generate}
+									disabled={!ready ||
+										!Number.isInteger(topK) ||
+										topK < 1 ||
+										topK > 256 ||
+										!Number.isInteger(samplingSeed) ||
+										samplingSeed < 0 ||
+										samplingSeed > 0xffffffff ||
+										!Number.isFinite(temperature) ||
+										temperature < 0.1 ||
+										temperature > 2}><Icon name="play" size={12} />Sample</button
 								>
-								<p>
-									All prompt positions silenced. The table shows the eight largest absolute
-									probability changes; the archive retains all {config.vocabularySize.toLocaleString()}
-									values.
-								</p>
-								<p>
-									Original prompt; the saved tokenizer and context length reproduce the exact
-									retained tokens.
-								</p>
-								<code class="intervention-prompt">{intervention.prompt}</code>
-								<table>
-									<thead
-										><tr
-											><th>Token</th><th>Intact</th><th>Lesioned</th><th>Δ percentage points</th
-											></tr
-										></thead
-									><tbody
-										>{#each archivedEffects(intervention) as effect (effect.id)}<tr
-												><td>{tokenPiece(effect.id)}</td><td
-													>{(effect.probability * 100).toFixed(3)}%</td
-												><td>{(effect.lesioned * 100).toFixed(3)}%</td><td
-													>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td
-												></tr
-											>{/each}</tbody
+							</div>
+							<TokenStoryTokenization
+								text={samplePrompt}
+								{tokenizer}
+								context={config.context}
+								compact
+							/>
+							<div class="sample-output">
+								{#if sample}<div class="sample-meta">
+										<span
+											>Step {sample.step} · sampling seed {sample.samplingSeed} · temperature {sample.temperature}
+											· top-k {sample.topK}</span
+										><span
+											>{sample.tokenIds.length} / {sample.requestedTokens} tokens{sample.cancelled
+												? ' · cancelled'
+												: sample.stoppedOnEos
+													? ' · end-of-story token'
+													: ' · length limit'}</span
+										>
+									</div>
+									<p>
+										<span class="sample-prefix">{sample.prompt.text}</span>{sample.completion}
+									</p>
+									<div class="generation-coverage">
+										Prefix: {sample.prompt.tokenIds.length} context tokens, {sample.prompt.text
+											.length} retained characters{sample.prompt.truncatedTokens
+											? `; ${sample.prompt.truncatedTokens} earlier tokens omitted`
+											: ''}. Completion: {sample.completion.length} characters. The model uses the latest
+										{config.context}
+										tokens as generation advances.
+									</div>
+									<details class="generated-tokens">
+										<summary
+											>Inspect generated token boundaries · {sample.tokenIds.length} tokens</summary
+										>
+										<div>
+											{#each sample.tokenIds as id, index (index)}<span
+													title={`Vocabulary ID ${id}`}>{tokenPiece(id)}</span
+												>{/each}
+										</div>
+									</details>
+								{:else}<p class="empty-sample">
+										Sampled text will appear here. Samples are observations of the current
+										checkpoint, not evidence of story understanding.
+									</p>{/if}
+							</div>
+							{#if (record?.samples?.length ?? 0) > 1}<div class="sample-history">
+									<span>Recorded samples</span
+									>{#each record?.samples ?? [] as past, i (`${past.step}-${i}`)}<button
+											onclick={() => chooseSample(past)}
+											disabled={blocked}
+											aria-label={`Inspect sample ${i + 1}: step ${past.step}, seed ${past.samplingSeed}`}
+											title={`Original prefix: ${past.prompt.original}`}
+											class:chosen={sample === past}
+											>Step {past.step} · seed {past.samplingSeed}</button
+										>{/each}
+								</div>{/if}{:else}<div class="observation-list">
+								{#each record?.interventions ?? [] as intervention, i (`${intervention.capturedAt}-${i}`)}<details
+										class="archived-intervention"
 									>
-								</table>
-							</details>{/each}
-						{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
-							>
-								<time datetime={observation.time}
-									>{time(observation.time)} · step {observation.step}</time
-								>
-								<h3>{observation.title}</h3>
-								<p>{observation.detail}</p>
-							</article>{:else}<p class="empty-sample">
-								Initialization, training, samples and interventions will be recorded here.
-							</p>{/each}
-					</div>{/if}
-			</section>
-			<section class="learning-panel">
-				<TokenStoryMetricsPanel unit="token" metrics={record?.metrics ?? []} />
-			</section>
-		</div>
-	</details>
+										<summary
+											>Recorded ablation · unit {intervention.neuron} · step {intervention.step}</summary
+										>
+										<p>
+											All prompt positions silenced. The table shows the eight largest absolute
+											probability changes; the archive retains all {config.vocabularySize.toLocaleString()}
+											values.
+										</p>
+										<p>
+											Original prompt; the saved tokenizer and context length reproduce the exact
+											retained tokens.
+										</p>
+										<code class="intervention-prompt">{intervention.prompt}</code>
+										<table>
+											<thead
+												><tr
+													><th>Token</th><th>Intact</th><th>Lesioned</th><th>Δ percentage points</th
+													></tr
+												></thead
+											><tbody
+												>{#each archivedEffects(intervention) as effect (effect.id)}<tr
+														><td>{tokenPiece(effect.id)}</td><td
+															>{(effect.probability * 100).toFixed(3)}%</td
+														><td>{(effect.lesioned * 100).toFixed(3)}%</td><td
+															>{effect.delta > 0 ? '+' : ''}{number(effect.delta * 100, 3)}</td
+														></tr
+													>{/each}</tbody
+											>
+										</table>
+									</details>{/each}
+								{#each [...(record?.observations ?? [])].reverse() as observation, i (`${observation.time}-${i}`)}<article
+									>
+										<time datetime={observation.time}
+											>{time(observation.time)} · step {observation.step}</time
+										>
+										<h3>{observation.title}</h3>
+										<p>{observation.detail}</p>
+									</article>{:else}<p class="empty-sample">
+										Initialization, training, samples and interventions will be recorded here.
+									</p>{/each}
+							</div>{/if}
+					</section>
+					<section class="learning-panel">
+						<TokenStoryMetricsPanel unit="token" metrics={record?.metrics ?? []} />
+					</section>
+				</div>
+			</details>
+		{/snippet}
+	</ResearchWorkspace>
 	<footer class="token-story-status" role="status">
 		<span class:working={busy}></span>
 		<p>{status}</p>

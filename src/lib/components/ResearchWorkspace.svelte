@@ -6,6 +6,7 @@
 		children,
 		model,
 		inspector,
+		evidence,
 		panel = $bindable('model'),
 		collapsed = $bindable(false)
 	}: {
@@ -13,6 +14,7 @@
 		children: Snippet;
 		model: Snippet;
 		inspector: Snippet;
+		evidence?: Snippet;
 		panel?: 'model' | 'inspector';
 		collapsed?: boolean;
 	} = $props();
@@ -66,7 +68,10 @@
 	bind:clientWidth={containerWidth}
 	style:--panel-width={`${displayedWidth}px`}
 >
-	<div class="workspace-content">{@render children()}</div>
+	<div class="workspace-main">
+		<div class="workspace-content">{@render children()}</div>
+		{#if evidence}<div class="workspace-evidence">{@render evidence()}</div>{/if}
+	</div>
 	<div class="tools">
 		<div class="tool-switcher" role="group" aria-label={`${name} tools`}>
 			<button
@@ -108,7 +113,7 @@
 			role="slider"
 			tabindex={collapsed ? -1 : 0}
 			aria-label="Resize tools panel"
-			aria-orientation="vertical"
+			aria-orientation="horizontal"
 			aria-controls={id}
 			aria-valuemin={280}
 			aria-valuemax={limit}
@@ -144,6 +149,15 @@
 	}
 	.workspace.collapsed {
 		grid-template-columns: minmax(0, 1fr);
+	}
+	.workspace-main {
+		min-width: 0;
+	}
+	.workspace-evidence {
+		margin-top: 16px;
+	}
+	.workspace-evidence :global(.evidence-drawer) {
+		margin: 0;
 	}
 	.workspace-content {
 		min-width: 0;
@@ -239,7 +253,7 @@
 		position: static;
 		justify-self: end;
 	}
-	.collapsed .workspace-content {
+	.collapsed .workspace-main {
 		grid-row: 2;
 	}
 	.collapsed .tool-switcher {

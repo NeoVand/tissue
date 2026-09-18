@@ -21,6 +21,8 @@
 		complete,
 		blocked,
 		canStart,
+		startLabel = 'Generate live',
+		availability = '',
 		pace,
 		limit,
 		temperature,
@@ -55,6 +57,8 @@
 		complete: boolean;
 		blocked: boolean;
 		canStart: boolean;
+		startLabel?: string;
+		availability?: string;
 		pace: number;
 		limit: number;
 		temperature: number;
@@ -74,9 +78,7 @@
 	} = $props();
 	let playing = $derived(running || replaying);
 	let primaryLabel = $derived(
-		playing
-			? `${paused ? 'Resume' : 'Pause'} ${replaying ? 'replay' : 'generation'}`
-			: 'Generate live'
+		playing ? `${paused ? 'Resume' : 'Pause'} ${replaying ? 'replay' : 'generation'}` : startLabel
 	);
 	let state = $derived(
 		playing
@@ -153,6 +155,9 @@
 			><Icon name={playing && !paused ? 'pause' : 'play'} size={12} />{primaryLabel}</button
 		>
 	</div>
+	{#if availability && !playing}<p class="generation-availability" role="status">
+			{availability}
+		</p>{/if}
 	<details class="playback-settings" open={frames.length > 0 || playing}>
 		<summary>Playback controls <span>Layer stepping & speed</span></summary>
 		<div class="playback-controls">
@@ -283,6 +288,12 @@
 </section>
 
 <style>
+	.generation-availability {
+		margin: 10px 0 0;
+		font-size: 13px;
+		line-height: 1.6;
+		color: var(--muted);
+	}
 	.live-panel {
 		border-top: 1px solid var(--line);
 		border-bottom: 1px solid var(--line);
