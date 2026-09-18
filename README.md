@@ -58,7 +58,9 @@ Its final 3D map retains only **6.12%** of audited six-neighbor memberships and 
 
 Earlier controlled studies also keep their less favorable findings: activation neighborhoods were strongly confounded by layer; a repair pilot **did not favor functional neighborhoods**; and paired-query neighborhoods transferred above a matched random baseline but scored below full-effect neighborhoods in both tested seeds. [Fingerprint comparison](docs/fingerprint-comparison.md) · [Paired-query results](docs/query-shifts-results.md) · [Repair evidence](static/experiments/README.md)
 
-These are working instruments and bounded experiments, not a claim of a newly established interpretability method. The next useful test is whether neighborhoods predict held-out intervention effects under matched prompts and appropriate controls.
+These are working instruments and bounded experiments, not a claim of a newly established interpretability method.
+
+**Next proposed study: [how grammar develops](docs/grammar-circuits-plan.md).** Follow subject–verb agreement across checkpoints, distinguish attention routing from output contributions, and test candidate mechanisms with position-specific interventions. The plan also promotes training curves, samples, and evidence into primary workspace views. This is planned work; no grammar circuit has been established in Tissue yet.
 
 ## Run locally
 

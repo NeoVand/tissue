@@ -11,6 +11,29 @@ export interface NotebookEntry {
 /** Curated research record. Measurements live alongside this in exported runs. */
 export const notebook: NotebookEntry[] = [
 	{
+		id: '025',
+		date: '2026-09-18',
+		kind: 'hypothesis',
+		title: 'Trace how grammar becomes useful computation.',
+		text: 'The next proposed study follows subject–verb agreement through saved training checkpoints. It separates representing subject number, routing information through attention, and using it in the output. The plan brings training, samples and evidence into primary workspace views, then adds faithful attention capture, position-specific patches and tested circuit paths. Four local checkpoints passed byte-count and SHA-256 verification; no grammar evaluation has been run yet.',
+		lesson:
+			'Grammar circuits across training already have a research literature. Start with a controlled replication and held-out sentence families. Attention patterns, readable probes and direct output contributions are distinct from intervention effects; a beautiful graph cannot establish a mechanism. The first result may be that this model has not learned the chosen dependency.',
+		links: [
+			{
+				title: 'Grammar circuits: research and implementation plan',
+				href: 'https://github.com/NeoVand/tissue/blob/main/docs/grammar-circuits-plan.md'
+			},
+			{
+				title: 'Anthropic: tracing attention computation',
+				href: 'https://transformer-circuits.pub/2025/attention-qk/index.html'
+			},
+			{
+				title: 'Circuit analyses across training and scale',
+				href: 'https://arxiv.org/abs/2407.10827'
+			}
+		]
+	},
+	{
 		id: '024',
 		date: '2026-09-18',
 		kind: 'decision',
